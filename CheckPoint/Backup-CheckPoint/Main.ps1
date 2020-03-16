@@ -597,12 +597,12 @@ function WaitForCheckPointToExportSnapshot
         }
     }
     while( (-not $retval.TimedOut) -and (-not $retval.HaveExportedFile) -and (-not $retval.ExceededMaximumFailures) )
-    
+
     if($retval.HaveExportedFile)
     {
         [Log]::Info("Export of snapshot {0} complete in {1}." -f @($snapshotName, $retval.Elapsed.ToString()))
     }
-    
+
     return $retval
 }
 
@@ -1059,11 +1059,11 @@ function PurgeBackedUpCheckPointSnapshots
         [Parameter(Mandatory=$true,Position=1)]
         [String]
         $deviceName,
-        
+
         [Parameter(Mandatory=$true,Position=1)]
         [String]
         $destinationFolder,
-        
+
         [Parameter(Mandatory=$true,Position=2)]
         [Int32]
         $savedSnapshotsBackups
@@ -1075,7 +1075,7 @@ function PurgeBackedUpCheckPointSnapshots
     if (-not [String]::IsNullOrEmpty($deviceName))
     {
         if(-not [String]::IsNullOrEmpty($destinationFolder))
-        {    
+        {
             if (Test-Path -LiteralPath $destinationFolder)
             {
                 $snapshotsToPurge = @(Get-ChildItem -Path $destinationFolder -Filter ("{0}*.tar" -f @($deviceName)) | Sort-Object -Descending LastWriteTime | Select-Object -Skip $savedSnapshotsBackups)
@@ -1098,7 +1098,7 @@ function PurgeBackedUpCheckPointSnapshots
             }
         }
         else
-        {        
+        {
             [Log]::Warning("Missing destination folder name in {0}." -f @($MyInvocation.MyCommand))
         }
     }
@@ -1186,7 +1186,7 @@ function BackupUserDefFW1
                     else
                     {
                         [Log]::Error("Missing destination folder in {0}." -f @($MyInvocation.MyCommand))
-                    }                
+                    }
                 }
                 elseif($linesWithFileName.Length -gt 1)
                 {
@@ -1195,12 +1195,12 @@ function BackupUserDefFW1
                 else
                 {
                     [Log]::Warning("No files found matching {0}." -f @($Global:userDefFW1Path))
-                }            
+                }
             }
             else
             {
                 [Log]::Warning("No files found matching {0}." -f @($Global:userDefFW1Path))
-            }            
+            }
         }
         else
         {
@@ -1294,14 +1294,14 @@ function Main
         if($canSSH)
         {
             [Log]::Info("Successfully executed test 'ls -lA'.")
-            
+
             <#
                 Changed the script to use /var/log/tmp as the working directory vs /home/Manager in-lieu of disk space availability.
 
                 LEGACY-BOIMGMT:
                     [Expert@legacy-boimgmt:0]# df -h /home/Manager
                     Filesystem                          Size  Used Avail Use% Mounted on
-                    /dev/mapper/vg_splat-lv_current     50G   27G   21G  58% /                
+                    /dev/mapper/vg_splat-lv_current     50G   27G   21G  58% /
 
                     [Expert@legacy-boimgmt:0]# df -h /var/log/tmp
                     Filesystem                          Size  Used Avail Use% Mounted on
@@ -1354,7 +1354,7 @@ function Main
                                 {
                                     # Nothing, all's well that ends well.
                                 }
-                                
+
                                 if($backupUserDefFW1)
                                 {
                                     [Log]::Info("Backing up {0}." -f @($Global:userDefFW1Path))

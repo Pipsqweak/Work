@@ -10,7 +10,7 @@
             "request": "launch",
             "script": "C:\\Users\\kbriney\\KLB\\PEI-IT-Ops\\Permissions\\Scanner.ps1",
             "args": [
-                "-jsonArgsFile 'scanner.json'"
+                "-jsonArgsFile 'C:\\Users\\kbriney\\KLB\\PEI-IT-OPS\\Permissions\\Scanner.json'"
             ],
             "cwd": "${workspaceFolder}"
         },
@@ -33,7 +33,7 @@
                 "-scriptAppPath 'C:\\Users\\kbriney\\KLB\\PEI-IT-Ops\\CheckPoint\\Backup-CheckPoint' -jsonArgsFile boimgmt"
             ],
             "cwd": "${workspaceFolder}"
-        },        
+        },
         {
             "name": "Launch Backup-CheckPoint TestScript",
             "type": "PowerShell",
