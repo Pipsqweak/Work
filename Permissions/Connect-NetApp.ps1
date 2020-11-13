@@ -43,11 +43,11 @@
             # If credentials for the system were found, use them...
             if($c.Length -eq 1)
             {
-                $b = & $connector -Name $name -Credential $c[0].Credential
+                $b = & $connector -Name $name -Credential $c[0].Credential -Transient
             }
-            elseif($nccreds.Length -gt 0) # No credentials found for the systemr.  If there are any NC credentials, try to use the first 1.
+            elseif($nccreds.Length -gt 0) # No credentials found for the system.  If there are any NC credentials, try to use the first 1.
             {
-                $b = & $connector -Name $name -Credential $nccreds[0].Credential
+                $b = & $connector -Name $name -Credential $nccreds[0].Credential -Transient
             }
             else # Hrm... no NC credentials, guess I prompt the user...
             {

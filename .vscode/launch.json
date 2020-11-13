@@ -35,15 +35,6 @@
             "cwd": "${workspaceFolder}"
         },
         {
-            "name": "Launch Backup-CheckPoint TestScript",
-            "type": "PowerShell",
-            "request": "launch",
-            "script": "C:\\Users\\kbriney\\KLB\\PEI-IT-Ops\\CheckPoint\\Backup-CheckPoint\\t1.ps1",
-            "args": [
-            ],
-            "cwd": "${workspaceFolder}"
-        },
-        {
             "name": "PowerShell Launch Current File",
             "type": "PowerShell",
             "request": "launch",

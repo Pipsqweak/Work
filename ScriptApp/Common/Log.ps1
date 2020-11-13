@@ -8,7 +8,7 @@
 enum LogLevel { ALERT; ERROR; WARNING; INFO; DEBUG; DEBUG1; DEBUG2; DEBUG3; DEBUG4; DEBUG5; DEBUG6; DEBUG7; DEBUG8; DEBUG9; TRACE }
 
 $found = $false
-try { $found = ($null -ne [ClassT1]) } catch { }
+try { $found = ($null -ne [Log]) } catch { }
 
 if(-not $found)
 {
@@ -257,7 +257,7 @@ if(-not $found)
         hidden static [Boolean] $_stackDumped = $false
 
         <#
-            Class constructor.  Created the log buffers.
+            Class constructor.  Create the log buffers.
         #>
         Log()
         {

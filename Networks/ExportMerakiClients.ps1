@@ -62,7 +62,9 @@ if(-not [String]::IsNullOrEmpty($apiKey))
                                     $startingAfter = $networkClients[$clientsPerPage - 1].id
                                 }
 
-                                $networkClientsURI = "https://api.meraki.com/api/v0/networks/{0}/clients?timespan=2678400&perPage={1}&startingAfter={2}" -f @($networks[$n].id, $clientsPerPage,$startingAfter)
+                                $timeSpan = 2678400   # 31 days = max
+                                $timeSpan = 3600      # 1 hour
+                                $networkClientsURI = "https://api.meraki.com/api/v0/networks/{0}/clients?timespan={1}&perPage={2}&startingAfter={3}" -f @($networks[$n].id, $timeSpan, $clientsPerPage,$startingAfter)
                           
                                 try
                                 {

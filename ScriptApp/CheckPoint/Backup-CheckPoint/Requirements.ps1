@@ -11,17 +11,17 @@ $requirements += @{
     Description = "User name used to connect to <deviceName>."
 }
 
-$requirements += @{                                                                                                     
-    RequirementType = "variable";                                                                                       
-    VariableName = "destinationFolder";                                                                                           
-    Description = "Path to folder where the exported snapshot image will be stored."                                                                   
-}                                                                                                                       
+$requirements += @{
+    RequirementType = "variable";
+    VariableName = "destinationFolder";
+    Description = "Path to folder where the exported snapshot image will be stored."
+}
 
-$requirements += @{                                                                                                     
-    RequirementType = "path";                                                                                           
-    Create = $true;                                                                                                     
-    FromVariable = "destinationFolder";                                                                                           
-    Description = "Path to folder where the exported snapshot image will be stored."                                                                   
+$requirements += @{
+    RequirementType = "path";
+    Create = $true;
+    FromVariable = "destinationFolder";
+    Description = "Path to folder where the exported snapshot image will be stored."
 }
 
 $requirements += @{
@@ -76,4 +76,11 @@ $requirements += @{
     VariableName = "backupUserDefFW1";
     Description = "Backup user defined VPN options definition file."
     DefaultValue = $true
+}
+
+$requirements += @{
+    RequirementType = "type";
+    TypeName = "CommandResult";
+    ScriptPath = "CommandResultClass.ps1";
+    Description = "Defines the [CommandResult] class."
 }

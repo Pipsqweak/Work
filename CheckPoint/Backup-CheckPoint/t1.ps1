@@ -1,1 +1,0 @@
-$cmdResult = ExecuteSSH "ls -lA"

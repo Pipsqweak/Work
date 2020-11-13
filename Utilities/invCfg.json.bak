@@ -1,0 +1,85 @@
+{
+    "Filers":  {
+                   "CDOT":  {
+                                "UserName":  "POWERENG\\SRVC-AllStorage-RO",
+                                "Password":  "01000000d08c9ddf0115d1118c7a00c04fc297eb010000007418efdf5ee3b14383ac1111f5aa0ad80000000002000000000003660000c0000000100000008e6975cc7da2544aa53f8568ac3987e10000000004800000a000000010000000c8e91267b3b84ffd6d3b1ee3f0b76a3f2800000055a042c7bab8fef01ed50629619e377e6445d19673054fbcb779144bf09b2331647c54a14be7b34d14000000ecc5583af7c4f26acf2ce4545c61b2392155b2bc",
+                                "Controllers":  [
+                                                    "adc-cdotclst01.powereng.com",
+                                                    "apl-cdotclst01.powereng.com",
+                                                    "ast-cdotclst01.powereng.com",
+                                                    "aus-cdotclst01.powereng.com",
+                                                    "bdc-cdotclst01.powereng.com",
+                                                    "bdcd-cdotclst01.powereng.com",
+                                                    "bil-cdotclst01.powereng.com",
+                                                    "boi-cdotclst01.powereng.com",
+                                                    "cdc-cdotclst01.powereng.com",
+                                                    "clk-cdotclst01.powereng.com",
+                                                    "den-cdotclst01.powereng.com",
+                                                    "fmc-cdotclst01.powereng.com",
+                                                    "fre-cdotclst01.powereng.com",
+                                                    "hou-cdotclst01.powereng.com",
+                                                    "ito-cdotclst01.powereng.com",
+                                                    "lax-cdotclst01.powereng.com",
+                                                    "min-cdotclst01.powereng.com",
+                                                    "opk-cdotclst01.powereng.com",
+                                                    "phx-cdotclst01.powereng.com",
+                                                    "plv-cdotclst01.powereng.com",
+                                                    "ptl-cdotclst01.powereng.com",
+                                                    "san-cdotclst01.powereng.com",
+                                                    "slc-cdotclst01.powereng.com"
+                                                ]
+                            },
+                   "SM":  {
+                              "UserName":  "POWERENG\\SRVC-AllStorage-RO",
+                              "Password":  "01000000d08c9ddf0115d1118c7a00c04fc297eb010000007418efdf5ee3b14383ac1111f5aa0ad80000000002000000000003660000c0000000100000004799f2eb3b5d522dc99e033c599b4bb10000000004800000a000000010000000a70b9d9141c16d119f7e5e51222ff0a8280000001d548bca7f7a55750543c1f5d4c678e11c287f66f00f16e5d9368cc922733465adca251dc5e5bd00140000003b825f7666ea9614b30825f293146884f6a31b0b",
+                              "Nodes":  [
+                                            "arbprdnas1.powereng.com",
+                                            "atlprdnas2.powereng.com",
+                                            "atlprdnas3.powereng.com",
+                                            "bosprdnas1.powereng.com",
+                                            "cinprdnas1.powereng.com",
+                                            "edpprdnas1.powereng.com",
+                                            "ftwprdnas1.powereng.com",
+                                            "hamprdnas1.powereng.com",
+                                            "hlyprdnas2.powereng.com",
+                                            "hlyprdnas3.powereng.com",
+                                            "msnnas1.powereng.com",
+                                            "mtlprdnas1.powereng.com",
+                                            "orasan1.powereng.com",
+                                            "orasan2.powereng.com",
+                                            "orlprdnas1.powereng.com",
+                                            "orlprdnas2.powereng.com",
+                                            "stlprdnas2.powereng.com",
+                                            "stlprdnas3.powereng.com",
+                                            "syrnas1.powereng.com",
+                                            "tdcprdnas1.powereng.com",
+                                            "vanprdnas1.powereng.com"
+                                        ]
+                          }
+               },
+    "UCS":  {
+                "UserName":  "ucs-powereng.com\\SRVC-VIRT-INV",
+                "Password":  "01000000d08c9ddf0115d1118c7a00c04fc297eb010000007418efdf5ee3b14383ac1111f5aa0ad80000000002000000000003660000c000000010000000c538d3f04c23c8e9508371bb058c2c610000000004800000a0000000100000007c9630e0ee79ec201fcac97edf453c7d28000000d8fdf681aedc2a9b1eca45e57f0e39b3d07b365d27245883e03aefc3f1af72cdcc3a3de206c3bd0514000000083366d6febc66493675017cad3bd609580962a3",
+                "Managers":  [
+                                 "cdc-ucs01.powereng.com",
+                                 "ddc-ucs01.powereng.com"
+                             ]
+            },
+    "vCenter":  {
+                    "Server":  "tdcprdvctr1.powereng.com",
+                    "UserName":  "POWERENG\\SRVCvCenterReadAll",
+                    "Password":  "01000000d08c9ddf0115d1118c7a00c04fc297eb010000007418efdf5ee3b14383ac1111f5aa0ad80000000002000000000003660000c000000010000000b5e6db7aaf81707ca10c73e44d7eef3a0000000004800000a00000001000000043a788d7f3b7efbdaf0f8e4a63abeef4200000007a8a2084d6d67d9f02d12434e6c2224f263013631af3bbaa432a62723ca56b0214000000aa1b17e11f64001c69c0e7fde405c98a3bad2a57"
+                },
+    "xClarity":  {
+                     "Server":  "xclarity.powereng.com",
+                     "UserName":  "SRVC-VIRT-INV",
+                     "Password":  "01000000d08c9ddf0115d1118c7a00c04fc297eb010000007418efdf5ee3b14383ac1111f5aa0ad80000000002000000000003660000c0000000100000009a168276ba8d03f3e1dfc472f4ba71bd0000000004800000a00000001000000000421ce29c12d457aaca36a6e800991b28000000a43c5d451c7505f51d4bd5c2030ec0b7db3eaca6780b357feba428c99682179ece48af57d48258f1140000001f4e51c862aea623b9d78401e02fa2c0c296e34d"
+                 },
+    "IPAMDB":  {
+                   "Server":  "ddc-ipam01.powereng.com",
+                   "Port":  3306,
+                   "Database":  "gestioip",
+                   "UserName":  "gestioip",
+                   "Password":  "01000000d08c9ddf0115d1118c7a00c04fc297eb010000007418efdf5ee3b14383ac1111f5aa0ad80000000002000000000003660000c0000000100000003270a0211674f09d701048f038505a9c0000000004800000a0000000100000008f8b55d93900fb18924dacbdf1abe321180000006588b413b2d2272b8d947144552635322052a1efb0e6f34f14000000d630d10db349ca1ebc274a839b774870b3a522c5"
+               }
+}

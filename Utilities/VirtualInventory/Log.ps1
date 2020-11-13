@@ -7,10 +7,10 @@
 # Define various logging levels.
 enum LogLevel { ALERT; ERROR; WARNING; INFO; DEBUG; DEBUG1; DEBUG2; DEBUG3; DEBUG4; DEBUG5; DEBUG6; DEBUG7; DEBUG8; DEBUG9; TRACE }
 
-$found = $false
-try { $found = ($null -ne [ClassT1]) } catch { }
+$Global:LoggerClassLoaded = $false
+try { $Global:LoggerClassLoaded = ($null -ne [Log]) } catch { }
 
-if(-not $found)
+if(-not $Global:LoggerClassLoaded)
 {
     <#
         Class:
@@ -257,7 +257,7 @@ if(-not $found)
         hidden static [Boolean] $_stackDumped = $false
 
         <#
-            Class constructor.  Created the log buffers.
+            Class constructor.  Create the log buffers.
         #>
         Log()
         {
@@ -350,7 +350,7 @@ if(-not $found)
 
             NOTE:  Calls to the outputters can be made, but until Init is called, nothing will be logged to storage.
 
-            $logRootPath  : [String]   : The folder where logs will be saved too.  If this path does not exist, it will be created.
+            $logRootPath  : [String]   : The folder where logs will be saved.  If this path does not exist, it will be created.
             $logName      : [String]   : This will be added to a formatted date/time stamp to create the actual log file stored under $logRootPath
             $maxLogAge    : [Int32]    : The maximum age (in days) logs will be kept in $logRootPath where $logName appears in the log file name.  Older files are purged.
             $lineCache    : [Int32]    : The number of lines of buffering to use before saving the buffer to disk
@@ -363,7 +363,10 @@ if(-not $found)
                 if(-not [String]::IsNullOrEmpty($logRootPath))
                 {
                     # Combine $logRootPath and $logName to get $logPath
-                    $logPath = "{0}\{1}" -f @($logRootPath, $logName)
+
+                    $logPath = $logRootPath
+                    #  -- The following adds an extra folder to the mix...
+                    # $logPath = "{0}\{1}" -f @($logRootPath, $logName)
 
                     # Make sure the complete path is available for logging.
                     New-Item -Path $logPath -ItemType Directory -Force | Out-Null
@@ -644,6 +647,9 @@ if(-not $found)
             }
         }
     }
+
+    # Once again, check to make sure the [log] class was defined.
+    try { $Global:LoggerClassLoaded = ($null -ne [Log]) } catch { }
 }
 else
 {

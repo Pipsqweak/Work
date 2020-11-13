@@ -1,0 +1,76 @@
+[
+    {
+        "DAServers":  [
+                          "BOIZ-DA01",
+                          "BOIZ-DA02"
+                      ],
+        "NetScaler":  null,
+        "Location":  "Boise"
+    },
+    {
+        "DAServers":  [
+                          "OPKZ-DA01",
+                          "OPKZ-DA02"
+                      ],
+        "NetScaler":  null,
+        "Location":  "Overland Park"
+    },
+    {
+        "DAServers":  [
+                          "FMCZ-DA01",
+                          "FMCZ-DA02"
+                      ],
+        "NetScaler":  null,
+        "Location":  "Fort Mill"
+    },
+    {
+        "DAServers":  [
+                          "ASTZ-DA01",
+                          "ASTZ-DA02"
+                      ],
+        "NetScaler":  null,
+        "Location":  "Austin"
+    },
+    {
+        "DAServers":  [
+                          "ORAZ-DA01",
+                          "ORAZ-DA02"
+                      ],
+        "NetScaler":  null,
+        "Location":  "Oradell"
+    },
+    {
+        "DAServers":  [
+                          "DDCZ-DA01",
+                          "DDCZ-DA02"
+                      ],
+        "NetScaler":  {
+                          "Devices":  [
+                                          "10.245.69.20"
+                                      ],
+                          "Gateways":  [
+                                           "connectwest.powereng.com_sslvpn",
+                                           "citrix-test.powereng.com_ssl",
+                                           "connectwest-poc.powereng.com_sslvpn"
+                                       ]
+                      },
+        "Location":  "Denver"
+    },
+    {
+        "DAServers":  [
+                          "BDCZ-DA01",
+                          "BDCZ-DA02"
+                      ],
+        "NetScaler":  {
+                          "Devices":  [
+                                          "10.245.69.20"
+                                      ],
+                          "Gateways":  [
+                                           "connectwest.powereng.com_sslvpn",
+                                           "citrix-test.powereng.com_ssl",
+                                           "connectwest-poc.powereng.com_sslvpn"
+                                       ]
+                      },
+        "Location":  "Chicago"
+    }
+]

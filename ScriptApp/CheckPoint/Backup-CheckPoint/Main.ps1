@@ -16,19 +16,19 @@ function ExecuteSecureCommand
         $extraCmdParams
     )
 
-    $cmdResult = "" | Select-Object Successful, ExitCode, Command, Output, ExceededMaximumFailures
-
     # Return value
-    $cmdResult.Output = [String]::Empty
-    $cmdResult.ExitCode = -1
-    $cmdResult.ExceededMaximumFailures = $false
-    $cmdResult.Successful = $false
+    $cmdResult = [CommandResult]::new()
 
-    if(-not [String]::IsNullOrEmpty($cmd))
+    # Was a command provided?
+    if (-not [String]::IsNullOrEmpty($cmd))
     {
+        # TRUE
+
         # Make sure $cmd is only "scp" or "ssh"
-        if($cmd -match "^s(cp|sh)$")
+        if ($cmd -match "^s(cp|sh)$")
         {
+            # TRUE
+
             # Create $cmdParams using a standard list of parameters, combined with $extraCmdParams
             $cmdParams = @(
                 "-o",
@@ -40,23 +40,33 @@ function ExecuteSecureCommand
             $firstExtraParam = 0
 
             # If $cmd is "scp", the next parameter needs to be the secure login combined with the sourceFileName
-            if($cmd -eq "scp")
+            if ($cmd -eq "scp")
             {
+                # TRUE
+
                 $failedExitCode
-                if($extraCmdParams.Length -gt 0)
+
+                # Are there extra cmd parameters?
+                if ($extraCmdParams.Length -gt 0)
                 {
+                    # TRUE
+
                     $cmdParams += "{0}:{1}" -f @($Global:secureLogon, $extraCmdParams[$firstExtraParam])
 
                     # Bump $firstExtraParam by 1 since we just used [0]...
                     $firstExtraParam++
                 }
-                else
+                else # NOT ($extraCmdParams.Length -gt 0)
                 {
+                    # FALSE
+
                     [Log]::Error("Missing arguments for {0} in {1}" -f @($cmd, $MyInvocation.MyCommand))
                 }
             }
-            else
+            else # NOT ($cmd -eq "scp")
             {
+                # FALSE
+
                 $cmdParams += $Global:secureLogon
             }
 
@@ -87,22 +97,32 @@ function ExecuteSecureCommand
                 #   ssh exits with the exit status of the remote command or with 255 if an error occurred.
                 # https://man.openbsd.org/scp.1
                 #   The scp utility exits 0 on success, and >0 if an error occurs.
-                if((($cmd -eq "ssh") -and ($cmdResult.ExitCode -ne 255)) -or (($cmd -eq "scp") -and ($cmdResult.ExitCode -eq 0)))
+                if ((($cmd -eq "ssh") -and ($cmdResult.ExitCode -ne 255)) -or (($cmd -eq "scp") -and ($cmdResult.ExitCode -eq 0)))
                 {
+                    # TRUE
+
                     $cmdResult.Successful = $true
                     # Nothing, all is well.
                 }
-                else
+                else # NOT ((($cmd -eq "ssh") -and ($cmdResult.ExitCode -ne 255)) -or (($cmd -eq "scp") -and ($cmdResult.ExitCode -eq 0)))
                 {
+                    # FALSE
+
                     $failureCount++
                     [Log]::Warning("Failed to execute [{0} {1}] {2} time(s)." -f @($cmd, $cmdResult.Command, $failureCount))
                     $cmdResult.ExceededMaximumFailures = ($failureCount -ge $Global:maxFailures)
-                    if($cmdResult.ExceededMaximumFailures)
+
+                    # Did we exceed the maximum allowable failures?
+                    if ($cmdResult.ExceededMaximumFailures)
                     {
+                        # TRUE
+
                         [Log]::Error("Reached maximum failures.")
                     }
-                    else
+                    else # NOT ($cmdResult.ExceededMaximumFailures)
                     {
+                        # FALSE
+
                         # Pause for a bit...
                         Start-Sleep -Milliseconds 250
                     }
@@ -110,14 +130,18 @@ function ExecuteSecureCommand
             }
             while ( ($cmdResult.ExitCode -ne 0) -and (-not $cmdResult.ExceededMaximumFailures) )
         }
-        else
+        else # NOT ($cmd -match "^s(cp|sh)$")
         {
+            # FALSE
+
             $cmdResult.ExitCode = -2
             [Log]::Error("Only ssh and scp are valid command to {0}" -f @($MyInvocation.MyCommand))
         }
     }
-    else
+    else # NOT (-not [String]::IsNullOrEmpty($cmd))
     {
+        # FALSE
+
         $cmdResult.ExitCode = -1
         [Log]::Error("Missing command in {0}" -f @($MyInvocation.MyCommand))
     }
@@ -1069,6 +1093,7 @@ function PurgeBackedUpCheckPointSnapshots
         $savedSnapshotsBackups
     )
 
+
     # Unless an error occurs, assume snapshots were successfully cleaned
     $snapshotBackupsPurged = $true
 
@@ -1090,6 +1115,7 @@ function PurgeBackedUpCheckPointSnapshots
                         $snapshotBackupsPurged = $false
                     }
 
+                    $a++
                 }
             }
             else   # NOT (Test-Path -LiteralPath $destinationFolder)
@@ -1112,7 +1138,7 @@ function PurgeBackedUpCheckPointSnapshots
 
 function BackupUserDefFW1
 {
-    # Check to see if there is a file named: $Global:userDefFW1Path
+    # Check to see if there is a file named: "$Global:userDefFW1Path"
     $userDefFW1PathParts = $Global:userDefFW1Path -split '/'
     if($userDefFW1PathParts.Length -gt 1)
     {
@@ -1122,7 +1148,7 @@ function BackupUserDefFW1
         #       for the file.
 
         # folderPath is all but the ending filename
-        $folderPath = [String]::Join("/",$userDefFW1PathParts,0,$userDefFW1PathParts.Length-1)
+        $folderPath = [String]::Join("/", $userDefFW1PathParts, 0, $userDefFW1PathParts.Length - 1)
 
         # Now for the filename...
         $fileName = $userDefFW1PathParts[$userDefFW1PathParts.Length - 1]
@@ -1281,22 +1307,28 @@ function Usage()
 
 function Main
 {
+    # $userName and $deviceName are set
     $Global:secureLogon = "{0}@{1}" -f @($userName,$deviceName)
 
     # See if SSH and SCP are available
     $haveSSHSCP = (@(Get-Command -Name @("ssh","scp")).Length -eq 2)
-    if($haveSSHSCP)
+    if ($haveSSHSCP)
     {
+        # TRUE
+
         [Log]::Info("SSH and SCP are available.")
+
         # Verify I can use SSH...
         $cmdResult = ExecuteSSH "ls -lA"
         $canSSH = ($cmdResult.ExitCode -eq 0)
-        if($canSSH)
+        if ($canSSH)
         {
+            # TRUE
+
             [Log]::Info("Successfully executed test 'ls -lA'.")
 
             <#
-                Changed the script to use /var/log/tmp as the working directory vs /home/Manager in-lieu of disk space availability.
+                Changed the script to use /var/log/tmp as the working directory vs the user's home directory in-lieu of disk space availability.
 
                 LEGACY-BOIMGMT:
                     [Expert@legacy-boimgmt:0]# df -h /home/Manager
@@ -1307,100 +1339,123 @@ function Main
                     Filesystem                          Size  Used Avail Use% Mounted on
                     /dev/mapper/vg_splat-lv_log         1.6T  782G  714G  53% /var/log
             #>
-#            # Get the user's working directory
-#            $cmdResult = GetWorkingDirectory
 
-#            if($cmdResult.ExitCode -eq 0)
-#            {
-                # $workingDirectory = $cmdResult.Output[0]
-                $workingDirectory = "/var/log/tmp"
-                [Log]::Info("Working directory: {0}" -f @($workingDirectory))
-                # Make sure a working directory was returned.
-                if(-not [String]::IsNullOrEmpty($workingDirectory))
+            $workingDirectory = "/var/log/tmp"
+            [Log]::Info("Working directory: {0}" -f @($workingDirectory))
+
+            # Try to create a new snapshot
+            $newSnapshotName = "{0}_{1}" -f @($deviceName, [DateTime]::Now.ToString("yyyyMMddHHmmss"))
+            $snapShotCreated = CreateCheckPointSnapshot -snapshotName $newSnapshotName
+
+            # Was the snapshot created?
+            if ($snapShotCreated)
+            {
+                # TRUE
+
+                # Try to export the snapshot.
+                $snapShotExported = ExportCheckPointSnapshot -snapshotName $newSnapshotName -workingDirectory $workingDirectory
+
+                # Was the snapshot exported?
+                if ($snapShotExported)
                 {
-                    $newSnapshotName = "{0}_{1}" -f @($deviceName, [DateTime]::Now.ToString("yyyyMMddHHmmss"))
-                    $snapShotCreated = CreateCheckPointSnapshot -snapshotName $newSnapshotName
+                    # TRUE
 
-                    if($snapShotCreated)
+                    # Try to download the snapshot.
+                    $waitTime = [TimeSpan]::FromSeconds($waitTimeInSeconds)
+                    $snapShotDownloaded = DownloadCheckPointSnapshot -snapshotName $newSnapshotName -destinationFolder $destinationFolder -workingDirectory $workingDirectory -waitTime $waitTime -leaveSourceFile:$leaveSourceFile
+
+                    # Was the snapshot downloaded?
+                    if ($snapShotDownloaded)
                     {
-                        $snapShotExported = ExportCheckPointSnapshot -snapshotName $newSnapshotName -workingDirectory $workingDirectory
+                        # TRUE
 
-                        if($snapShotExported)
+                        # Try to remove older snapshots on the device.
+                        [Log]::Info("Snapshot {0} successfully exported and downloaded to {1}." -f @($newSnapshotName, $destinationFolder))
+                        $snapShotsCleaned = CleanCheckPointSnapshots -scriptedSnapshotsOnly:$cleanScriptedSnapshotsOnly
+
+                        # Did something go wrong removing older snapshots removed?
+                        if (-not $snapShotsCleaned)
                         {
-                            $waitTime = [TimeSpan]::FromSeconds($waitTimeInSeconds)
-                            $snapShotDownloaded = DownloadCheckPointSnapshot -snapshotName $newSnapshotName -destinationFolder $destinationFolder -workingDirectory $workingDirectory -waitTime $waitTime -leaveSourceFile:$leaveSourceFile
+                            # TRUE
 
-                            if($snapShotDownloaded)
-                            {
-                                [Log]::Info("Snapshot {0} successfully exported and downloaded to {1}." -f @($newSnapshotName, $destinationFolder))
-                                $snapShotsCleaned = CleanCheckPointSnapshots -scriptedSnapshotsOnly:$cleanScriptedSnapshotsOnly
-
-                                if(-not $snapShotsCleaned)
-                                {
-                                    [Log]::Error("Failed to clean snapshots.  Manually check snapshots.")
-                                }
-                                else
-                                {
-                                    # Nothing, all's well that ends well.
-                                }
-
-                                $snapshotBackupsPurged = PurgeBackedUpCheckPointSnapshots -deviceName $Global:deviceName -destinationFolder $Global:destinationFolder -savedSnapshotsBackups $Global:savedSnapshotsBackups
-
-                                if(-not $snapshotBackupsPurged)
-                                {
-                                    [Log]::Error("Failed to purge old snapshot backups.")
-                                }
-                                else
-                                {
-                                    # Nothing, all's well that ends well.
-                                }
-
-                                if($backupUserDefFW1)
-                                {
-                                    [Log]::Info("Backing up {0}." -f @($Global:userDefFW1Path))
-                                    BackupUserDefFW1
-                                }
-                                else
-                                {
-                                    [Log]::Info("Not backing up {0}." -f @($Global:userDefFW1Path))
-                                }
-                            }
-                            else
-                            {
-                                [Log]::Error("Failed to download snapshot {0}.  Manually check for snapshots." -f @($newSnapshotName))
-                            }
+                            [Log]::Error("Failed to clean snapshots.  Manually check snapshots.")
                         }
-                        else
+                        else # NOT (-not $snapShotsCleaned)
                         {
-                            [Log]::Error("Failed to export new snapshot {0}." -f @($newSnapshotName))
+                            # FALSE
+
+                            # Nothing.
+                        }
+
+                        # Purge old downloaded snapshots.
+                        $snapshotBackupsPurged = PurgeBackedUpCheckPointSnapshots -deviceName $Global:deviceName -destinationFolder $Global:destinationFolder -savedSnapshotsBackups $Global:savedSnapshotsBackups
+
+                        # Did something go wrong purging old, downloaded snapshots?
+                        if (-not $snapshotBackupsPurged)
+                        {
+                            # TRUE
+
+                            [Log]::Error("Failed to purge old snapshot backups.")
+                        }
+                        else # NOT (-not $snapshotBackupsPurged)
+                        {
+                            # FALSE
+
+                            # Nothing.
+                        }
+
+                        # Is the script supposed to backup $FWDIR/conf/user.def.FW1?
+                        if ($backupUserDefFW1)
+                        {
+                            # TRUE
+
+                            # Try to backup $FWDIR/conf/user.def.FW1
+                            #    BackupUserDefFW1 is an autonomous function.  It will log its own warning/errors
+                            [Log]::Info("Backing up {0}." -f @($Global:userDefFW1Path))
+                            BackupUserDefFW1
+                        }
+                        else # NOT ($backupUserDefFW1)
+                        {
+                            # FALSE
+
+                            [Log]::Info("Not backing up {0}." -f @($Global:userDefFW1Path))
                         }
                     }
-                    else
+                    else # NOT ($snapShotDownloaded)
                     {
-                        [Log]::Error("Failed to create snapshot {0}" -f @($newSnapshotName))
+                        # FALSE
+
+                        [Log]::Error("Failed to download snapshot {0}.  Manually check for snapshots." -f @($newSnapshotName))
                     }
                 }
-                else
+                else # NOT ($snapShotExported)
                 {
-                    [Log]::Error("Unable to get working directory for {0}." -f @($Global:secureLogon))
+                    # FALSE
+
+                    [Log]::Error("Failed to export new snapshot {0}." -f @($newSnapshotName))
                 }
-#            }
-#            else
-#            {
-#                # Nothing, already logged a message
-#            }
+            }
+            else # NOT ($snapShotCreated)
+            {
+                # FALSE
+
+                [Log]::Error("Failed to create snapshot {0}" -f @($newSnapshotName))
+            }
         }
-        else
+        else # NOT ($canSSH)
         {
+            # FALSE
+
             [Log]::Error("Unable to connect to {0} using account {1}" -f @($deviceName, $userName))
         }
     }
-    else
+    else # NOT ($haveSSHSCP)
     {
+        # FALSE
+
         [Log]::Error("This script requires both SSH and SCP be install and executable from the command line.")
     }
 }
-
 
 # Function called from ScriptApp.ps1
 function ScriptAppMain()

@@ -1,3 +1,23 @@
+<#
+.SYNOPSIS
+    Short description
+
+.DESCRIPTION
+    Long description
+
+.EXAMPLE
+    PS C:\> <example usage>
+    Explanation of what the example does
+
+.INPUTS
+    Inputs (if any)
+
+.OUTPUTS
+    Output (if any)
+
+.NOTES
+    General notes
+#>
 function HasMember
 {
     [CmdletBinding()]
@@ -309,79 +329,196 @@ function ValidateFileOrPath
     }
 }
 
-function FindJSONArgsFile
+<#
+.SYNOPSIS
+    Search $Global:commonPaths for the specified $filePath.
+
+.DESCRIPTION
+    Searches each of the paths in $Global:commonPaths until $filePath is found, or each path has been checked.
+
+.EXAMPLE
+    PS C:\> FindFile "class.ps1"
+
+    Loop through each path in $Global:commonPaths checking to see if $Global:commonPaths[$a]\class.ps1 exists.
+
+.EXAMPLE
+    PS C:\> FindFile "class" "ps1"
+
+    Loop through each path in $Global:commonPaths checking to see if $Global:commonPaths[$a]\class or $Global:commonPaths[$a]\class.ps1 exists.
+
+.EXAMPLE
+    PS C:\> FindFile "class.ps1" "json"
+
+    Loop through each path in $Global:commonPaths checking to see if $Global:commonPaths[$a]\class.ps1 exists.  Since $filePath includes an extension, the user supplied extension is never used.
+
+.INPUTS
+    $filePath : [String]
+        Name of file to search for.
+
+    $fileExtension : [String]
+        [OPTIONAL] An extension to append to $filePath if $filePath does not include an extension.
+
+.OUTPUTS
+    [String]
+        The path to the file that was located, or [String]::Empty if no match was found.
+
+.NOTES
+    N/A
+#>
+
+function FindFile
 {
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$true,Position=0)]
         [String]
-        $jsonArgsFile
+        $filePath,
+
+        [Parameter(Mandatory=$false,Position=1)]
+        [String]
+        $fileExtension = [String]::Empty
     )
 
-    # If no JSONArgsFile name was provided, see if there is one in scriptAppPath matching $Global:scriptAppName
-    if([String]::IsNullOrEmpty($jsonArgsFile))
-    {
-        $jsonArgsFile = "{0}\{1}.json" -f @($Global:scriptAppPath, $Global:scriptAppName)
-    }
-    else
-    {
-        # Nothing, proceed with locating the file.
-    }
+    # Initialize the return value
+    $locatedFilePath = [String]::Empty
 
-    if(-not [String]::IsNullOrEmpty($jsonArgsFile))
+    # First, check to see if a file exists that is named $filePath
+    if ([System.IO.File]::Exists($filePath))
     {
-        # Test $jsonArgsFile as it was given...
-        if(-not (Test-Path -Path $jsonArgsFile))
+        # TRUE
+
+        $locatedFilePath = $filePath
+    }
+    else # NOT ([System.IO.File]::Exists($filePath))
+    {
+        # FALSE
+
+        # Did the caller include an extension?
+        $haveUserExtension = -not [String]::IsNullOrEmpty($fileExtension)
+        if ($haveUserExtension)
         {
-            # If $jsonArgsFile was not found, see if it has an extension...
-            if([String]::IsNullOrEmpty([System.IO.Path]::GetExtension($jsonArgsFile)))
+            # TRUE
+
+            # Does the extension include a leading '.'?
+            if ($fileExtension.StartsWith("."))
             {
-                # No extension, add one, and test it again...
-                $jsonArgsFile = "{0}.json" -f @($jsonArgsFile)
-                if(-not (Test-Path -Path $jsonArgsFile))
+                # TRUE
+
+                # Remove the leading '.'
+                $fileExtension = $fileExtension.Substring(1, $fileExtension.Length - 1)
+            }
+            else # NOT ($fileExtension.StartsWith("."))
+            {
+                # FALSE
+
+                # Nothing.
+            }
+        }
+        else # NOT ($haveUserExtension)
+        {
+            # FALSE
+
+            # Nothing.
+        }
+
+        # Get the file name in $filePath
+        $fileName = [System.IO.Path]::GetFileName($filePath)
+
+        # Flag if $fileName includes an extension
+        $hasExtension = -not [String]::IsNullOrEmpty([System.IO.Path]::GetExtension($fileName))
+
+        # Check each of the paths in $Global:commonPaths for $filePath and/or $filePath.$fileExtension
+        $a = 0
+        while(([String]::IsNullOrEmpty($locatedFilePath) -and ($a -lt $Global:commonPaths.Count)))
+        {
+            # Construct $testPath from the next $Global:commonPaths and $fileName
+            $testPath = "{0}\{1}" -f @($Global:commonPaths[$a], $fileName)
+
+            # Does $testPath exist?
+            if ([System.IO.File]::Exists($testPath))
+            {
+                # TRUE
+
+                # Capture the existing file path
+                $locatedFilePath = $testPath
+            }
+            else # NOT ([System.IO.File]::Exists($testPath))
+            {
+                # FALSE
+
+                # Does $fileName include an extension?
+                if (-not $hasExtension)
                 {
-                    # Still no jsonArgsFile...
+                    # TRUE
 
-                    # Append $jsonArgsFile file name to $scriptAppPath ...
-                    $parts = @($jsonArgsFile.Split([System.IO.Path]::DirectorySeparatorChar,[System.StringSplitOptions]::RemoveEmptyEntries))
+                    # $fileName did not include an extension...
 
-                    $jsonArgsFile = "{0}\{1}" -f @($Global:scriptAppPath, $parts[$parts.Length - 1])
+                    # Did the caller include an extension?
+                    if ($haveUserExtension)
+                    {
+                        # TRUE
 
-                    # This is the final try... we'll test it below and if it fails, so be it...
+                        # Add the user supplied extension to the path.
+                        $testPath = ("{0}\{1}.{2}" -f @($Global:commonPaths[$a], $fileName, $fileExtension))
+
+                        if ([System.IO.File]::Exists($testPath))
+                        {
+                            # TRUE
+
+                            # Capture the existing file path
+                            $locatedFilePath = $testPath
+                        }
+                        else # NOT ([System.IO.File]::Exists($testPath))
+                        {
+                            # FALSE
+
+                            # Nothing.
+                        }
+                    }
+                    else # NOT ($haveUserExtension)
+                    {
+                        # FALSE
+
+                        # Nothing.
+                    }
+                }
+                else # NOT (-not $hasExtension)
+                {
+                    # FALSE
+
+                    # Nothing.
                 }
             }
-            else
-            {
-                # There was an extension...so...
 
-                # Append $jsonArgsFile file name to $scriptAppPath ...
-                $parts = @($jsonArgsFile.Split([System.IO.Path]::DirectorySeparatorChar,[System.StringSplitOptions]::RemoveEmptyEntries))
-
-                $jsonArgsFile = "{0}\{1}" -f @($scriptAppPath, $parts[$parts.Length - 1])
-
-                # This is the final try... we'll test it below and if it fails, so be it...
-            }
-        }
-        else
-        {
-            # Nothing, found json args file...
-        }
-
-        # This is the final test for $jsonArgsFile.
-        if(-not (Test-Path -Path $jsonArgsFile -PathType Leaf))
-        {
-            # Set $jsonArgsFile to empty so the caller knows there is an error
-            $jsonArgsFile = [String]::Empty
+            $a++
         }
     }
-    else
-    {
-        $Global:startLog.Add("`t`tJSON arguments file not specified and unable to locate one.")
-    }
 
-    return $jsonArgsFile
+    return $locatedFilePath
 }
 
+<#
+.SYNOPSIS
+    Converts JSON data into global variables.
+
+.DESCRIPTION
+    Loads JSON data from file and sets $Global:<attribute_name> = <value>.
+
+.EXAMPLE
+    PS C:\> ProcessJSONArgsFile $requirement
+
+    Uses $requirement.FileName as the name of a JSON formatted data file.  Each attribute/value pair in the file is converted to a global variable $Global:<attribute> = <value>.
+
+.INPUTS
+    $requirement : [Object]
+        An object containing at least a "FileName" member used as the name of a JSON file to load and parse.
+
+.OUTPUTS
+    Nothing indirectly, however, $Global:startLog is updated with relevant messages.
+
+.NOTES
+    N/A
+#>
 function ProcessJSONArgsFile
 {
     [CmdletBinding()]
@@ -391,20 +528,27 @@ function ProcessJSONArgsFile
         $requirement
     )
 
-    # For the ScriptApp Framework, there must always be a JSON Args File, even if it is empty.
-    #   TestRequirementAttribute called with -optional since FindJSONArgsFile will look for a
-    #   file if no FileName was specified.  Though I'd recommend always providing one.
-    if(TestRequirementAttribute $requirement "FileName" -logMember -optional)
+    # For the ScriptApp Framework, there must always be a JSON Args File, even if it is empty.  Does $requirement have a member named "FileName"?
+    if (TestRequirementAttribute $requirement "FileName" -logMember)
     {
-        $jsonArgsFile = FindJSONArgsFile $requirement.FileName
+        # TRUE
 
-        # If $jsonArgsFile is empty after calling FindJSONArgsFile, then I was unable to locate it
-        if(-not [String]::IsNullOrEmpty($jsonArgsFile))
+        # Can I find a file named $requirement.FileName?
+        $jsonArgsFile = FindFile $requirement.FileName "json"
+
+        # If $jsonArgsFile is empty after calling FindFile, then I was unable to locate it
+        if (-not [String]::IsNullOrEmpty($jsonArgsFile))
         {
+            # TRUE
+
             # Read the contents of the file
             $rawJson = Get-Content -Path $jsonArgsFile -Raw
-            if(-not [String]::IsNullOrEmpty($rawJson))
+
+            # Did I read anything from $jsonArgsFile?
+            if (-not [String]::IsNullOrEmpty($rawJson))
             {
+                # TRUE
+
                 $json = $null
                 try
                 {
@@ -416,56 +560,93 @@ function ProcessJSONArgsFile
                     $requirement.IsValid = $false
                 }
 
-                if($requirement.IsValid)
+                # Is $requirement still valid?
+                if ($requirement.IsValid)
                 {
-                    $jsonArgNames = @($json | Get-Member -MemberType NoteProperty -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name -ErrorAction SilentlyContinue)
-                    if($jsonArgNames.Length -gt 0)
+                    # TRUE
+
+                    # Extract the attribute names from $json
+                    $attributeNames = @($json | Get-Member -MemberType NoteProperty -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name -ErrorAction SilentlyContinue)
+
+                    # Did we get any attribute names?  This could have been handled with the for statement, but I wanted to log an error message if no attribute names where extracted.
+                    if ($attributeNames.Length -gt 0)
                     {
-                        for($a = 0; $a -lt $jsonArgNames.Length; $a++)
+                        # TRUE
+
+                        # Loop through $attributeNames converting $json.$($attributeNames[$a]) into $Global:$attributeNames[$a]
+                        for($a = 0; $a -lt $attributeNames.Length; $a++)
                         {
                             try
                             {
-                                Set-Variable -Name $jsonArgNames[$a] -Value $json.$($jsonArgNames[$a]) -Scope global -ErrorAction SilentlyContinue
-                                $requirement.IsValid = @(Get-Variable -Name $jsonArgNames[$a] -ErrorAction SilentlyContinue).Length -gt 0
+                                # Convert $json.$($attributeNames[$a]) into $Global:$attributeNames[$a]
+                                Set-Variable -Name $attributeNames[$a] -Value $json.$($attributeNames[$a]) -Scope global -ErrorAction SilentlyContinue
 
-                                if(-not $requirement.IsValid)
+                                # Set $requirement.IsValid to $true if I can Get-Variable -Name $attributeNames[$a], $false otherwise
+                                $requirement.IsValid = @(Get-Variable -Name $attributeNames[$a] -ErrorAction SilentlyContinue).Length -gt 0
+
+                                if (-not $requirement.IsValid)
                                 {
-                                    $Global:startLog.Add("`t`tFailed to set parameter: {0}" -f @($jsonArgNames[$a]))
+                                    # TRUE
+
+                                    # Add a message to the log.
+                                    $Global:startLog.Add("`t`tFailed to set parameter: {0}" -f @($attributeNames[$a]))
+                                }
+                                else # NOT (-not $requirement.IsValid)
+                                {
+                                    # FALSE
+
+                                    # Nothing.
                                 }
                             }
                             catch
                             {
-                                $Global:startLog.Add("`t`tFailed to set parameter: {0}" -f @($jsonArgNames[$a]))
+                                $Global:startLog.Add("`t`tFailed to set parameter: {0}" -f @($attributeNames[$a]))
                                 $requirement.IsValid = $false
                             }
                         }
                     }
-                    else
+                    else # NOT ($attributeNames.Length -gt 0)
                     {
+                        # FALSE
+
+                        # Add a message to the log.
                         $Global:startLog.Add("`t`tNo parameters specified")
+
+                        # Flag the requirement as invalid.
                         $requirement.IsValid = $false
                     }
                 }
-                else
+                else # NOT ($requirement.IsValid)
                 {
-                    # Nothing, already logged a message
+                    # FALSE
+
+                    # Nothing.
                 }
             }
-            else
+            else # NOT (-not [String]::IsNullOrEmpty($rawJson))
             {
+                # FALSE
+
+                # Add a message to the log.
                 $Global:startLog.Add("`t`tAppears to be empty.")
+
+                # Flag the requirement as invalid.
                 $requirement.IsValid = $false
             }
         }
-        else
+        else # NOT (-not [String]::IsNullOrEmpty($jsonArgsFile))
         {
-            # Already logged a message
+            # FALSE
+
+            # Flag the requirement as invalid.
             $requirement.IsValid = $false
         }
     }
-    else
+    else # NOT (TestRequirementAttribute $requirement "FileName" -logMember)
     {
-        # Nothing, already logged a message
+        # FALSE
+
+        # Nothing.
     }
 }
 
@@ -477,6 +658,7 @@ while($r -lt $requirements.Length)
 {
     $requirement = $requirements[$r]
 
+    # Add an attribute to the requirement to track whether or not the requirement is valid.
     # Assume the requirement is valid unless proven otherwise
     $requirement.IsValid = $true
 
@@ -500,6 +682,9 @@ while($r -lt $requirements.Length)
                     if(@(Get-Variable -Name $requirement.VariableName -ErrorAction SilentlyContinue).Length -eq 1)
                     {
                         # Nothing, there is a variable for this requirement, now just need to validate it.
+                        #
+                        # TODO: Validate the variable...
+                        #
                     }
                     else
                     {
