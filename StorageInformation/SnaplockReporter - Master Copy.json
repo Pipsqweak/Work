@@ -1,0 +1,66 @@
+{
+    "LogPath": "E:\\Scripts\\SnaplockReporter\\Logs",
+    "LogsToKeep": 14,
+    "Filers": {
+        "CDOT": {
+            "UserName": "POWERENG\\SRVC-AllStorage-RO",
+            "Password": "Not4L@ck0fLook1ng!",
+            "Controllers": [
+                "adc-cdotclst01.powereng.com",
+                "apl-cdotclst01.powereng.com",
+                "ast-cdotclst01.powereng.com",
+                "aus-cdotclst01.powereng.com",
+                "bdc-cdotclst01.powereng.com",
+                "bdcd-cdotclst01.powereng.com",
+                "bil-cdotclst01.powereng.com",
+                "boi-cdotclst01.powereng.com",
+                "cdc-cdotclst01.powereng.com",
+                "clk-cdotclst01.powereng.com",
+                "den-cdotclst01.powereng.com",
+                "fmc-cdotclst01.powereng.com",
+                "fre-cdotclst01.powereng.com",
+                "hou-cdotclst01.powereng.com",
+                "ito-cdotclst01.powereng.com",
+                "min-cdotclst01.powereng.com",
+                "opk-cdotclst01.powereng.com",
+                "phx-cdotclst01.powereng.com",
+                "plv-cdotclst01.powereng.com",
+                "ptl-cdotclst01.powereng.com",
+                "san-cdotclst01.powereng.com",
+                "slc-cdotclst01.powereng.com"
+            ]
+        },
+        "SM": {
+            "UserName": "POWERENG\\SRVC-AllStorage-RO",
+            "Password": "Not4L@ck0fLook1ng!",
+            "Nodes": [
+                "arbprdnas1.powereng.com",
+                "atlprdnas2.powereng.com",
+                "atlprdnas3.powereng.com",
+                "bosprdnas1.powereng.com",
+                "cinprdnas1.powereng.com",
+                "edpprdnas1.powereng.com",
+                "ftwprdnas1.powereng.com",
+                "hamprdnas1.powereng.com",
+                "hlyprdnas2.powereng.com",
+                "hlyprdnas3.powereng.com",
+                "msnnas1.powereng.com",
+                "mtlprdnas1.powereng.com",
+                "orasan1.powereng.com",
+                "orasan2.powereng.com",
+                "orlprdnas1.powereng.com",
+                "orlprdnas2.powereng.com",
+                "stlprdnas2.powereng.com",
+                "stlprdnas3.powereng.com",
+                "syrnas1.powereng.com",
+                "tdcprdnas1.powereng.com",
+                "vanprdnas1.powereng.com"
+            ]
+        }
+    },
+    "vCenter": {
+        "Server": "tdcprdvctr1.powereng.com",
+        "UserName": "POWERENG\\SRVCvCenterReadAll",
+        "Password": "b&hvGS2!Ep9t"
+    }
+}

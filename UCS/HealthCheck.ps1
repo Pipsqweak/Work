@@ -50,7 +50,6 @@ Write-Host -ForegroundColor Blue -BackgroundColor White "	You must have Microsof
 Write-Host ""
 
 
-Import-Module CiscoUcsPS
 set-executionpolicy remoteSigned
 
 $cred = Get-Credential
@@ -66,10 +65,9 @@ $handle2 = Connect-Ucs ucs1-b-man.boisestate.edu -NotDefault -Credential $cred
 $handleArray = $handle1,$handle2#,$handle3 - change comments to number of arrays
 
 
-
 # Create the HTML file #
 
-$ReportFile = "h:\UCS-HealthCheck-$UCSname.html"
+$ReportFile = "UCS-HealthCheck-$UCSname.html"
 New-Item -ItemType file $ReportFile -Force
 
 # Define the HTML #

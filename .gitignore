@@ -1,2 +1,5 @@
 Permissions/ExportedPassword.txt
 Utilities\VirtualInventory\invCfg-ClearText.json
+StorageInfoClasses/.vs/*
+StorageInfoClasses/obj/*
+StorageInfoClasses/bin/*
