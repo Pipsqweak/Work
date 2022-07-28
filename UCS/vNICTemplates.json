@@ -1,0 +1,86 @@
+[
+    {
+        "Primary": {
+            "Switch": "A",
+            "Description": "DMZ Guest | Fabric A | No Failover",
+            "Name": "DMZ.GST.AX",
+            "MTU": 1500,
+            "VLANGroups": "DMZ-GUEST"
+        },
+        "Secondary": {
+            "Switch": "B",
+            "Description": "DMZ Guest | Fabric B | No Failover",
+            "Name": "DMZ.GST.BX"
+        }
+    },
+    {
+        "Primary": {
+            "Switch": "A",
+            "Description": "DMZ Storage | Fabric A | No Failover",
+            "Name": "DMZ.STG.AX",
+            "MTU": 9000,
+            "VLANGroups": "DMZ-STORAGE"
+        },
+        "Secondary": {
+            "Switch": "B",
+            "Description": "DMZ Storage | Fabric B | No Failover",
+            "Name": "DMZ.STG.BX"
+        }
+    },
+    {
+        "Primary": {
+            "Switch": "A-B",
+            "Description": "DMZ MGMT & vMotion | Fabric A | Failover B",
+            "Name": "DMZ.MGTVMN.AB",
+            "MTU": 9000,
+            "VLANGroups": "DMZ-MGMT-VMOTION"
+        },
+        "Secondary": {
+            "Switch": "B-A",
+            "Description": "DMZ vMotion & MGMT | Fabric B | Failover A",
+            "Name": "DMZ.VMNMGT.BA"
+        }
+    },
+    {
+        "Primary": {
+            "Switch": "A",
+            "Description": "Internal Guest | Fabric A | No Failover",
+            "Name": "INT.GST.AX",
+            "MTU": 1500,
+            "VLANGroups": "GUEST"
+        },
+        "Secondary": {
+            "Switch": "B",
+            "Description": "Internal Guest | Fabric B | No Failover",
+            "Name": "INT.GST.BX"
+        }
+    },
+    {
+        "Primary": {
+            "Switch": "A",
+            "Description": "Internal Storage | Fabric A | No Failover",
+            "Name": "INT.STG.AX",
+            "MTU": 9000,
+            "VLANGroups": "STORAGE"
+        },
+        "Secondary": {
+            "Switch": "B",
+            "Description": "Internal Storage | Fabric B | No Failover",
+            "Name": "INT.STG.BX"
+        }
+    },
+    {
+        "Primary": {
+            "Switch": "A-B",
+            "Description": "Internal MGMT & vMotion | Fabric A | Failover B",
+            "Name": "INT.MGTVMN.AB",
+            "MTU": 9000,
+            "VLANGroups": "MGMT-VMOTION"
+        },
+        "Secondary": {
+            "Switch": "B-A",
+            "Description": "Internal vMotion & MGMT | Fabric B | Failover A",
+            "Name": "INT.VMNMGT.BA"
+        }
+    }
+]

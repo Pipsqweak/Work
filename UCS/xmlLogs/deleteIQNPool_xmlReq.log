@@ -1,0 +1,41 @@
+[------------- Sending Request to Server ------------
+
+<configEstimateImpact
+cookie="1655241690/4824d89c-c8d8-442c-bd3c-b5a4eb5df9ab">
+    <inConfigs>
+<pair key="org-root/iqn-pool-default">
+    <iqnpoolPool
+    dn="org-root/iqn-pool-default"
+    
+    status="deleted"
+    
+    sacl="addchild,del,mod">
+    </iqnpoolPool>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1655241690/4824d89c-c8d8-442c-bd3c-b5a4eb5df9ab"
+inHierarchical="false">
+    <inConfigs>
+<pair key="org-root">
+    <orgOrg
+    name="root"
+    dn="org-root"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+        <iqnpoolPool
+        
+        rn="iqn-pool-default"
+        status="deleted"
+        
+        sacl="addchild,del,mod">
+        </iqnpoolPool>
+    </orgOrg>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]

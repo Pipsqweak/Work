@@ -1,0 +1,89 @@
+[------------- Sending Request to Server ------------
+
+<configResolveDn
+dn="sys"
+cookie="1651604670/6608a181-51ba-4147-a796-4dc4c3086128"
+inHierarchical="false">
+</configResolveDn>
+
+<aaaCheckComputeExtAccess
+cookie="1651604670/6608a181-51ba-4147-a796-4dc4c3086128"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651604670/6608a181-51ba-4147-a796-4dc4c3086128"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651604670/6608a181-51ba-4147-a796-4dc4c3086128"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651604670/6608a181-51ba-4147-a796-4dc4c3086128"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<configEstimateImpact
+cookie="1651604670/6608a181-51ba-4147-a796-4dc4c3086128">
+    <inConfigs>
+<pair key="org-root/ep-qos-klbJumbo">
+    <epqosDefinition
+    name="klbJumbo"
+    dn="org-root/ep-qos-klbJumbo"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+        <epqosEgress
+        burst="10240"
+        hostControl="none"
+        name=""
+        prio="best-effort"
+        rate="line-rate"
+        
+        rn="egress"
+        
+        
+        sacl="addchild,del,mod">
+        </epqosEgress>
+    </epqosDefinition>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1651604670/6608a181-51ba-4147-a796-4dc4c3086128"
+inHierarchical="false">
+    <inConfigs>
+<pair key="org-root/ep-qos-klbJumbo">
+    <epqosDefinition
+    name="klbJumbo"
+    dn="org-root/ep-qos-klbJumbo"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+        <epqosEgress
+        burst="10240"
+        hostControl="none"
+        name=""
+        prio="best-effort"
+        rate="line-rate"
+        
+        rn="egress"
+        
+        
+        sacl="addchild,del,mod">
+        </epqosEgress>
+    </epqosDefinition>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]

@@ -1,0 +1,498 @@
+{
+    "switch":
+    {
+        "name": "DDC VCAD/VDI vDS 01",
+        "datacenterName": "DDC-VDI",
+        "mtu": 9000,
+        "version": "6.5.0",
+        "uplinkMappings": [
+            {
+                "uplinkName": "INT.MGTVMN.AB",
+                "vNICName": "INT.MGTVMN.AB"
+            },
+            {
+                "uplinkName": "INT.VMNMGT.BA",
+                "vNICName": "INT.VMNMGT.BA"
+            },
+            {
+                "uplinkName": "INT.STG.AX",
+                "vNICName": "INT.STG.AX"
+            },
+            {
+                "uplinkName": "INT.STG.BX",
+                "vNICName": "INT.STG.BX"
+            },
+            {
+                "uplinkName": "INT.GST.AX",
+                "vNICName": "INT.GST.AX"
+            },
+            {
+                "uplinkName": "INT.GST.BX",
+                "vNICName": "INT.GST.BX"
+            }
+        ],
+        "portGroups": [
+            {
+                "vlanID": 3,
+                "name": "VL03-SERVERDATA",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 5,
+                "name": "VL05-INFRAMGMT",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.MGTVMN.AB"
+                ],
+                "standbyUplinkNames": [
+                    "INT.VMNMGT.BA"
+                ]
+            },
+            {
+                "vlanID": 11,
+                "name": "VL11-VMOTION",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.VMNMGT.BA"
+                ],
+                "standbyUplinkNames": [
+                    "INT.MGTVMN.AB"
+                ]
+            },
+            {
+                "vlanID": 11,
+                "name": "VL11-STORAGE",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.STG.AX",
+                    "INT.STG.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 40,
+                "name": "VL40-CLIENTLAN",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            }
+        ]
+    },
+    "datastores":
+    [
+        {
+            "name":  "DDC_UCS_SATA_01",
+            "filer":  "BDC-CDOTCLST01",
+            "nfsHost":  "10.247.11.10",
+            "nfsPath":  "/VMware/bdc_UCS_SATA_01"
+        },
+        {
+            "name":  "DDC_VM_SSD_01",
+            "filer":  "BDC-CDOTCLST01",
+            "nfsHost":  "10.247.11.26",
+            "nfsPath":  "/VMware/DDC_SSD_01"
+        },
+        {
+            "name":  "DDC_VCAD_SATA_01",
+            "filer":  "BDC-CDOTCLST01",
+            "nfsHost":  "10.247.11.10",
+            "nfsPath":  "/VMware/bdc_vCAD_SATA_01"
+        },
+        {
+            "name":  "DDC_VM_DR_TMP_SATA_01",
+            "filer":  "BDC-CDOTCLST01",
+            "nfsHost":  "10.247.11.10",
+            "nfsPath":  "/VMware/bdc_DR_TMP_SATA_01"
+        }
+    ],
+    "hosts": [
+        {
+            "serial": "FCH213271HW",
+            "vmHostName": "ddc-esx-c1-b1.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL05-INFRAMGMT",
+                    "ipAddress": "10.247.5.96",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-STORAGE",
+                    "ipAddress": "10.247.11.60",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-VMOTION",
+                    "ipAddress": "10.247.11.105",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores":[
+                "DDC_UCS_SATA_01",
+                "DDC_VM_DR_TMP_SATA_01",
+                "DDC_VM_SSD_01"
+            ]
+        },
+        {
+            "serial": "FCH213271HE",
+            "vmHostName": "ddc-esx-c1-b2.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL05-INFRAMGMT",
+                    "ipAddress": "10.247.5.96",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-STORAGE",
+                    "ipAddress": "10.247.11.61",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-VMOTION",
+                    "ipAddress": "10.247.11.106",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores":[
+                "DDC_UCS_SATA_01",
+                "DDC_VM_DR_TMP_SATA_01",
+                "DDC_VM_SSD_01"
+            ]
+        },
+        {
+            "serial": "FCH213271LN",
+            "vmHostName": "ddc-esx-c1-b3.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL05-INFRAMGMT",
+                    "ipAddress": "10.247.5.97",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-STORAGE",
+                    "ipAddress": "10.247.11.62",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-VMOTION",
+                    "ipAddress": "10.247.11.107",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores":[
+                "DDC_UCS_SATA_01",
+                "DDC_VM_DR_TMP_SATA_01",
+                "DDC_VM_SSD_01"
+            ]
+        },
+        {
+            "serial": "FCH213271NS",
+            "vmHostName": "ddc-esx-c1-b4.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL05-INFRAMGMT",
+                    "ipAddress": "10.247.5.98",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-STORAGE",
+                    "ipAddress": "10.247.11.63",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-VMOTION",
+                    "ipAddress": "10.247.11.102",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores":[
+                "DDC_UCS_SATA_01",
+                "DDC_VCAD_SATA_01",
+                "DDC_VM_SSD_01"
+            ]
+        },
+        {
+            "serial": "FLM231808KK",
+            "vmHostName": "ddc-esx-c1-b5.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL05-INFRAMGMT",
+                    "ipAddress": "10.247.5.99",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-STORAGE",
+                    "ipAddress": "10.247.11.64",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-VMOTION",
+                    "ipAddress": "10.247.11.109",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores":[
+                "DDC_UCS_SATA_01",
+                "DDC_VM_DR_TMP_SATA_01",
+                "DDC_VM_SSD_01"
+            ]
+        },
+        {
+            "serial": "WZP23180YBC",
+            "vmHostName": "ddc-esxvcad01.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL05-INFRAMGMT",
+                    "ipAddress": "10.247.5.151",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-STORAGE",
+                    "ipAddress": "10.247.11.92",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-VMOTION",
+                    "ipAddress": "10.247.11.93",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores":[
+                "DDC_UCS_SATA_01",
+                "DDC_VCAD_SATA_01",
+                "DDC_VM_SSD_01"
+            ]
+        },
+        {
+            "serial": "WMP240800LQ",
+            "vmHostName": "ddc-esxvcad02.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL05-INFRAMGMT",
+                    "ipAddress": "10.247.5.152",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-STORAGE",
+                    "ipAddress": "10.247.11.95",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-VMOTION",
+                    "ipAddress": "10.247.11.96",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores":[
+                "DDC_UCS_SATA_01",
+                "DDC_VCAD_SATA_01",
+                "DDC_VM_SSD_01"
+            ]
+        },
+        {
+            "serial": "WZP235008NW",
+            "vmHostName": "ddc-esxvcad03.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL05-INFRAMGMT",
+                    "ipAddress": "10.247.5.153",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-STORAGE",
+                    "ipAddress": "10.247.11.97",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-VMOTION",
+                    "ipAddress": "10.247.11.97",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores":[
+                "DDC_UCS_SATA_01",
+                "DDC_VCAD_SATA_01",
+                "DDC_VM_SSD_01"
+            ]
+        },
+        {
+            "serial": "WZP23180RK2",
+            "vmHostName": "ddc-esxvcad04.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL05-INFRAMGMT",
+                    "ipAddress": "10.247.5.154",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-STORAGE",
+                    "ipAddress": "10.247.11.99",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-VMOTION",
+                    "ipAddress": "10.247.11.100",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores":[
+                "DDC_UCS_SATA_01",
+                "DDC_VCAD_SATA_01",
+                "DDC_VM_SSD_01"
+            ]
+        },
+        {
+            "serial": "WMP254000WS",
+            "vmHostName": "ddc-esxvcad05.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL05-INFRAMGMT",
+                    "ipAddress": "10.247.5.155",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-STORAGE",
+                    "ipAddress": "10.247.11.101",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-VMOTION",
+                    "ipAddress": "10.247.11.102",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores":[
+                "DDC_UCS_SATA_01",
+                "DDC_VCAD_SATA_01",
+                "DDC_VM_SSD_01"
+            ]
+        }
+    ]
+}

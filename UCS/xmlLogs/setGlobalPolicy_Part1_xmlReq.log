@@ -1,0 +1,161 @@
+[------------- Sending Request to Server ------------
+
+<configResolveDn
+dn="sys"
+cookie="1655226090/876ece1f-25cc-4de5-a2fd-9d217b14ef43"
+inHierarchical="false">
+</configResolveDn>
+
+<configEstimateImpact
+cookie="1655226090/876ece1f-25cc-4de5-a2fd-9d217b14ef43">
+    <inConfigs>
+<pair key="org-root/chassis-discovery">
+    <computeChassisDiscPolicy
+    action="2-link"
+    dn="org-root/chassis-discovery"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </computeChassisDiscPolicy>
+</pair>
+<pair key="org-root/server-discovery">
+    <computeServerDiscPolicy
+    action="immediate"
+    dn="org-root/server-discovery"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </computeServerDiscPolicy>
+</pair>
+<pair key="org-root/server-mgmt-policy">
+    <computeServerMgmtPolicy
+    action="auto-acknowledged"
+    dn="org-root/server-mgmt-policy"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </computeServerMgmtPolicy>
+</pair>
+<pair key="org-root/psu-policy">
+    <computePsuPolicy
+    redundancy="grid"
+    dn="org-root/psu-policy"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </computePsuPolicy>
+</pair>
+<pair key="fabric/lan">
+    <fabricLanCloud
+    macAging="mode-default"
+    dn="fabric/lan"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </fabricLanCloud>
+</pair>
+<pair key="org-root/pwr-mgmt-policy">
+    <powerMgmtPolicy
+    style="intelligent-policy-driven"
+    dn="org-root/pwr-mgmt-policy"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </powerMgmtPolicy>
+</pair>
+<pair key="org-root/fw-auto-sync">
+    <firmwareAutoSyncPolicy
+    syncState="No Actions"
+    dn="org-root/fw-auto-sync"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </firmwareAutoSyncPolicy>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1655226090/876ece1f-25cc-4de5-a2fd-9d217b14ef43"
+inHierarchical="false">
+    <inConfigs>
+<pair key="org-root/chassis-discovery">
+    <computeChassisDiscPolicy
+    action="2-link"
+    dn="org-root/chassis-discovery"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </computeChassisDiscPolicy>
+</pair>
+<pair key="org-root/server-discovery">
+    <computeServerDiscPolicy
+    action="immediate"
+    dn="org-root/server-discovery"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </computeServerDiscPolicy>
+</pair>
+<pair key="org-root/server-mgmt-policy">
+    <computeServerMgmtPolicy
+    action="auto-acknowledged"
+    dn="org-root/server-mgmt-policy"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </computeServerMgmtPolicy>
+</pair>
+<pair key="org-root/psu-policy">
+    <computePsuPolicy
+    redundancy="grid"
+    dn="org-root/psu-policy"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </computePsuPolicy>
+</pair>
+<pair key="fabric/lan">
+    <fabricLanCloud
+    macAging="mode-default"
+    dn="fabric/lan"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </fabricLanCloud>
+</pair>
+<pair key="org-root/pwr-mgmt-policy">
+    <powerMgmtPolicy
+    style="intelligent-policy-driven"
+    dn="org-root/pwr-mgmt-policy"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </powerMgmtPolicy>
+</pair>
+<pair key="org-root/fw-auto-sync">
+    <firmwareAutoSyncPolicy
+    syncState="No Actions"
+    dn="org-root/fw-auto-sync"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </firmwareAutoSyncPolicy>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]

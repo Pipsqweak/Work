@@ -1,0 +1,211 @@
+{
+    "switch":
+    {
+        "name": "CDC DMZ vDS 01",
+        "dataCenterName": "CDC",
+        "mtu": 9000,
+        "version": "6.5.0",
+        "uplinkMappings": [
+            {
+                "uplinkName": "DMZ.MGTVMN.AB",
+                "vNICName": "DMZ.MGTVMN.AB"
+            },
+            {
+                "uplinkName": "DMZ.VMNMGT.BA",
+                "vNICName": "DMZ.VMNMGT.BA"
+            },
+            {
+                "uplinkName": "DMZ.STG.AX",
+                "vNICName": "DMZ.STG.AX"
+            },
+            {
+                "uplinkName": "DMZ.STG.BX",
+                "vNICName": "DMZ.STG.BX"
+            },
+            {
+                "uplinkName": "DMZ.GST.AX",
+                "vNICName": "DMZ.GST.AX"
+            },
+            {
+                "uplinkName": "DMZ.GST.BX",
+                "vNICName": "DMZ.GST.BX"
+            }
+        ],
+        "portGroups": [
+            {
+                "vlanID": 60,
+                "name": "VL60-EXTDMZ",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "DMZ.GST.AX",
+                    "DMZ.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 61,
+                "name": "VL61-INTDMZ",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "DMZ.GST.AX",
+                    "DMZ.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 63,
+                "name": "VL63-WSINTDMZ",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "DMZ.GST.AX",
+                    "DMZ.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 68,
+                "name": "VL68-DMZVMOTION",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "DMZ.VMNMGT.BA"
+                ],
+                "standbyUplinkNames": [
+                    "DMZ.MGTVMN.AB"
+                ]
+            },
+            {
+                "vlanID": 68,
+                "name": "VL68-DMZSTORAGE",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "DMZ.STG.AX",
+                    "DMZ.STG.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 69,
+                "name": "VL69-DMZMGMT",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "DMZ.MGTVMN.AB"
+                ],
+                "standbyUplinkNames": [
+                    "DMZ.VMNMGT.BA"
+                ]
+            }
+        ]
+    },
+    "datastores": [
+        {
+            "name": "CDC_VM_DMZ_SATA_01",
+            "filer": "CDC-CDOTCLST01",
+            "nfsHost": "10.245.68.10",
+            "nfsPath": "/VMware/cdc_DMZ_SATA_01"
+        },
+        {
+            "name": "CDC_VM_DR_DMZ_PW_SATA_01",
+            "filer": "CDC-CDOTCLST01",
+            "nfsHost": "10.245.68.10",
+            "nfsPath": "/VMware/cdc_DR_DMZ_PW_SATA_01"
+        },
+        {
+            "name": "CDC_VM_DR_DMZ_SAS_01",
+            "filer": "CDC-CDOTCLST01",
+            "nfsHost": "10.245.68.11",
+            "nfsPath": "/VMware/cdc_DR_DMZ_SAS_01"
+        },
+        {
+            "name": "CDC_VM_DR_DMZ_SATA_01",
+            "filer": "CDC-CDOTCLST01",
+            "nfsHost": "10.245.68.10",
+            "nfsPath": "/VMware/cdc_DR_DMZ_SATA_01"
+        }
+    ],
+    "hosts": [
+        {
+            "serial": "FCH255378GT",
+            "vmHostName": "cdcz-esx-c1-b5.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "switchName": "CDC DMZ vDS 01",
+                    "portGroupName": "VL69-DMZMGMT",
+                    "ipAddress": "10.245.69.17",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "switchName": "CDC DMZ vDS 01",
+                    "portGroupName": "VL68-DMZSTORAGE",
+                    "ipAddress": "10.245.68.17",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "switchName": "CDC DMZ vDS 01",
+                    "portGroupName": "DMZ vMotion VLAN 68",
+                    "ipAddress": "10.245.68.117",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores": [
+                "CDC_VM_DMZ_SATA_01",
+                "CDC_VM_DR_DMZ_PW_SATA_01",
+                "CDC_VM_DR_DMZ_SAS_01",
+                "CDC_VM_DR_DMZ_SATA_01"
+            ]
+        },
+        {
+            "serial": "FCH255378KB",
+            "vmHostName": "cdcz-esx-c1-b6.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "switchName": "CDC DMZ vDS 01",
+                    "portGroupName": "VL69-DMZMGMT",
+                    "ipAddress": "10.245.69.18",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "switchName": "CDC DMZ vDS 01",
+                    "portGroupName": "VL68-DMZSTORAGE",
+                    "ipAddress": "10.245.68.18",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "switchName": "CDC DMZ vDS 01",
+                    "portGroupName": "VL68-DMZVMOTION",
+                    "ipAddress": "10.245.68.118",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores": [
+                "CDC_VM_DMZ_SATA_01",
+                "CDC_VM_DR_DMZ_PW_SATA_01",
+                "CDC_VM_DR_DMZ_SAS_01",
+                "CDC_VM_DR_DMZ_SATA_01"
+            ]
+        }
+    ]
+}

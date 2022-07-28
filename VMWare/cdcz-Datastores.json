@@ -1,0 +1,26 @@
+[
+    {
+        "name": "CDC_VM_DMZ_SATA_01",
+        "filer": "CDC-CDOTCLST01",
+        "nfsHost": "10.245.68.10",
+        "nfsPath": "/VMware/cdc_DMZ_SATA_01"
+    },
+    {
+        "name": "CDC_VM_DR_DMZ_PW_SATA_01",
+        "filer": "CDC-CDOTCLST01",
+        "nfsHost": "10.245.68.10",
+        "nfsPath": "/VMware/cdc_DR_DMZ_PW_SATA_01"
+    },
+    {
+        "name": "CDC_VM_DR_DMZ_SAS_01",
+        "filer": "CDC-CDOTCLST01",
+        "nfsHost": "10.245.68.11",
+        "nfsPath": "/VMware/cdc_DR_DMZ_SAS_01"
+    },
+    {
+        "name": "CDC_VM_DR_DMZ_SATA_01",
+        "filer": "CDC-CDOTCLST01",
+        "nfsHost": "10.245.68.10",
+        "nfsPath": "/VMware/cdc_DR_DMZ_SATA_01"
+    }
+]

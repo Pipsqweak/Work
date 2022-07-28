@@ -1,0 +1,2620 @@
+[------------- Sending Request to Server ------------
+
+<aaaCheckComputeExtAccess
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<configEstimateImpact
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936">
+    <inConfigs>
+<pair key="org-root/bios-prof-klbBIOS">
+    <biosVProfile
+    name="klbBIOS"
+    dn="org-root/bios-prof-klbBIOS"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+    </biosVProfile>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inHierarchical="false">
+    <inConfigs>
+<pair key="org-root/bios-prof-klbBIOS">
+    <biosVProfile
+    name="klbBIOS"
+    dn="org-root/bios-prof-klbBIOS"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+    </biosVProfile>
+</pair>
+    </inConfigs>
+</configConfMos>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Consistent Device Name Control"
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Resume on AC power loss"
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Front panel lockout"
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-POST error pause"
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Quiet Boot"
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inHierarchical="false">
+</configResolveDn>
+
+<aaaTokenRefresh
+cookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936"
+inName="ucs-powereng.com\kbriney-adm"
+inCookie="1651605870/581b0ec3-97fc-4634-9e70-fb1fd87cc936">
+</aaaTokenRefresh>
+
+<configResolveDn
+dn="sys"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-DCPMM Firmware Downgrade Configuration"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel Virtualization Technology"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor Energy Configuration"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-IntelSpeedSelect Configuration"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-CPU Hardware Power Management"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Enhanced Intel SpeedStep Tech"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel HyperThreading Tech"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Max Variable MTRR Setting"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Energy Performance Tuning"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Interleave Configuration"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Frequency Floor Override"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Workload Configuration"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel Turbo Boost Tech"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Package C State Limit"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-DRAM Clock Throttling"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-P STATE Coordination"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Core MultiProcessing"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C3 Report"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Execute Disable Bit"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C6 Report"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C7 Report"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Direct Cache Access"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C State"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-CPU Performance"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Scrub Policies"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor CMCI"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Local X2 Apic"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C1E"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Altitude"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<configResolveDn
+dn="sys"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<configResolveDn
+dn="sys"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<configResolveDn
+dn="sys"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-SelectMemory RAS configuration"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-DDR3 Voltage Selection"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Dram Refresh Rate"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Select PPR Type"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-LvDIMM Support"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Mirroring Mode"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-NUMA optimized"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Serial port A enable"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-USB System Idle Power Optimizing Setting"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-USB Front Panel Access Lock"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-USB Configuration"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-All USB Devices"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-USB Boot Config"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Memory mapped IO above 4GB"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Maximum memory below 4GB"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-BME DMA Mitigation"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-VGA Priority"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-ASPM Support"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-QPI Link Frequency Select"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-QPI Snoop Mode"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-PCI LOM Ports Configuration"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-PCI Slot OptionROM Enable"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Access Control Services"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Onboard LOM Option ROM"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-PCI Slot Link Speed"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-PCI Slot LINK Speed"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-IOESlot2 OptionROM"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-IOESlot1 OptionROM"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-IOENVMe2 OptionROM"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-IOENVMe1 OptionROM"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-IOEMezz1 OptionROM"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-SBNVMe1 OptionROM"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-SBMezz1 OptionROM"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-PCIe RAS Support"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-SIOC2 OptionROM"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-SIOC1 OptionROM"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-VMD Enablement"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-PCI ROM CLP"
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inHierarchical="false">
+</configResolveDn>
+
+<aaaTokenRefresh
+cookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81"
+inName="ucs-powereng.com\kbriney-adm"
+inCookie="1651606470/c938e8a1-c26a-4542-b7b6-788822e05e81">
+</aaaTokenRefresh>
+
+<configResolveDn
+dn="sys"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel Trusted Execution Technology"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Trusted Platform Module"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<aaaCheckComputeExtAccess
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inDn="sys/chassis-1/blade-7"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Integrated Graphics Aperture Size"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Integrated Graphics"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Onboard Graphics"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-OptionROM Launch Optimization"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel entry SAS RAID module"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Adaptive Memory Training"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-BIOS Techlog Level"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Boot option retry"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Onboard Storage"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-PCH SATA Mode"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-PXE BOOT"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-OS Boot Watchdog Timer Timeout"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-OS Boot Watchdog Timer Policy"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Redirection After BIOS POST"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Out of Band Management"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-OS Boot Watchdog Timer"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Assert NMI on PERR"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-Assert NMI on SERR"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/bios-prof-klbBIOS/tokn-featr-FRB 2 Timer"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<aaaCheckComputeExtAccess
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<aaaCheckComputeExtAccess
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inDn="sys/chassis-1/blade-4"
+inUser="ucs-powereng.com\kbriney-adm">
+</aaaCheckComputeExtAccess>
+
+<configResolveDn
+dn="sys"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+</configResolveDn>
+
+<configEstimateImpact
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9">
+    <inConfigs>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Resume on AC power loss/tokn-param-ResumeOnACPowerLoss/tokn-setng-Last-State">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Last-State"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Resume on AC power loss/tokn-param-ResumeOnACPowerLoss/tokn-setng-Last-State"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Front panel lockout/tokn-param-FrontPanelLock/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Front panel lockout/tokn-param-FrontPanelLock/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-POST error pause/tokn-param-POSTErrorPause/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-POST error pause/tokn-param-POSTErrorPause/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Quiet Boot/tokn-param-QuietBoot/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Quiet Boot/tokn-param-QuietBoot/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Altitude/tokn-param-Altitude/tokn-setng-300-M">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="300-M"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Altitude/tokn-param-Altitude/tokn-setng-300-M"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-CPU Performance/tokn-param-CPUPerformance/tokn-setng-Enterprise">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enterprise"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-CPU Performance/tokn-param-CPUPerformance/tokn-setng-Enterprise"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Core MultiProcessing/tokn-param-CoreMultiProcessing/tokn-setng-All">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="All"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Core MultiProcessing/tokn-param-CoreMultiProcessing/tokn-setng-All"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-DRAM Clock Throttling/tokn-param-DRAMClockThrottling/tokn-setng-Auto">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Auto"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-DRAM Clock Throttling/tokn-param-DRAMClockThrottling/tokn-setng-Auto"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Direct Cache Access/tokn-param-DirectCacheAccess/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Direct Cache Access/tokn-param-DirectCacheAccess/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Enhanced Intel SpeedStep Tech/tokn-param-EnhancedIntelSpeedStep/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Enhanced Intel SpeedStep Tech/tokn-param-EnhancedIntelSpeedStep/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Execute Disable Bit/tokn-param-ExecuteDisable/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Execute Disable Bit/tokn-param-ExecuteDisable/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Frequency Floor Override/tokn-param-CpuFreqFloor/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Frequency Floor Override/tokn-param-CpuFreqFloor/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel HyperThreading Tech/tokn-param-IntelHyperThread/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel HyperThreading Tech/tokn-param-IntelHyperThread/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel Turbo Boost Tech/tokn-param-IntelTurboBoostTech/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel Turbo Boost Tech/tokn-param-IntelTurboBoostTech/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel Virtualization Technology/tokn-param-IntelVT/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel Virtualization Technology/tokn-param-IntelVT/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Interleave Configuration/tokn-param-ChannelInterLeave/tokn-setng-Auto">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Auto"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Interleave Configuration/tokn-param-ChannelInterLeave/tokn-setng-Auto"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Interleave Configuration/tokn-param-RankInterLeave/tokn-setng-Auto">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Auto"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Interleave Configuration/tokn-param-RankInterLeave/tokn-setng-Auto"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Local X2 Apic/tokn-param-LocalX2Apic/tokn-setng-X2APIC">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="X2APIC"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Local X2 Apic/tokn-param-LocalX2Apic/tokn-setng-X2APIC"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Max Variable MTRR Setting/tokn-param-ProcessorMtrr/tokn-setng-Auto-Max">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Auto-Max"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Max Variable MTRR Setting/tokn-param-ProcessorMtrr/tokn-setng-Auto-Max"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-P STATE Coordination/tokn-param-PsdCoordType/tokn-setng-HW-ALL">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="HW-ALL"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-P STATE Coordination/tokn-param-PsdCoordType/tokn-setng-HW-ALL"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor C State/tokn-param-ProcessorCstate/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C State/tokn-param-ProcessorCstate/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor C1E/tokn-param-ProcessorC1E/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C1E/tokn-param-ProcessorC1E/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor C3 Report/tokn-param-ProcessorC3Report/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C3 Report/tokn-param-ProcessorC3Report/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor C6 Report/tokn-param-ProcessorC6Report/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C6 Report/tokn-param-ProcessorC6Report/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor C7 Report/tokn-param-ProcessorC7Report/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C7 Report/tokn-param-ProcessorC7Report/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor Energy Configuration/tokn-param-CPUPowerManagement/tokn-setng-Performance">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Performance"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor Energy Configuration/tokn-param-CPUPowerManagement/tokn-setng-Performance"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor Energy Configuration/tokn-param-CpuEngPerfBias/tokn-setng-Performance">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Performance"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor Energy Configuration/tokn-param-CpuEngPerfBias/tokn-setng-Performance"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-AdjacentCacheLinePrefetch/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-AdjacentCacheLinePrefetch/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-DcuIpPrefetch/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-DcuIpPrefetch/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-DcuStreamerPrefetch/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-DcuStreamerPrefetch/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-HardwarePrefetch/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-HardwarePrefetch/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Scrub Policies/tokn-param-DemandScrub/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Scrub Policies/tokn-param-DemandScrub/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Scrub Policies/tokn-param-PatrolScrub/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Scrub Policies/tokn-param-PatrolScrub/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-ATS/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-ATS/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-CoherencySupport/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-CoherencySupport/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-IntelVTD/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-IntelVTD/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-InterruptRemap/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-InterruptRemap/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-PassThroughDMA/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-PassThroughDMA/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Dram Refresh Rate/tokn-param-DramRefreshRate/tokn-setng-2x">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="2x"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Dram Refresh Rate/tokn-param-DramRefreshRate/tokn-setng-2x"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-LvDIMM Support/tokn-param-LvDDRMode/tokn-setng-Performance-Mode">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Performance-Mode"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-LvDIMM Support/tokn-param-LvDDRMode/tokn-setng-Performance-Mode"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-NUMA optimized/tokn-param-NUMAOptimize/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-NUMA optimized/tokn-param-NUMAOptimize/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-SelectMemory RAS configuration/tokn-param-SelectMemoryRAS/tokn-setng-Maximum-Performance">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Maximum-Performance"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-SelectMemory RAS configuration/tokn-param-SelectMemoryRAS/tokn-setng-Maximum-Performance"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Serial port A enable/tokn-param-Serial-PortA/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Serial port A enable/tokn-param-Serial-PortA/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-All USB Devices/tokn-param-AllUsbDevices/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-All USB Devices/tokn-param-AllUsbDevices/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB Boot Config/tokn-param-MakeUSBDeviceNonBootable/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB Boot Config/tokn-param-MakeUSBDeviceNonBootable/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB Boot Config/tokn-param-UsbLegacySupport/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB Boot Config/tokn-param-UsbLegacySupport/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB Front Panel Access Lock/tokn-param-USBFrontPanelLock/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB Front Panel Access Lock/tokn-param-USBFrontPanelLock/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB System Idle Power Optimizing Setting/tokn-param-USBIdlePowerOptimize/tokn-setng-High-Performance">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="High-Performance"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB System Idle Power Optimizing Setting/tokn-param-USBIdlePowerOptimize/tokn-setng-High-Performance"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbEmul6064/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbEmul6064/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortFront/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortFront/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortInt/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortInt/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortKVM/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortKVM/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortRear/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortRear/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortSdCard/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortSdCard/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortVMedia/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortVMedia/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Maximum memory below 4GB/tokn-param-MaxMemoryBelow4GB/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Maximum memory below 4GB/tokn-param-MaxMemoryBelow4GB/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Memory mapped IO above 4GB/tokn-param-MemoryMappedIOAbove4GB/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Memory mapped IO above 4GB/tokn-param-MemoryMappedIOAbove4GB/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-VGA Priority/tokn-param-VgaPriority/tokn-setng-Onboard">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Onboard"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-VGA Priority/tokn-param-VgaPriority/tokn-setng-Onboard"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-QPI Link Frequency Select/tokn-param-QPILinkFrequency/tokn-setng-Auto">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Auto"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-QPI Link Frequency Select/tokn-param-QPILinkFrequency/tokn-setng-Auto"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-QPI Snoop Mode/tokn-param-QpiSnoopMode/tokn-setng-Home-Snoop">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Home-Snoop"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-QPI Snoop Mode/tokn-param-QpiSnoopMode/tokn-setng-Home-Snoop"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel Trusted Execution Technology/tokn-param-TXTSupport/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel Trusted Execution Technology/tokn-param-TXTSupport/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Trusted Platform Module/tokn-param-TPMControl/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Trusted Platform Module/tokn-param-TPMControl/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Boot option retry/tokn-param-BootOptionRetry/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Boot option retry/tokn-param-BootOptionRetry/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-PCH SATA Mode/tokn-param-pSATA/tokn-setng-LSI-SW-RAID">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="LSI-SW-RAID"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-PCH SATA Mode/tokn-param-pSATA/tokn-setng-LSI-SW-RAID"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Assert NMI on PERR/tokn-param-AssertNMIOnPERR/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Assert NMI on PERR/tokn-param-AssertNMIOnPERR/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Assert NMI on SERR/tokn-param-AssertNMIOnSERR/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Assert NMI on SERR/tokn-param-AssertNMIOnSERR/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-ConsoleRedir/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-ConsoleRedir/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-FlowCtrl/tokn-setng-None">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="None"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-FlowCtrl/tokn-setng-None"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-LegacyOSRedir/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-LegacyOSRedir/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-PuttyFunctionKeyPad/tokn-setng-ESCN">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="ESCN"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-PuttyFunctionKeyPad/tokn-setng-ESCN"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-TerminalType/tokn-setng-VT100">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="VT100"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-TerminalType/tokn-setng-VT100"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-FRB 2 Timer/tokn-param-FRB-2/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-FRB 2 Timer/tokn-param-FRB-2/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-OS Boot Watchdog Timer/tokn-param-OSBootWatchdogTimer/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-OS Boot Watchdog Timer/tokn-param-OSBootWatchdogTimer/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1651607070/56ea3844-489d-49f9-a33a-1d85536973f9"
+inHierarchical="false">
+    <inConfigs>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Resume on AC power loss/tokn-param-ResumeOnACPowerLoss/tokn-setng-Last-State">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Last-State"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Resume on AC power loss/tokn-param-ResumeOnACPowerLoss/tokn-setng-Last-State"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Front panel lockout/tokn-param-FrontPanelLock/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Front panel lockout/tokn-param-FrontPanelLock/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-POST error pause/tokn-param-POSTErrorPause/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-POST error pause/tokn-param-POSTErrorPause/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Quiet Boot/tokn-param-QuietBoot/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Quiet Boot/tokn-param-QuietBoot/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Altitude/tokn-param-Altitude/tokn-setng-300-M">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="300-M"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Altitude/tokn-param-Altitude/tokn-setng-300-M"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-CPU Performance/tokn-param-CPUPerformance/tokn-setng-Enterprise">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enterprise"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-CPU Performance/tokn-param-CPUPerformance/tokn-setng-Enterprise"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Core MultiProcessing/tokn-param-CoreMultiProcessing/tokn-setng-All">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="All"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Core MultiProcessing/tokn-param-CoreMultiProcessing/tokn-setng-All"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-DRAM Clock Throttling/tokn-param-DRAMClockThrottling/tokn-setng-Auto">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Auto"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-DRAM Clock Throttling/tokn-param-DRAMClockThrottling/tokn-setng-Auto"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Direct Cache Access/tokn-param-DirectCacheAccess/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Direct Cache Access/tokn-param-DirectCacheAccess/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Enhanced Intel SpeedStep Tech/tokn-param-EnhancedIntelSpeedStep/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Enhanced Intel SpeedStep Tech/tokn-param-EnhancedIntelSpeedStep/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Execute Disable Bit/tokn-param-ExecuteDisable/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Execute Disable Bit/tokn-param-ExecuteDisable/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Frequency Floor Override/tokn-param-CpuFreqFloor/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Frequency Floor Override/tokn-param-CpuFreqFloor/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel HyperThreading Tech/tokn-param-IntelHyperThread/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel HyperThreading Tech/tokn-param-IntelHyperThread/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel Turbo Boost Tech/tokn-param-IntelTurboBoostTech/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel Turbo Boost Tech/tokn-param-IntelTurboBoostTech/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel Virtualization Technology/tokn-param-IntelVT/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel Virtualization Technology/tokn-param-IntelVT/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Interleave Configuration/tokn-param-ChannelInterLeave/tokn-setng-Auto">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Auto"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Interleave Configuration/tokn-param-ChannelInterLeave/tokn-setng-Auto"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Interleave Configuration/tokn-param-RankInterLeave/tokn-setng-Auto">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Auto"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Interleave Configuration/tokn-param-RankInterLeave/tokn-setng-Auto"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Local X2 Apic/tokn-param-LocalX2Apic/tokn-setng-X2APIC">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="X2APIC"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Local X2 Apic/tokn-param-LocalX2Apic/tokn-setng-X2APIC"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Max Variable MTRR Setting/tokn-param-ProcessorMtrr/tokn-setng-Auto-Max">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Auto-Max"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Max Variable MTRR Setting/tokn-param-ProcessorMtrr/tokn-setng-Auto-Max"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-P STATE Coordination/tokn-param-PsdCoordType/tokn-setng-HW-ALL">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="HW-ALL"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-P STATE Coordination/tokn-param-PsdCoordType/tokn-setng-HW-ALL"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor C State/tokn-param-ProcessorCstate/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C State/tokn-param-ProcessorCstate/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor C1E/tokn-param-ProcessorC1E/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C1E/tokn-param-ProcessorC1E/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor C3 Report/tokn-param-ProcessorC3Report/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C3 Report/tokn-param-ProcessorC3Report/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor C6 Report/tokn-param-ProcessorC6Report/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C6 Report/tokn-param-ProcessorC6Report/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor C7 Report/tokn-param-ProcessorC7Report/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor C7 Report/tokn-param-ProcessorC7Report/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor Energy Configuration/tokn-param-CPUPowerManagement/tokn-setng-Performance">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Performance"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor Energy Configuration/tokn-param-CPUPowerManagement/tokn-setng-Performance"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor Energy Configuration/tokn-param-CpuEngPerfBias/tokn-setng-Performance">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Performance"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor Energy Configuration/tokn-param-CpuEngPerfBias/tokn-setng-Performance"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-AdjacentCacheLinePrefetch/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-AdjacentCacheLinePrefetch/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-DcuIpPrefetch/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-DcuIpPrefetch/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-DcuStreamerPrefetch/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-DcuStreamerPrefetch/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-HardwarePrefetch/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Processor Prefetch Config/tokn-param-HardwarePrefetch/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Scrub Policies/tokn-param-DemandScrub/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Scrub Policies/tokn-param-DemandScrub/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Scrub Policies/tokn-param-PatrolScrub/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Scrub Policies/tokn-param-PatrolScrub/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-ATS/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-ATS/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-CoherencySupport/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-CoherencySupport/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-IntelVTD/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-IntelVTD/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-InterruptRemap/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-InterruptRemap/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-PassThroughDMA/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel VT for directed IO/tokn-param-PassThroughDMA/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Dram Refresh Rate/tokn-param-DramRefreshRate/tokn-setng-2x">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="2x"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Dram Refresh Rate/tokn-param-DramRefreshRate/tokn-setng-2x"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-LvDIMM Support/tokn-param-LvDDRMode/tokn-setng-Performance-Mode">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Performance-Mode"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-LvDIMM Support/tokn-param-LvDDRMode/tokn-setng-Performance-Mode"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-NUMA optimized/tokn-param-NUMAOptimize/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-NUMA optimized/tokn-param-NUMAOptimize/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-SelectMemory RAS configuration/tokn-param-SelectMemoryRAS/tokn-setng-Maximum-Performance">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Maximum-Performance"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-SelectMemory RAS configuration/tokn-param-SelectMemoryRAS/tokn-setng-Maximum-Performance"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Serial port A enable/tokn-param-Serial-PortA/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Serial port A enable/tokn-param-Serial-PortA/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-All USB Devices/tokn-param-AllUsbDevices/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-All USB Devices/tokn-param-AllUsbDevices/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB Boot Config/tokn-param-MakeUSBDeviceNonBootable/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB Boot Config/tokn-param-MakeUSBDeviceNonBootable/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB Boot Config/tokn-param-UsbLegacySupport/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB Boot Config/tokn-param-UsbLegacySupport/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB Front Panel Access Lock/tokn-param-USBFrontPanelLock/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB Front Panel Access Lock/tokn-param-USBFrontPanelLock/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB System Idle Power Optimizing Setting/tokn-param-USBIdlePowerOptimize/tokn-setng-High-Performance">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="High-Performance"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB System Idle Power Optimizing Setting/tokn-param-USBIdlePowerOptimize/tokn-setng-High-Performance"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbEmul6064/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbEmul6064/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortFront/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortFront/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortInt/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortInt/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortKVM/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortKVM/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortRear/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortRear/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortSdCard/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortSdCard/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortVMedia/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-USB port configuration/tokn-param-UsbPortVMedia/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Maximum memory below 4GB/tokn-param-MaxMemoryBelow4GB/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Maximum memory below 4GB/tokn-param-MaxMemoryBelow4GB/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Memory mapped IO above 4GB/tokn-param-MemoryMappedIOAbove4GB/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Memory mapped IO above 4GB/tokn-param-MemoryMappedIOAbove4GB/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-VGA Priority/tokn-param-VgaPriority/tokn-setng-Onboard">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Onboard"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-VGA Priority/tokn-param-VgaPriority/tokn-setng-Onboard"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-QPI Link Frequency Select/tokn-param-QPILinkFrequency/tokn-setng-Auto">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Auto"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-QPI Link Frequency Select/tokn-param-QPILinkFrequency/tokn-setng-Auto"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-QPI Snoop Mode/tokn-param-QpiSnoopMode/tokn-setng-Home-Snoop">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Home-Snoop"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-QPI Snoop Mode/tokn-param-QpiSnoopMode/tokn-setng-Home-Snoop"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Intel Trusted Execution Technology/tokn-param-TXTSupport/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Intel Trusted Execution Technology/tokn-param-TXTSupport/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Trusted Platform Module/tokn-param-TPMControl/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Trusted Platform Module/tokn-param-TPMControl/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Boot option retry/tokn-param-BootOptionRetry/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Boot option retry/tokn-param-BootOptionRetry/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-PCH SATA Mode/tokn-param-pSATA/tokn-setng-LSI-SW-RAID">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="LSI-SW-RAID"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-PCH SATA Mode/tokn-param-pSATA/tokn-setng-LSI-SW-RAID"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Assert NMI on PERR/tokn-param-AssertNMIOnPERR/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Assert NMI on PERR/tokn-param-AssertNMIOnPERR/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Assert NMI on SERR/tokn-param-AssertNMIOnSERR/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Assert NMI on SERR/tokn-param-AssertNMIOnSERR/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-ConsoleRedir/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-ConsoleRedir/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-FlowCtrl/tokn-setng-None">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="None"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-FlowCtrl/tokn-setng-None"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-LegacyOSRedir/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-LegacyOSRedir/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-PuttyFunctionKeyPad/tokn-setng-ESCN">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="ESCN"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-PuttyFunctionKeyPad/tokn-setng-ESCN"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-TerminalType/tokn-setng-VT100">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="VT100"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-Console redirection/tokn-param-TerminalType/tokn-setng-VT100"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-FRB 2 Timer/tokn-param-FRB-2/tokn-setng-Enabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Enabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-FRB 2 Timer/tokn-param-FRB-2/tokn-setng-Enabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+<pair key="org-root/bios-prof-klbBIOS/tokn-featr-OS Boot Watchdog Timer/tokn-param-OSBootWatchdogTimer/tokn-setng-Disabled">
+    <biosTokenSettings
+    isAssigned="yes"
+    settingsMoRn="Disabled"
+    dn="org-root/bios-prof-klbBIOS/tokn-featr-OS Boot Watchdog Timer/tokn-param-OSBootWatchdogTimer/tokn-setng-Disabled"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </biosTokenSettings>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]

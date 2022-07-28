@@ -1,0 +1,405 @@
+Africa/Abidjan
+Africa/Accra
+Africa/Addis_Ababa
+Africa/Algiers
+Africa/Asmara
+Africa/Bamako
+Africa/Bangui
+Africa/Banjul
+Africa/Bissau
+Africa/Blantyre
+Africa/Brazzaville
+Africa/Bujumbura
+Africa/Cairo
+Africa/Casablanca
+Africa/Ceuta (Ceuta & Melilla)
+Africa/Conakry
+Africa/Dakar
+Africa/Dar_es_Salaam
+Africa/Djibouti
+Africa/Douala
+Africa/El_Aaiun
+Africa/Freetown
+Africa/Gaborone
+Africa/Harare
+Africa/Johannesburg
+Africa/Kampala
+Africa/Khartoum
+Africa/Kigali
+Africa/Kinshasa (west Dem. Rep. of Congo)
+Africa/Lagos
+Africa/Libreville
+Africa/Lome
+Africa/Luanda
+Africa/Lubumbashi (east Dem. Rep. of Congo)
+Africa/Lusaka
+Africa/Malabo
+Africa/Maputo
+Africa/Maseru
+Africa/Mbabane
+Africa/Mogadishu
+Africa/Monrovia
+Africa/Nairobi
+Africa/Ndjamena
+Africa/Niamey
+Africa/Nouakchott
+Africa/Ouagadougou
+Africa/Porto-Novo
+Africa/Sao_Tome
+Africa/Tripoli
+Africa/Tunis
+Africa/Windhoek
+America/Adak (Aleutian Islands)
+America/Anchorage (Alaska Time)
+America/Anguilla
+America/Antigua
+America/Araguaina (Tocantins)
+America/Argentina/Buenos_Aires (Buenos Aires (BA, CF))
+America/Argentina/Catamarca (Catamarca (CT), Chubut (CH))
+America/Argentina/Cordoba (most locations (CB, CC, CN, ER, FM, MN, SE, SF))
+America/Argentina/Jujuy (Jujuy (JY))
+America/Argentina/La_Rioja (La Rioja (LR))
+America/Argentina/Mendoza (Mendoza (MZ))
+America/Argentina/Rio_Gallegos (Santa Cruz (SC))
+America/Argentina/Salta ((SA, LP, NQ, RN))
+America/Argentina/San_Juan (San Juan (SJ))
+America/Argentina/San_Luis (San Luis (SL))
+America/Argentina/Tucuman (Tucuman (TM))
+America/Argentina/Ushuaia (Tierra del Fuego (TF))
+America/Aruba
+America/Asuncion
+America/Atikokan (Eastern Standard Time - Atikokan, Ontario and Southampton I, Nunavut)
+America/Bahia (Bahia)
+America/Barbados
+America/Belem (Amapa, E Para)
+America/Belize
+America/Blanc-Sablon (Atlantic Standard Time - Quebec - Lower North Shore)
+America/Boa_Vista (Roraima)
+America/Bogota
+America/Boise (Mountain Time - south Idaho & east Oregon)
+America/Cambridge_Bay (Mountain Time - west Nunavut)
+America/Campo_Grande (Mato Grosso do Sul)
+America/Cancun (Central Time - Quintana Roo)
+America/Caracas
+America/Cayenne
+America/Cayman
+America/Chicago (Central Time)
+America/Chihuahua (Mexican Mountain Time - Chihuahua away from US border)
+America/Costa_Rica
+America/Cuiaba (Mato Grosso)
+America/Curacao
+America/Danmarkshavn (east coast, north of Scoresbysund)
+America/Dawson_Creek (Mountain Standard Time - Dawson Creek & Fort Saint John, British Columbia)
+America/Dawson (Pacific Time - north Yukon)
+America/Denver (Mountain Time)
+America/Detroit (Eastern Time - Michigan - most locations)
+America/Dominica
+America/Edmonton (Mountain Time - Alberta, east British Columbia & west Saskatchewan)
+America/Eirunepe (W Amazonas)
+America/El_Salvador
+America/Fortaleza (NE Brazil (MA, PI, CE, RN, PB))
+America/Glace_Bay (Atlantic Time - Nova Scotia - places that did not observe DST 1966-1971)
+America/Godthab (most locations)
+America/Goose_Bay (Atlantic Time - Labrador - most locations)
+America/Grand_Turk
+America/Grenada
+America/Guadeloupe
+America/Guatemala
+America/Guayaquil (mainland)
+America/Guyana
+America/Halifax (Atlantic Time - Nova Scotia (most places), PEI)
+America/Havana
+America/Hermosillo (Mountain Standard Time - Sonora)
+America/Indiana/Indianapolis (Eastern Time - Indiana - most locations)
+America/Indiana/Knox (Central Time - Indiana - Starke County)
+America/Indiana/Marengo (Eastern Time - Indiana - Crawford County)
+America/Indiana/Petersburg (Eastern Time - Indiana - Pike County)
+America/Indiana/Tell_City (Central Time - Indiana - Perry County)
+America/Indiana/Vevay (Eastern Time - Indiana - Switzerland County)
+America/Indiana/Vincennes (Eastern Time - Indiana - Daviess, Dubois, Knox & Martin Counties)
+America/Indiana/Winamac (Eastern Time - Indiana - Pulaski County)
+America/Inuvik (Mountain Time - west Northwest Territories)
+America/Iqaluit (Eastern Time - east Nunavut - most locations)
+America/Jamaica
+America/Juneau (Alaska Time - Alaska panhandle)
+America/Kentucky/Louisville (Eastern Time - Kentucky - Louisville area)
+America/Kentucky/Monticello (Eastern Time - Kentucky - Wayne County)
+America/La_Paz
+America/Lima
+America/Los_Angeles (Pacific Time)
+America/Maceio (Alagoas, Sergipe)
+America/Managua
+America/Manaus (E Amazonas)
+America/Marigot
+America/Martinique
+America/Matamoros (US Central Time - Coahuila, Durango, Nuevo Leon, Tamaulipas near US border)
+America/Mazatlan (Mountain Time - S Baja, Nayarit, Sinaloa)
+America/Menominee (Central Time - Michigan - Dickinson, Gogebic, Iron & Menominee Counties)
+America/Merida (Central Time - Campeche, Yucatan)
+America/Mexico_City (Central Time - most locations)
+America/Miquelon
+America/Moncton (Atlantic Time - New Brunswick)
+America/Monterrey (Mexican Central Time - Coahuila, Durango, Nuevo Leon, Tamaulipas away from US border)
+America/Montevideo
+America/Montreal (Eastern Time - Quebec - most locations)
+America/Montserrat
+America/Nassau
+America/New_York (Eastern Time)
+America/Nipigon (Eastern Time - Ontario & Quebec - places that did not observe DST 1967-1973)
+America/Nome (Alaska Time - west Alaska)
+America/Noronha (Atlantic islands)
+America/North_Dakota/Center (Central Time - North Dakota - Oliver County)
+America/North_Dakota/New_Salem (Central Time - North Dakota - Morton County (except Mandan area))
+America/Ojinaga (US Mountain Time - Chihuahua near US border)
+America/Panama
+America/Pangnirtung (Eastern Time - Pangnirtung, Nunavut)
+America/Paramaribo
+America/Phoenix (Mountain Standard Time - Arizona)
+America/Port-au-Prince
+America/Port_of_Spain
+America/Porto_Velho (Rondonia)
+America/Puerto_Rico
+America/Rainy_River (Central Time - Rainy River & Fort Frances, Ontario)
+America/Rankin_Inlet (Central Time - central Nunavut)
+America/Recife (Pernambuco)
+America/Regina (Central Standard Time - Saskatchewan - most locations)
+America/Resolute (Eastern Standard Time - Resolute, Nunavut)
+America/Rio_Branco (Acre)
+America/Santa_Isabel (Mexican Pacific Time - Baja California away from US border)
+America/Santarem (W Para)
+America/Santiago (most locations)
+America/Santo_Domingo
+America/Sao_Paulo (S & SE Brazil (GO, DF, MG, ES, RJ, SP, PR, SC, RS))
+America/Scoresbysund (Scoresbysund / Ittoqqortoormiit)
+America/Shiprock (Mountain Time - Navajo)
+America/St_Barthelemy
+America/St_Johns (Newfoundland Time, including SE Labrador)
+America/St_Kitts
+America/St_Lucia
+America/St_Thomas
+America/St_Vincent
+America/Swift_Current (Central Standard Time - Saskatchewan - midwest)
+America/Tegucigalpa
+America/Thule (Thule / Pituffik)
+America/Thunder_Bay (Eastern Time - Thunder Bay, Ontario)
+America/Tijuana (US Pacific Time - Baja California near US border)
+America/Toronto (Eastern Time - Ontario - most locations)
+America/Tortola
+America/Vancouver (Pacific Time - west British Columbia)
+America/Whitehorse (Pacific Time - south Yukon)
+America/Winnipeg (Central Time - Manitoba & west Ontario)
+America/Yakutat (Alaska Time - Alaska panhandle neck)
+America/Yellowknife (Mountain Time - central Northwest Territories)
+Antarctica/Casey (Casey Station, Bailey Peninsula)
+Antarctica/Davis (Davis Station, Vestfold Hills)
+Antarctica/DumontDUrville (Dumont-d'Urville Station, Terre Adelie)
+Antarctica/Mawson (Mawson Station, Holme Bay)
+Antarctica/McMurdo (McMurdo Station, Ross Island)
+Antarctica/Palmer (Palmer Station, Anvers Island)
+Antarctica/Rothera (Rothera Station, Adelaide Island)
+Antarctica/South_Pole (Amundsen-Scott Station, South Pole)
+Antarctica/Syowa (Syowa Station, E Ongul I)
+Antarctica/Vostok (Vostok Station, S Magnetic Pole)
+Arctic/Longyearbyen
+Asia/Aden
+Asia/Almaty (most locations)
+Asia/Amman
+Asia/Anadyr (Moscow+10 - Bering Sea)
+Asia/Aqtau (Atyrau (Atirau, Gur'yev), Mangghystau (Mankistau))
+Asia/Aqtobe (Aqtobe (Aktobe))
+Asia/Ashgabat
+Asia/Baghdad
+Asia/Bahrain
+Asia/Baku
+Asia/Bangkok
+Asia/Beirut
+Asia/Bishkek
+Asia/Brunei
+Asia/Choibalsan (Dornod, Sukhbaatar)
+Asia/Chongqing (central China - Sichuan, Yunnan, Guangxi, Shaanxi, Guizhou, etc.)
+Asia/Colombo
+Asia/Damascus
+Asia/Dhaka
+Asia/Dili
+Asia/Dubai
+Asia/Dushanbe
+Asia/Gaza
+Asia/Harbin (Heilongjiang (except Mohe), Jilin)
+Asia/Ho_Chi_Minh
+Asia/Hong_Kong
+Asia/Hovd (Bayan-Olgiy, Govi-Altai, Hovd, Uvs, Zavkhan)
+Asia/Irkutsk (Moscow+05 - Lake Baikal)
+Asia/Jakarta (Java & Sumatra)
+Asia/Jayapura (Irian Jaya & the Moluccas)
+Asia/Jerusalem
+Asia/Kabul
+Asia/Kamchatka (Moscow+09 - Kamchatka)
+Asia/Karachi
+Asia/Kashgar (west Tibet & Xinjiang)
+Asia/Kathmandu
+Asia/Kolkata
+Asia/Krasnoyarsk (Moscow+04 - Yenisei River)
+Asia/Kuala_Lumpur (peninsular Malaysia)
+Asia/Kuching (Sabah & Sarawak)
+Asia/Kuwait
+Asia/Macau
+Asia/Magadan (Moscow+08 - Magadan)
+Asia/Makassar (east & south Borneo, Celebes, Bali, Nusa Tengarra, west Timor)
+Asia/Manila
+Asia/Muscat
+Asia/Nicosia
+Asia/Novokuznetsk (Moscow+03 - Novokuznetsk)
+Asia/Novosibirsk (Moscow+03 - Novosibirsk)
+Asia/Omsk (Moscow+03 - west Siberia)
+Asia/Oral (West Kazakhstan)
+Asia/Phnom_Penh
+Asia/Pontianak (west & central Borneo)
+Asia/Pyongyang
+Asia/Qatar
+Asia/Qyzylorda (Qyzylorda (Kyzylorda, Kzyl-Orda))
+Asia/Rangoon
+Asia/Riyadh
+Asia/Sakhalin (Moscow+07 - Sakhalin Island)
+Asia/Samarkand (west Uzbekistan)
+Asia/Seoul
+Asia/Shanghai (east China - Beijing, Guangdong, Shanghai, etc.)
+Asia/Singapore
+Asia/Taipei
+Asia/Tashkent (east Uzbekistan)
+Asia/Tbilisi
+Asia/Tehran
+Asia/Thimphu
+Asia/Tokyo
+Asia/Ulaanbaatar (most locations)
+Asia/Urumqi (most of Tibet & Xinjiang)
+Asia/Vientiane
+Asia/Vladivostok (Moscow+07 - Amur River)
+Asia/Yakutsk (Moscow+06 - Lena River)
+Asia/Yekaterinburg (Moscow+02 - Urals)
+Asia/Yerevan
+Atlantic/Azores (Azores)
+Atlantic/Bermuda
+Atlantic/Canary (Canary Islands)
+Atlantic/Cape_Verde
+Atlantic/Faroe
+Atlantic/Madeira (Madeira Islands)
+Atlantic/Reykjavik
+Atlantic/South_Georgia
+Atlantic/Stanley
+Atlantic/St_Helena
+Australia/Adelaide (South Australia)
+Australia/Brisbane (Queensland - most locations)
+Australia/Broken_Hill (New South Wales - Yancowinna)
+Australia/Currie (Tasmania - King Island)
+Australia/Darwin (Northern Territory)
+Australia/Eucla (Western Australia - Eucla area)
+Australia/Hobart (Tasmania - most locations)
+Australia/Lindeman (Queensland - Holiday Islands)
+Australia/Lord_Howe (Lord Howe Island)
+Australia/Melbourne (Victoria)
+Australia/Perth (Western Australia - most locations)
+Australia/Sydney (New South Wales - most locations)
+Europe/Amsterdam
+Europe/Andorra
+Europe/Athens
+Europe/Belgrade
+Europe/Berlin
+Europe/Bratislava
+Europe/Brussels
+Europe/Bucharest
+Europe/Budapest
+Europe/Chisinau
+Europe/Copenhagen
+Europe/Dublin
+Europe/Gibraltar
+Europe/Guernsey
+Europe/Helsinki
+Europe/Isle_of_Man
+Europe/Istanbul
+Europe/Jersey
+Europe/Kaliningrad (Moscow-01 - Kaliningrad)
+Europe/Kiev (most locations)
+Europe/Lisbon (mainland)
+Europe/Ljubljana
+Europe/London
+Europe/Luxembourg
+Europe/Madrid (mainland)
+Europe/Malta
+Europe/Mariehamn
+Europe/Minsk
+Europe/Monaco
+Europe/Moscow (Moscow+00 - west Russia)
+Europe/Oslo
+Europe/Paris
+Europe/Podgorica
+Europe/Prague
+Europe/Riga
+Europe/Rome
+Europe/Samara (Moscow+01 - Samara, Udmurtia)
+Europe/San_Marino
+Europe/Sarajevo
+Europe/Simferopol (central Crimea)
+Europe/Skopje
+Europe/Sofia
+Europe/Stockholm
+Europe/Tallinn
+Europe/Tirane
+Europe/Uzhgorod (Ruthenia)
+Europe/Vaduz
+Europe/Vatican
+Europe/Vienna
+Europe/Vilnius
+Europe/Volgograd (Moscow+00 - Caspian Sea)
+Europe/Warsaw
+Europe/Zagreb
+Europe/Zaporozhye (Zaporozh'ye, E Lugansk / Zaporizhia, E Luhansk)
+Europe/Zurich
+Indian/Antananarivo
+Indian/Chagos
+Indian/Christmas
+Indian/Cocos
+Indian/Comoro
+Indian/Kerguelen
+Indian/Mahe
+Indian/Maldives
+Indian/Mauritius
+Indian/Mayotte
+Indian/Reunion
+Pacific/Apia
+Pacific/Auckland (most locations)
+Pacific/Chatham (Chatham Islands)
+Pacific/Easter (Easter Island & Sala y Gomez)
+Pacific/Efate
+Pacific/Enderbury (Phoenix Islands)
+Pacific/Fakaofo
+Pacific/Fiji
+Pacific/Funafuti
+Pacific/Galapagos (Galapagos Islands)
+Pacific/Gambier (Gambier Islands)
+Pacific/Guadalcanal
+Pacific/Guam
+Pacific/Honolulu (Hawaii)
+Pacific/Johnston (Johnston Atoll)
+Pacific/Kiritimati (Line Islands)
+Pacific/Kosrae (Kosrae)
+Pacific/Kwajalein (Kwajalein)
+Pacific/Majuro (most locations)
+Pacific/Marquesas (Marquesas Islands)
+Pacific/Midway (Midway Islands)
+Pacific/Nauru
+Pacific/Niue
+Pacific/Norfolk
+Pacific/Noumea
+Pacific/Pago_Pago
+Pacific/Palau
+Pacific/Pitcairn
+Pacific/Ponape (Ponape (Pohnpei))
+Pacific/Port_Moresby
+Pacific/Rarotonga
+Pacific/Saipan
+Pacific/Tahiti (Society Islands)
+Pacific/Tarawa (Gilbert Islands)
+Pacific/Tongatapu
+Pacific/Truk (Truk (Chuuk) and Yap)
+Pacific/Wake (Wake Island)
+Pacific/Wallis

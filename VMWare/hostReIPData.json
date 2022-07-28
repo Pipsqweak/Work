@@ -1,0 +1,1107 @@
+[
+    {
+        "Name": "cdc-esxvcad02.powereng.com",
+        "VDSwitches": [],
+        "Datastores": [
+            "DDC_VM_DR_TMP_SATA_01",
+            "DDC_UCS_SATA_01",
+            "DDC_VM_SSD_01"
+        ],
+        "VMKs": [
+            {
+                "Name": "vmk0",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": true,
+                "Mtu": 1500,
+                "PortGroupName": "Management Network",
+                "IP": "10.247.1.60",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk1",
+                "VMotionEnabled": true,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "STORAGE-VLAN-11",
+                "IP": "10.247.11.60",
+                "SubnetMask": "255.255.255.0"
+            }
+        ],
+        "VMNICs": [
+            {
+                "Name": "vmnic0",
+                "Mac": "00:25:b5:01:00:14"
+            },
+            {
+                "Name": "vmnic1",
+                "Mac": "00:25:b5:01:00:15"
+            },
+            {
+                "Name": "vmnic2",
+                "Mac": "00:25:b5:01:00:16"
+            },
+            {
+                "Name": "vmnic3",
+                "Mac": "00:25:b5:01:00:17"
+            },
+            {
+                "Name": "vmnic4",
+                "Mac": "00:25:b5:01:00:18"
+            },
+            {
+                "Name": "vmnic5",
+                "Mac": "00:25:b5:01:00:19"
+            }
+        ],
+        "LogDir": "[DDC_UCS_SATA_01] SYSLOG/DDC-ESX-C1-B1"
+    },
+    {
+        "Name": "ddc-esx-c1-b1.powereng.com",
+        "VDSwitches": [],
+        "Datastores": [
+            "DDC_VM_DR_TMP_SATA_01",
+            "DDC_UCS_SATA_01",
+            "DDC_VM_SSD_01"
+        ],
+        "VMKs": [
+            {
+                "Name": "vmk0",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": true,
+                "Mtu": 1500,
+                "PortGroupName": "Management Network",
+                "IP": "10.247.1.61",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk1",
+                "VMotionEnabled": true,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "STORAGE-VLAN-11",
+                "IP": "10.247.11.61",
+                "SubnetMask": "255.255.255.0"
+            }
+        ],
+        "VMNICs": [
+            {
+                "Name": "vmnic0",
+                "Mac": "00:25:b5:01:00:1a"
+            },
+            {
+                "Name": "vmnic1",
+                "Mac": "00:25:b5:01:00:1b"
+            },
+            {
+                "Name": "vmnic2",
+                "Mac": "00:25:b5:01:00:1c"
+            },
+            {
+                "Name": "vmnic3",
+                "Mac": "00:25:b5:01:00:1d"
+            },
+            {
+                "Name": "vmnic4",
+                "Mac": "00:25:b5:01:00:1e"
+            },
+            {
+                "Name": "vmnic5",
+                "Mac": "00:25:b5:01:00:1f"
+            }
+        ],
+        "LogDir": "[DDC_UCS_SATA_01] SYSLOG/DDC-ESX-C1-B2"
+    },
+    {
+        "Name": "ddc-esx-c1-b2.powereng.com",
+        "VDSwitches": [],
+        "Datastores": [
+            "DDC_VM_DR_TMP_SATA_01",
+            "DDC_UCS_SATA_01",
+            "DDC_VM_SSD_01"
+        ],
+        "VMKs": [
+            {
+                "Name": "vmk0",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": true,
+                "Mtu": 1500,
+                "PortGroupName": "Management Network",
+                "IP": "10.247.1.62",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk1",
+                "VMotionEnabled": true,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "STORAGE-VLAN-11",
+                "IP": "10.247.11.62",
+                "SubnetMask": "255.255.255.0"
+            }
+        ],
+        "VMNICs": [
+            {
+                "Name": "vmnic0",
+                "Mac": "00:25:b5:01:00:20"
+            },
+            {
+                "Name": "vmnic1",
+                "Mac": "00:25:b5:01:00:21"
+            },
+            {
+                "Name": "vmnic2",
+                "Mac": "00:25:b5:01:00:22"
+            },
+            {
+                "Name": "vmnic3",
+                "Mac": "00:25:b5:01:00:23"
+            },
+            {
+                "Name": "vmnic4",
+                "Mac": "00:25:b5:01:00:24"
+            },
+            {
+                "Name": "vmnic5",
+                "Mac": "00:25:b5:01:00:25"
+            }
+        ],
+        "LogDir": "[DDC_UCS_SATA_01] SYSLOG/DDC-ESX-C1-B3"
+    },
+    {
+        "Name": "ddc-esx-c1-b3.powereng.com",
+        "VDSwitches": [],
+        "Datastores": [
+            "DDC_VCAD_SATA_01",
+            "DDC_UCS_SATA_01",
+            "DDC_VM_SSD_01"
+        ],
+        "VMKs": [
+            {
+                "Name": "vmk0",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": true,
+                "Mtu": 1500,
+                "PortGroupName": "Management Network",
+                "IP": "10.247.1.63",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk1",
+                "VMotionEnabled": true,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "STORAGE-VLAN-11",
+                "IP": "10.247.11.63",
+                "SubnetMask": "255.255.255.0"
+            }
+        ],
+        "VMNICs": [
+            {
+                "Name": "vmnic0",
+                "Mac": "00:25:b5:01:00:26"
+            },
+            {
+                "Name": "vmnic1",
+                "Mac": "00:25:b5:01:00:27"
+            },
+            {
+                "Name": "vmnic2",
+                "Mac": "00:25:b5:01:00:28"
+            },
+            {
+                "Name": "vmnic3",
+                "Mac": "00:25:b5:01:00:29"
+            },
+            {
+                "Name": "vmnic4",
+                "Mac": "00:25:b5:01:00:2a"
+            },
+            {
+                "Name": "vmnic5",
+                "Mac": "00:25:b5:01:00:2b"
+            }
+        ],
+        "LogDir": "[] /scratch/log"
+    },
+    {
+        "Name": "ddc-esx-c1-b4.powereng.com",
+        "VDSwitches": [],
+        "Datastores": [
+            "DDC_VM_DR_TMP_SATA_01",
+            "DDC_UCS_SATA_01",
+            "DDC_VM_SSD_01"
+        ],
+        "VMKs": [
+            {
+                "Name": "vmk0",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": true,
+                "Mtu": 1500,
+                "PortGroupName": "Management Network",
+                "IP": "10.247.1.64",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk1",
+                "VMotionEnabled": true,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "STORAGE-VLAN-11",
+                "IP": "10.247.11.64",
+                "SubnetMask": "255.255.255.0"
+            }
+        ],
+        "VMNICs": [
+            {
+                "Name": "vmnic0",
+                "Mac": "00:25:b5:01:00:00"
+            },
+            {
+                "Name": "vmnic1",
+                "Mac": "00:25:b5:01:00:01"
+            },
+            {
+                "Name": "vmnic2",
+                "Mac": "00:25:b5:01:00:02"
+            },
+            {
+                "Name": "vmnic3",
+                "Mac": "00:25:b5:01:00:03"
+            },
+            {
+                "Name": "vmnic4",
+                "Mac": "00:25:b5:01:00:04"
+            },
+            {
+                "Name": "vmnic5",
+                "Mac": "00:25:b5:01:00:05"
+            }
+        ],
+        "LogDir": "[DDC_UCS_SATA_01] SYSLOG/DDC-ESX-C1-B5"
+    },
+    {
+        "Name": "ddc-esx-c1-b5.powereng.com",
+        "VDSwitches": [],
+        "Datastores": [
+            "DDC_VCAD_SATA_01",
+            "DDC_UCS_SATA_01",
+            "DDC_VM_SSD_01"
+        ],
+        "VMKs": [
+            {
+                "Name": "vmk0",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": true,
+                "Mtu": 1500,
+                "PortGroupName": "Management Network",
+                "IP": "10.247.1.92",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk1",
+                "VMotionEnabled": true,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "STORAGE-VLAN-11",
+                "IP": "10.247.11.92",
+                "SubnetMask": "255.255.255.0"
+            }
+        ],
+        "VMNICs": [
+            {
+                "Name": "vmnic0",
+                "Mac": "00:25:b5:01:00:06"
+            },
+            {
+                "Name": "vmnic1",
+                "Mac": "00:25:b5:01:00:07"
+            },
+            {
+                "Name": "vmnic2",
+                "Mac": "00:25:b5:01:00:08"
+            },
+            {
+                "Name": "vmnic3",
+                "Mac": "00:25:b5:01:00:09"
+            },
+            {
+                "Name": "vmnic4",
+                "Mac": "00:25:b5:01:00:0a"
+            },
+            {
+                "Name": "vmnic5",
+                "Mac": "00:25:b5:01:00:0b"
+            }
+        ],
+        "LogDir": "[DDC_UCS_SATA_01] SYSLOG/DDC-ESXVCAD01"
+    },
+    {
+        "Name": "ddc-esxvcad01.powereng.com",
+        "VDSwitches": [
+            {
+                "Name": "DDC-VCAD-vDS-01",
+                "Uplinks": [
+                    {
+                        "Name": "MGMT-VMOTION",
+                        "VMNICMAC": "00:25:b5:01:00:0c"
+                    },
+                    {
+                        "Name": "VMOTION-MGMT",
+                        "VMNICMAC": "00:25:b5:01:00:0d"
+                    },
+                    {
+                        "Name": "STORAGE 1",
+                        "VMNICMAC": "00:25:b5:01:00:10"
+                    },
+                    {
+                        "Name": "GUEST 1",
+                        "VMNICMAC": "00:25:b5:01:00:0f"
+                    },
+                    {
+                        "Name": "GUEST 2",
+                        "VMNICMAC": "00:25:b5:01:00:0e"
+                    },
+                    {
+                        "Name": "STORAGE 2",
+                        "VMNICMAC": "00:25:b5:01:00:11"
+                    }
+                ]
+            }
+        ],
+        "Datastores": [
+            "DDC_VCAD_SATA_01",
+            "DDC_UCS_SATA_01",
+            "DDC_VM_SSD_01"
+        ],
+        "VMKs": [
+            {
+                "Name": "vmk0",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": true,
+                "Mtu": 1500,
+                "PortGroupName": "Management VLAN 1",
+                "IP": "10.247.1.93",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk1",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "Storage VLAN 11",
+                "IP": "10.247.11.95",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk2",
+                "VMotionEnabled": true,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "vMotion VLAN 11",
+                "IP": "10.247.11.96",
+                "SubnetMask": "255.255.255.0"
+            }
+        ],
+        "VMNICs": [
+            {
+                "Name": "vmnic0",
+                "Mac": "00:25:b5:01:00:0c"
+            },
+            {
+                "Name": "vmnic1",
+                "Mac": "00:25:b5:01:00:0d"
+            },
+            {
+                "Name": "vmnic2",
+                "Mac": "00:25:b5:01:00:0e"
+            },
+            {
+                "Name": "vmnic3",
+                "Mac": "00:25:b5:01:00:0f"
+            },
+            {
+                "Name": "vmnic4",
+                "Mac": "00:25:b5:01:00:10"
+            },
+            {
+                "Name": "vmnic5",
+                "Mac": "00:25:b5:01:00:11"
+            }
+        ],
+        "LogDir": "[DDC_UCS_SATA_01] SYSLOG/ddc-esxvcad02"
+    },
+    {
+        "Name": "ddc-esxvcad02.powereng.com",
+        "VDSwitches": [
+            {
+                "Name": "DDC-VCAD-vDS-01",
+                "Uplinks": [
+                    {
+                        "Name": "MGMT-VMOTION",
+                        "VMNICMAC": "00:25:b5:01:00:12"
+                    },
+                    {
+                        "Name": "VMOTION-MGMT",
+                        "VMNICMAC": "00:25:b5:01:00:13"
+                    },
+                    {
+                        "Name": "STORAGE 1",
+                        "VMNICMAC": "00:25:b5:01:00:2e"
+                    },
+                    {
+                        "Name": "GUEST 1",
+                        "VMNICMAC": "00:25:b5:01:00:2d"
+                    },
+                    {
+                        "Name": "GUEST 2",
+                        "VMNICMAC": "00:25:b5:01:00:2c"
+                    },
+                    {
+                        "Name": "STORAGE 2",
+                        "VMNICMAC": "00:25:b5:01:00:2f"
+                    }
+                ]
+            }
+        ],
+        "Datastores": [
+            "DDC_VCAD_SATA_01",
+            "DDC_UCS_SATA_01",
+            "DDC_VM_SSD_01"
+        ],
+        "VMKs": [
+            {
+                "Name": "vmk0",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": true,
+                "Mtu": 1500,
+                "PortGroupName": "Management VLAN 1",
+                "IP": "10.247.1.94",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk1",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "Storage VLAN 11",
+                "IP": "10.247.11.97",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk2",
+                "VMotionEnabled": true,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "vMotion VLAN 11",
+                "IP": "10.247.11.98",
+                "SubnetMask": "255.255.255.0"
+            }
+        ],
+        "VMNICs": [
+            {
+                "Name": "vmnic0",
+                "Mac": "00:25:b5:01:00:12"
+            },
+            {
+                "Name": "vmnic1",
+                "Mac": "00:25:b5:01:00:13"
+            },
+            {
+                "Name": "vmnic2",
+                "Mac": "00:25:b5:01:00:2c"
+            },
+            {
+                "Name": "vmnic3",
+                "Mac": "00:25:b5:01:00:2d"
+            },
+            {
+                "Name": "vmnic4",
+                "Mac": "00:25:b5:01:00:2e"
+            },
+            {
+                "Name": "vmnic5",
+                "Mac": "00:25:b5:01:00:2f"
+            }
+        ],
+        "LogDir": "[DDC_UCS_SATA_01] SYSLOG/ddc-esxvcad03"
+    },
+    {
+        "Name": "ddc-esxvcad03.powereng.com",
+        "VDSwitches": [
+            {
+                "Name": "DDC-VCAD-vDS-01",
+                "Uplinks": [
+                    {
+                        "Name": "MGMT-VMOTION",
+                        "VMNICMAC": "00:25:b5:01:00:30"
+                    },
+                    {
+                        "Name": "VMOTION-MGMT",
+                        "VMNICMAC": "00:25:b5:01:00:31"
+                    },
+                    {
+                        "Name": "STORAGE 1",
+                        "VMNICMAC": "00:25:b5:01:00:34"
+                    },
+                    {
+                        "Name": "GUEST 1",
+                        "VMNICMAC": "00:25:b5:01:00:32"
+                    },
+                    {
+                        "Name": "GUEST 2",
+                        "VMNICMAC": "00:25:b5:01:00:33"
+                    },
+                    {
+                        "Name": "STORAGE 2",
+                        "VMNICMAC": "00:25:b5:01:00:35"
+                    }
+                ]
+            }
+        ],
+        "Datastores": [
+            "DDC_UCS_SATA_01",
+            "DDC_VM_SSD_01"
+        ],
+        "VMKs": [
+            {
+                "Name": "vmk0",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": true,
+                "Mtu": 1500,
+                "PortGroupName": "Management VLAN 1",
+                "IP": "10.247.1.95",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk1",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "Storage VLAN 11",
+                "IP": "10.247.11.99",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk2",
+                "VMotionEnabled": true,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "vMotion VLAN 11",
+                "IP": "10.247.11.100",
+                "SubnetMask": "255.255.255.0"
+            }
+        ],
+        "VMNICs": [
+            {
+                "Name": "vmnic0",
+                "Mac": "00:25:b5:01:00:30"
+            },
+            {
+                "Name": "vmnic1",
+                "Mac": "00:25:b5:01:00:31"
+            },
+            {
+                "Name": "vmnic2",
+                "Mac": "00:25:b5:01:00:32"
+            },
+            {
+                "Name": "vmnic3",
+                "Mac": "00:25:b5:01:00:33"
+            },
+            {
+                "Name": "vmnic4",
+                "Mac": "00:25:b5:01:00:34"
+            },
+            {
+                "Name": "vmnic5",
+                "Mac": "00:25:b5:01:00:35"
+            }
+        ],
+        "LogDir": "[DDC_UCS_SATA_01] SYSLOG/DDC-ESXVCAD04"
+    },
+    {
+        "Name": "ddc-esxvcad04.powereng.com",
+        "VDSwitches": [
+            {
+                "Name": "CDC-UCS-PRD-vDS-01",
+                "Uplinks": [
+                    {
+                        "Name": "MGMT-VMOTION Uplink",
+                        "VMNICMAC": "00:25:b5:02:00:0f"
+                    },
+                    {
+                        "Name": "VMOTION-MGMT Uplink",
+                        "VMNICMAC": "00:25:b5:02:00:0c"
+                    },
+                    {
+                        "Name": "GUEST 1",
+                        "VMNICMAC": "00:25:b5:02:00:20"
+                    },
+                    {
+                        "Name": "GUEST 2",
+                        "VMNICMAC": "00:25:b5:02:00:08"
+                    },
+                    {
+                        "Name": "STORAGE 1",
+                        "VMNICMAC": "00:25:b5:02:00:05"
+                    },
+                    {
+                        "Name": "STORAGE 2",
+                        "VMNICMAC": "00:25:b5:02:00:0b"
+                    }
+                ]
+            }
+        ],
+        "Datastores": [
+            "CDC_VM_DR_SATA_01",
+            "CDC_VM_DR_PW_SQL_SAS_01",
+            "CDC_VM_DR_SAS_SQL_01",
+            "CDC_VM_SSD_01",
+            "CDC_VM_DR_SAS_01",
+            "CDC_VM_SATA_01",
+            "CDC_VM_DR_PW_SATA_01"
+        ],
+        "VMKs": [
+            {
+                "Name": "vmk0",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": true,
+                "Mtu": 1500,
+                "PortGroupName": "Management VLAN 1",
+                "IP": "10.245.1.70",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk1",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "Storage VLAN 11",
+                "IP": "10.245.11.101",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk2",
+                "VMotionEnabled": true,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "vMotion VLAN 11",
+                "IP": "10.245.11.102",
+                "SubnetMask": "255.255.255.0"
+            }
+        ],
+        "VMNICs": [
+            {
+                "Name": "vmnic0",
+                "Mac": "00:25:b5:02:00:0f"
+            },
+            {
+                "Name": "vmnic1",
+                "Mac": "00:25:b5:02:00:0c"
+            },
+            {
+                "Name": "vmnic2",
+                "Mac": "00:25:b5:02:00:20"
+            },
+            {
+                "Name": "vmnic3",
+                "Mac": "00:25:b5:02:00:08"
+            },
+            {
+                "Name": "vmnic4",
+                "Mac": "00:25:b5:02:00:05"
+            },
+            {
+                "Name": "vmnic5",
+                "Mac": "00:25:b5:02:00:0b"
+            }
+        ],
+        "LogDir": "[] /scratch/log"
+    },
+    {
+        "Name": "cdc-esx-c1-b1.powereng.com",
+        "VDSwitches": [
+            {
+                "Name": "CDC-UCS-PRD-vDS-01",
+                "Uplinks": [
+                    {
+                        "Name": "MGMT-VMOTION Uplink",
+                        "VMNICMAC": "00:25:b5:02:00:0e"
+                    },
+                    {
+                        "Name": "VMOTION-MGMT Uplink",
+                        "VMNICMAC": "00:25:b5:02:00:06"
+                    },
+                    {
+                        "Name": "GUEST 1",
+                        "VMNICMAC": "00:25:b5:02:00:1f"
+                    },
+                    {
+                        "Name": "GUEST 2",
+                        "VMNICMAC": "00:25:b5:02:00:03"
+                    },
+                    {
+                        "Name": "STORAGE 1",
+                        "VMNICMAC": "00:25:b5:02:00:04"
+                    },
+                    {
+                        "Name": "STORAGE 2",
+                        "VMNICMAC": "00:25:b5:02:00:0a"
+                    }
+                ]
+            }
+        ],
+        "Datastores": [
+            "CDC_VM_DR_SATA_01",
+            "CDC_VM_DR_PW_SQL_SAS_01",
+            "CDC_VM_DR_SAS_SQL_01",
+            "CDC_VM_SSD_01",
+            "CDC_VM_DR_SAS_01",
+            "CDC_VM_SATA_01",
+            "CDC_VM_DR_PW_SATA_01"
+        ],
+        "VMKs": [
+            {
+                "Name": "vmk0",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": true,
+                "Mtu": 1500,
+                "PortGroupName": "Management VLAN 1",
+                "IP": "10.245.1.71",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk1",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "Storage VLAN 11",
+                "IP": "10.245.11.103",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk2",
+                "VMotionEnabled": true,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "vMotion VLAN 11",
+                "IP": "10.245.11.104",
+                "SubnetMask": "255.255.255.0"
+            }
+        ],
+        "VMNICs": [
+            {
+                "Name": "vmnic0",
+                "Mac": "00:25:b5:02:00:0e"
+            },
+            {
+                "Name": "vmnic1",
+                "Mac": "00:25:b5:02:00:06"
+            },
+            {
+                "Name": "vmnic2",
+                "Mac": "00:25:b5:02:00:1f"
+            },
+            {
+                "Name": "vmnic3",
+                "Mac": "00:25:b5:02:00:03"
+            },
+            {
+                "Name": "vmnic4",
+                "Mac": "00:25:b5:02:00:04"
+            },
+            {
+                "Name": "vmnic5",
+                "Mac": "00:25:b5:02:00:0a"
+            }
+        ],
+        "LogDir": "[] /scratch/log"
+    },
+    {
+        "Name": "cdc-esx-c1-b2.powereng.com",
+        "VDSwitches": [
+            {
+                "Name": "CDC-UCS-PRD-vDS-01",
+                "Uplinks": [
+                    {
+                        "Name": "MGMT-VMOTION Uplink",
+                        "VMNICMAC": "00:25:b5:02:00:09"
+                    },
+                    {
+                        "Name": "VMOTION-MGMT Uplink",
+                        "VMNICMAC": "00:25:b5:02:00:00"
+                    },
+                    {
+                        "Name": "GUEST 1",
+                        "VMNICMAC": "00:25:b5:02:00:1e"
+                    },
+                    {
+                        "Name": "GUEST 2",
+                        "VMNICMAC": "00:25:b5:02:00:02"
+                    },
+                    {
+                        "Name": "STORAGE 1",
+                        "VMNICMAC": "00:25:b5:02:00:01"
+                    },
+                    {
+                        "Name": "STORAGE 2",
+                        "VMNICMAC": "00:25:b5:02:00:07"
+                    }
+                ]
+            }
+        ],
+        "Datastores": [
+            "CDC_VM_DR_SATA_01",
+            "CDC_VM_DR_PW_SQL_SAS_01",
+            "CDC_VM_DR_SAS_SQL_01",
+            "CDC_VM_SSD_01",
+            "CDC_VM_DR_SAS_01",
+            "CDC_VM_SATA_01",
+            "CDC_VM_DR_PW_SATA_01"
+        ],
+        "VMKs": [
+            {
+                "Name": "vmk0",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": true,
+                "Mtu": 1500,
+                "PortGroupName": "Management VLAN 1",
+                "IP": "10.245.1.72",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk1",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "Storage VLAN 11",
+                "IP": "10.245.11.105",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk2",
+                "VMotionEnabled": true,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "vMotion VLAN 11",
+                "IP": "10.245.11.106",
+                "SubnetMask": "255.255.255.0"
+            }
+        ],
+        "VMNICs": [
+            {
+                "Name": "vmnic0",
+                "Mac": "00:25:b5:02:00:09"
+            },
+            {
+                "Name": "vmnic1",
+                "Mac": "00:25:b5:02:00:00"
+            },
+            {
+                "Name": "vmnic2",
+                "Mac": "00:25:b5:02:00:1e"
+            },
+            {
+                "Name": "vmnic3",
+                "Mac": "00:25:b5:02:00:02"
+            },
+            {
+                "Name": "vmnic4",
+                "Mac": "00:25:b5:02:00:01"
+            },
+            {
+                "Name": "vmnic5",
+                "Mac": "00:25:b5:02:00:07"
+            }
+        ],
+        "LogDir": "[] /scratch/log"
+    },
+    {
+        "Name": "cdc-esx-c1-b3.powereng.com",
+        "VDSwitches": [
+            {
+                "Name": "CDC-UCS-PRD-vDS-01",
+                "Uplinks": [
+                    {
+                        "Name": "MGMT-VMOTION Uplink",
+                        "VMNICMAC": "00:25:b5:02:00:0d"
+                    },
+                    {
+                        "Name": "VMOTION-MGMT Uplink",
+                        "VMNICMAC": "00:25:b5:02:00:10"
+                    },
+                    {
+                        "Name": "GUEST 1",
+                        "VMNICMAC": "00:25:b5:02:00:11"
+                    },
+                    {
+                        "Name": "GUEST 2",
+                        "VMNICMAC": "00:25:b5:02:00:12"
+                    },
+                    {
+                        "Name": "STORAGE 1",
+                        "VMNICMAC": "00:25:b5:02:00:13"
+                    },
+                    {
+                        "Name": "STORAGE 2",
+                        "VMNICMAC": "00:25:b5:02:00:14"
+                    }
+                ]
+            }
+        ],
+        "Datastores": [
+            "CDC_VDI_VMWARE_SATA_01",
+            "CDC_VM_SSD_01"
+        ],
+        "VMKs": [
+            {
+                "Name": "vmk0",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": true,
+                "Mtu": 1500,
+                "PortGroupName": "Management VLAN 1",
+                "IP": "10.245.1.92",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk1",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 1500,
+                "PortGroupName": "Storage VLAN 11",
+                "IP": "10.245.11.95",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk2",
+                "VMotionEnabled": true,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "vMotion VLAN 11",
+                "IP": "10.245.11.96",
+                "SubnetMask": "255.255.255.0"
+            }
+        ],
+        "VMNICs": [
+            {
+                "Name": "vmnic0",
+                "Mac": "00:25:b5:02:00:0d"
+            },
+            {
+                "Name": "vmnic1",
+                "Mac": "00:25:b5:02:00:10"
+            },
+            {
+                "Name": "vmnic2",
+                "Mac": "00:25:b5:02:00:11"
+            },
+            {
+                "Name": "vmnic3",
+                "Mac": "00:25:b5:02:00:12"
+            },
+            {
+                "Name": "vmnic4",
+                "Mac": "00:25:b5:02:00:13"
+            },
+            {
+                "Name": "vmnic5",
+                "Mac": "00:25:b5:02:00:14"
+            }
+        ],
+        "LogDir": "[CDC_VDI_VMWARE_SATA_01] .syslog/cdc-esxvcad01"
+    },
+    {
+        "Name": "cdc-esxvcad01.powereng.com",
+        "VDSwitches": [
+            {
+                "Name": "CDC-UCS-PRD-vDS-01",
+                "Uplinks": [
+                    {
+                        "Name": "GUEST 1",
+                        "VMNICMAC": "00:25:b5:02:00:17"
+                    },
+                    {
+                        "Name": "GUEST 2",
+                        "VMNICMAC": "00:25:b5:02:00:18"
+                    },
+                    {
+                        "Name": "STORAGE 1",
+                        "VMNICMAC": "00:25:b5:02:00:19"
+                    },
+                    {
+                        "Name": "STORAGE 2",
+                        "VMNICMAC": "00:25:b5:02:00:1a"
+                    },
+                    {
+                        "Name": "MGMT-VMOTION Uplink",
+                        "VMNICMAC": "00:25:b5:02:00:15"
+                    },
+                    {
+                        "Name": "VMOTION-MGMT Uplink",
+                        "VMNICMAC": "00:25:b5:02:00:16"
+                    }
+                ]
+            }
+        ],
+        "Datastores": [
+            "CDC_VDI_VMWARE_SATA_01",
+            "CDC_VM_SSD_01"
+        ],
+        "VMKs": [
+            {
+                "Name": "vmk0",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": true,
+                "Mtu": 1500,
+                "PortGroupName": "Management VLAN 1",
+                "IP": "10.245.1.93",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk1",
+                "VMotionEnabled": false,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 1500,
+                "PortGroupName": "Storage VLAN 11",
+                "IP": "10.245.11.97",
+                "SubnetMask": "255.255.255.0"
+            },
+            {
+                "Name": "vmk2",
+                "VMotionEnabled": true,
+                "ManagementTrafficEnabled": false,
+                "Mtu": 9000,
+                "PortGroupName": "vMotion VLAN 11",
+                "IP": "10.245.11.98",
+                "SubnetMask": "255.255.255.0"
+            }
+        ],
+        "VMNICs": [
+            {
+                "Name": "vmnic0",
+                "Mac": "00:25:b5:02:00:15"
+            },
+            {
+                "Name": "vmnic1",
+                "Mac": "00:25:b5:02:00:16"
+            },
+            {
+                "Name": "vmnic2",
+                "Mac": "00:25:b5:02:00:17"
+            },
+            {
+                "Name": "vmnic3",
+                "Mac": "00:25:b5:02:00:18"
+            },
+            {
+                "Name": "vmnic4",
+                "Mac": "00:25:b5:02:00:19"
+            },
+            {
+                "Name": "vmnic5",
+                "Mac": "00:25:b5:02:00:1a"
+            }
+        ],
+        "LogDir": "[CDC_VDI_VMWARE_SATA_01] .syslog/cdc-esxvcad02"
+    }
+]

@@ -1,0 +1,129 @@
+[------------- Sending Request to Server ------------
+
+<configResolveDn
+dn="sys"
+cookie="1652887149/011495f9-dd22-40f4-a43f-3426ff68ad21"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1652887149/011495f9-dd22-40f4-a43f-3426ff68ad21"
+inHierarchical="false">
+</configResolveDn>
+
+<configEstimateImpact
+cookie="1652887149/011495f9-dd22-40f4-a43f-3426ff68ad21">
+    <inConfigs>
+<pair key="org-root/chassis-discovery">
+    <computeChassisDiscPolicy
+    action="4-link"
+    dn="org-root/chassis-discovery"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </computeChassisDiscPolicy>
+</pair>
+<pair key="org-root/server-discovery">
+    <computeServerDiscPolicy
+    action="user-acknowledged"
+    scrubPolicyName="default"
+    dn="org-root/server-discovery"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </computeServerDiscPolicy>
+</pair>
+<pair key="org-root/server-mgmt-policy">
+    <computeServerMgmtPolicy
+    action="user-acknowledged"
+    dn="org-root/server-mgmt-policy"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </computeServerMgmtPolicy>
+</pair>
+<pair key="org-root/pwr-mgmt-policy">
+    <powerMgmtPolicy
+    style="manual-per-blade"
+    dn="org-root/pwr-mgmt-policy"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </powerMgmtPolicy>
+</pair>
+<pair key="org-root/fw-auto-sync">
+    <firmwareAutoSyncPolicy
+    syncState="User Acknowledge"
+    dn="org-root/fw-auto-sync"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </firmwareAutoSyncPolicy>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1652887149/011495f9-dd22-40f4-a43f-3426ff68ad21"
+inHierarchical="false">
+    <inConfigs>
+<pair key="org-root/chassis-discovery">
+    <computeChassisDiscPolicy
+    action="4-link"
+    dn="org-root/chassis-discovery"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </computeChassisDiscPolicy>
+</pair>
+<pair key="org-root/server-discovery">
+    <computeServerDiscPolicy
+    action="user-acknowledged"
+    scrubPolicyName="default"
+    dn="org-root/server-discovery"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </computeServerDiscPolicy>
+</pair>
+<pair key="org-root/server-mgmt-policy">
+    <computeServerMgmtPolicy
+    action="user-acknowledged"
+    dn="org-root/server-mgmt-policy"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </computeServerMgmtPolicy>
+</pair>
+<pair key="org-root/pwr-mgmt-policy">
+    <powerMgmtPolicy
+    style="manual-per-blade"
+    dn="org-root/pwr-mgmt-policy"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </powerMgmtPolicy>
+</pair>
+<pair key="org-root/fw-auto-sync">
+    <firmwareAutoSyncPolicy
+    syncState="User Acknowledge"
+    dn="org-root/fw-auto-sync"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </firmwareAutoSyncPolicy>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]

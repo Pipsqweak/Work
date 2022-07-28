@@ -1,0 +1,178 @@
+[------------- Sending Request to Server ------------
+
+<configConfMos
+cookie="1655230327/ba953055-5bc4-441d-94b5-b9135c94f285"
+inHierarchical="false">
+    <inConfigs>
+<pair key="fabric/lan/A">
+    <fabricEthLan
+    id="A"
+    dn="fabric/lan/A"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+        <fabricEthLanEp
+        adminSpeed="10gbps"
+        adminState="enabled"
+        autoNegotiate="yes"
+        ethLinkProfileName="default"
+        fec="auto"
+        flowCtrlPolicy="default"
+        name=""
+        portId="1"
+        slotId="1"
+        usrLbl=""
+        
+        rn="phys-slot-1-port-1"
+        
+        
+        sacl="addchild,del,mod">
+        </fabricEthLanEp>
+        <fabricEthLanEp
+        adminSpeed="10gbps"
+        adminState="enabled"
+        autoNegotiate="yes"
+        ethLinkProfileName="default"
+        fec="auto"
+        flowCtrlPolicy="default"
+        name=""
+        portId="2"
+        slotId="1"
+        usrLbl=""
+        
+        rn="phys-slot-1-port-2"
+        
+        
+        sacl="addchild,del,mod">
+        </fabricEthLanEp>
+    </fabricEthLan>
+</pair>
+    </inConfigs>
+</configConfMos>
+
+<configResolveClass
+cookie="1655230327/ba953055-5bc4-441d-94b5-b9135c94f285"
+classId="fabricVsan"
+inHierarchical="false">
+    <inFilter>
+<and>
+    <eq class="fabricVsan" property="ifRole" value="storage"/>
+    <or>
+        <eq class="fabricVsan" property="switchId" value="A"/>
+        <eq class="fabricVsan" property="switchId" value="dual"/>
+</or>
+</and>
+    </inFilter>
+</configResolveClass>
+
+<configResolveClass
+cookie="1655230327/ba953055-5bc4-441d-94b5-b9135c94f285"
+classId="fabricFcoeVsanPortEp"
+inHierarchical="false">
+    <inFilter>
+<and>
+    <eq class="fabricFcoeVsanPortEp" property="switchId" value="A"/>
+    <eq class="fabricFcoeVsanPortEp" property="portId" value="15"/>
+    <eq class="fabricFcoeVsanPortEp" property="slotId" value="1"/>
+    <eq class="fabricFcoeVsanPortEp" property="aggrPortId" value="0"/>
+</and>
+    </inFilter>
+</configResolveClass>
+
+<configResolveChildren
+cookie="1655230327/ba953055-5bc4-441d-94b5-b9135c94f285"
+
+inDn="sys/switch-A/slot-1/switch-ether/port-15"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1655230327/ba953055-5bc4-441d-94b5-b9135c94f285"
+classId="equipmentXcvr"
+inDn="sys/switch-A/slot-1/switch-ether/port-15"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveDn
+dn="sys"
+cookie="1655230327/ba953055-5bc4-441d-94b5-b9135c94f285"
+inHierarchical="false">
+</configResolveDn>
+
+<configScope
+dn="sys/switch-B/slot-1"
+cookie="1655230327/ba953055-5bc4-441d-94b5-b9135c94f285"
+inClass="etherPIo"
+inHierarchical="false"
+inRecursive="false">
+    <inFilter>
+<or>
+    <eq class="etherPIo" property="ifRole" value="unknown"/>
+    <eq class="etherPIo" property="ifRole" value="network"/>
+    <eq class="etherPIo" property="ifRole" value="server"/>
+    <eq class="etherPIo" property="ifRole" value="fcoe-uplink"/>
+    <eq class="etherPIo" property="ifRole" value="network-fcoe-uplink"/>
+    <eq class="etherPIo" property="ifRole" value="nas-storage"/>
+    <eq class="etherPIo" property="ifRole" value="fcoe-storage"/>
+    <eq class="etherPIo" property="ifRole" value="fcoe-nas-storage"/>
+    <eq class="etherPIo" property="ifRole" value="monitor"/>
+</or>
+    </inFilter>
+</configScope>
+
+<configConfMos
+cookie="1655230327/ba953055-5bc4-441d-94b5-b9135c94f285"
+inHierarchical="false">
+    <inConfigs>
+<pair key="fabric/lan/B">
+    <fabricEthLan
+    id="B"
+    dn="fabric/lan/B"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+        <fabricEthLanEp
+        adminSpeed="10gbps"
+        adminState="enabled"
+        autoNegotiate="yes"
+        ethLinkProfileName="default"
+        fec="auto"
+        flowCtrlPolicy="default"
+        name=""
+        portId="107"
+        slotId="1"
+        usrLbl=""
+        
+        rn="phys-slot-1-port-107"
+        
+        
+        sacl="addchild,del,mod">
+        </fabricEthLanEp>
+        <fabricEthLanEp
+        adminSpeed="10gbps"
+        adminState="enabled"
+        autoNegotiate="yes"
+        ethLinkProfileName="default"
+        fec="auto"
+        flowCtrlPolicy="default"
+        name=""
+        portId="108"
+        slotId="1"
+        usrLbl=""
+        
+        rn="phys-slot-1-port-108"
+        
+        
+        sacl="addchild,del,mod">
+        </fabricEthLanEp>
+    </fabricEthLan>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]

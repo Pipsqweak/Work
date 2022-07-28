@@ -1,0 +1,310 @@
+[------------- Sending Request to Server ------------
+
+<configResolveDn
+dn="sys"
+cookie="1652891361/cfa23a30-7392-4581-a2a6-88d0dc73e8d4"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/boot-policy-utility"
+cookie="1652891361/cfa23a30-7392-4581-a2a6-88d0dc73e8d4"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/boot-policy-utility"
+cookie="1652891361/cfa23a30-7392-4581-a2a6-88d0dc73e8d4"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1652891361/cfa23a30-7392-4581-a2a6-88d0dc73e8d4"
+inHierarchical="false">
+</configResolveDn>
+
+<aaaTokenRefresh
+cookie="1652891361/cfa23a30-7392-4581-a2a6-88d0dc73e8d4"
+inName="ucspe"
+inCookie="1652891361/cfa23a30-7392-4581-a2a6-88d0dc73e8d4">
+</aaaTokenRefresh>
+
+<configResolveDn
+dn="sys"
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/boot-policy-M.2-Boot"
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/boot-policy-M.2-Boot"
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="org-root/boot-policy-M.2-Boot"
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+inHierarchical="false">
+</configResolveDn>
+
+<configEstimateImpact
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6">
+    <inConfigs>
+<pair key="org-root/boot-policy-M.2-Boot">
+    <lsbootPolicy
+    bootMode="uefi"
+    name="M.2-Boot"
+    dn="org-root/boot-policy-M.2-Boot"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+        <lsbootBootSecurity
+        secureBoot="no"
+        
+        rn="boot-security"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </lsbootBootSecurity>
+        <lsbootStorage
+        order="1"
+        
+        rn="storage"
+        status="created"
+        
+        sacl="addchild,del,mod">
+            <lsbootLocalStorage
+            
+            rn="local-storage"
+            status="created"
+            
+            sacl="addchild,del,mod">
+                <lsbootEmbeddedLocalLunImage
+                order="1"
+                
+                rn="embedded-local-lun"
+                status="created,modified"
+                
+                sacl="addchild,del,mod">
+                    <lsbootUEFIBootParam
+                    bootDescription="VMware ESXi"
+                    bootLoaderName="BOOTx64.EFI"
+                    bootLoaderPath="\EFI\BOOT"
+                    
+                    rn="uefi-boot-param"
+                    
+                    
+                    sacl="addchild,del,mod">
+                    </lsbootUEFIBootParam>
+                </lsbootEmbeddedLocalLunImage>
+            </lsbootLocalStorage>
+        </lsbootStorage>
+        <lsbootVirtualMedia
+        access="read-only-remote"
+        lunId="0"
+        order="2"
+        
+        rn="read-only-remote-vm"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </lsbootVirtualMedia>
+    </lsbootPolicy>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+inHierarchical="false">
+    <inConfigs>
+<pair key="org-root/boot-policy-M.2-Boot">
+    <lsbootPolicy
+    bootMode="uefi"
+    name="M.2-Boot"
+    dn="org-root/boot-policy-M.2-Boot"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+        <lsbootBootSecurity
+        secureBoot="no"
+        
+        rn="boot-security"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </lsbootBootSecurity>
+        <lsbootStorage
+        order="1"
+        
+        rn="storage"
+        status="created"
+        
+        sacl="addchild,del,mod">
+            <lsbootLocalStorage
+            
+            rn="local-storage"
+            status="created"
+            
+            sacl="addchild,del,mod">
+                <lsbootEmbeddedLocalLunImage
+                order="1"
+                
+                rn="embedded-local-lun"
+                status="created,modified"
+                
+                sacl="addchild,del,mod">
+                    <lsbootUEFIBootParam
+                    bootDescription="VMware ESXi"
+                    bootLoaderName="BOOTx64.EFI"
+                    bootLoaderPath="\EFI\BOOT"
+                    
+                    rn="uefi-boot-param"
+                    
+                    
+                    sacl="addchild,del,mod">
+                    </lsbootUEFIBootParam>
+                </lsbootEmbeddedLocalLunImage>
+            </lsbootLocalStorage>
+        </lsbootStorage>
+        <lsbootVirtualMedia
+        access="read-only-remote"
+        lunId="0"
+        order="2"
+        
+        rn="read-only-remote-vm"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </lsbootVirtualMedia>
+    </lsbootPolicy>
+</pair>
+    </inConfigs>
+</configConfMos>
+
+<configResolveChildren
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+classId="lsbootStorage"
+inDn="org-root/boot-policy-M.2-Boot"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+classId="lsbootStorage"
+inDn="org-root/boot-policy-M.2-Boot"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+classId="lsbootLocalStorage"
+inDn="org-root/boot-policy-M.2-Boot/storage"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+classId="lsbootDefaultLocalImage"
+inDn="org-root/boot-policy-M.2-Boot/storage/local-storage"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+classId="lsbootLocalHddImage"
+inDn="org-root/boot-policy-M.2-Boot/storage/local-storage"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+classId="lsbootUsbFlashStorageImage"
+inDn="org-root/boot-policy-M.2-Boot/storage/local-storage"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+classId="lsbootUsbInternalImage"
+inDn="org-root/boot-policy-M.2-Boot/storage/local-storage"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+classId="lsbootUsbExternalImage"
+inDn="org-root/boot-policy-M.2-Boot/storage/local-storage"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+classId="lsbootEmbeddedLocalLunImage"
+inDn="org-root/boot-policy-M.2-Boot/storage/local-storage"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+classId="lsbootEmbeddedLocalDiskImage"
+inDn="org-root/boot-policy-M.2-Boot/storage/local-storage"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+classId="lsbootNvme"
+inDn="org-root/boot-policy-M.2-Boot/storage/local-storage"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+classId="lsbootLocalDiskImage"
+inDn="org-root/boot-policy-M.2-Boot/storage/local-storage"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1652891961/5761ebc7-b4d7-41ba-8b63-0779ecf3eac6"
+classId="lsbootVirtualMedia"
+inDn="org-root/boot-policy-M.2-Boot"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+-----------------------------------------------------]

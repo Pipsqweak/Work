@@ -1,0 +1,102 @@
+[------------- Sending Request to Server ------------
+
+<configEstimateImpact
+cookie="1655237490/7984a2dd-b54f-4cb8-b495-683e1ef558e6">
+    <inConfigs>
+<pair key="org-root/uuid-pool-default">
+    <uuidpoolPool
+    dn="org-root/uuid-pool-default"
+    
+    status="deleted"
+    
+    sacl="addchild,del,mod">
+    </uuidpoolPool>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1655237490/7984a2dd-b54f-4cb8-b495-683e1ef558e6"
+inHierarchical="false">
+    <inConfigs>
+<pair key="org-root">
+    <orgOrg
+    name="root"
+    dn="org-root"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+        <uuidpoolPool
+        
+        rn="uuid-pool-default"
+        status="deleted"
+        
+        sacl="addchild,del,mod">
+        </uuidpoolPool>
+    </orgOrg>
+</pair>
+    </inConfigs>
+</configConfMos>
+
+<configResolveDn
+dn="sys"
+cookie="1655237490/7984a2dd-b54f-4cb8-b495-683e1ef558e6"
+inHierarchical="false">
+</configResolveDn>
+
+<configEstimateImpact
+cookie="1655237490/7984a2dd-b54f-4cb8-b495-683e1ef558e6">
+    <inConfigs>
+<pair key="org-root/uuid-pool-UCSPE-UUID">
+    <uuidpoolPool
+    assignmentOrder="sequential"
+    name="UCSPE-UUID"
+    prefix="DF88E734-D896-11EC"
+    dn="org-root/uuid-pool-UCSPE-UUID"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+        <uuidpoolBlock
+        from="3000-000000000001"
+        to="3000-000000000100"
+        
+        rn="block-from-3000-000000000001-to-3000-000000000100"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </uuidpoolBlock>
+    </uuidpoolPool>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1655237490/7984a2dd-b54f-4cb8-b495-683e1ef558e6"
+inHierarchical="false">
+    <inConfigs>
+<pair key="org-root/uuid-pool-UCSPE-UUID">
+    <uuidpoolPool
+    assignmentOrder="sequential"
+    name="UCSPE-UUID"
+    prefix="DF88E734-D896-11EC"
+    dn="org-root/uuid-pool-UCSPE-UUID"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+        <uuidpoolBlock
+        from="3000-000000000001"
+        to="3000-000000000100"
+        
+        rn="block-from-3000-000000000001-to-3000-000000000100"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </uuidpoolBlock>
+    </uuidpoolPool>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]
