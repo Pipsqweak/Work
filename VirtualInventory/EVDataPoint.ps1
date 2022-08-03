@@ -39,7 +39,7 @@ if(-not $found)
             $this.SetOperatingSystem("FASTPATH")
         }
 
-        # Initialize an [EVDataPoint] from an intercluter switch
+        # Initialize an [EVDataPoint] from a NetworkElementSummary
         EVDataPoint([intersight.Model.NetworkElementSummary] $netElement)
         {
             $this.SetIP($netElement.OutOfBandIpAddress)
@@ -50,12 +50,56 @@ if(-not $found)
             $this.SetOperatingSystem("NX-OS")
         }
 
-        EVDataPoint([String] $name, [intersight.Model.EquipmentChassis] $chassis)
+        # Initialize an [EVDataPoint] from a UCS compute physical summary
+        EVDataPoint([intersight.Model.ComputePhysicalSummary] $computePhysicalSummary)
         {
-            $this.SetName($name)
+            if (-not [String]::IsNullOrEmpty($computePhysicalSummary.UserLabel))
+            {
+                $this.SetName($computePhysicalSummary.UserLabel)
+            } `
+            else # NOT (-not [String]::IsNullOrEmpty($computePhysicalSummary.UserLabel))
+            {
+                # Guess we go with the name...
+                $this.SetName($computePhysicalSummary.Name)
+            }
+            $this.SetManufacturer($computePhysicalSummary.Vendor)
+            $this.SetCurrentVersion($computePhysicalSummary.Firmware)
+            $this.SetSerialNumber($computePhysicalSummary.Serial)
+            $this.SetModel($computePhysicalSummary.Model)
+        }
+
+        # Initialize an [EVDataPoint] from an EquipmentChassis
+        EVDataPoint([intersight.Model.EquipmentChassis] $chassis)
+        {
+            $this.SetName($chassis.Name)
             $this.SerialNumber = $chassis.Serial
             $this.SetModel($chassis.Model)
             $this.SetManufacturer($chassis.Vendor)
+        }
+
+        # Initialize an [EVDataPoint] from an intersight device registration -- ONLY UCSFI devices
+        EVDataPoint([intersight.Model.AssetDeviceRegistration] $deviceRegistration)
+        {
+            if ($deviceRegistration.PlatformType -eq "UCSFI")
+            {
+                $this.SetName($deviceRegistration.DeviceHostName[0])
+                $this.SetCurrentVersion($deviceRegistration.SwVersion)
+                if ([String]::IsNullOrEmpty($this.IP) -and ($deviceRegistration.DeviceIPAddress.Length -gt 0))
+                {
+                    $this.SetIP($deviceRegistration.DeviceIPAddress[$deviceRegistration.DeviceIPAddress.Length - 1])
+                } `
+                else # NOT ([String]::IsNullOrEmpty($this.IP) -and ($deviceRegistration.DeviceIPAddress.Length -gt 0))
+                {
+                    # Nothing.
+                }
+                $this.SetSerialNumber($this.Name)
+                $this.SetManufacturer($deviceRegistration.Vendor)
+                $this.SetModel("virtual")
+            } `
+            else # NOT ($deviceRegistration.PlatformType == "UCSFI")
+            {
+                # Nothing.
+            }
         }
 
         [void] SetManufacturer([String] $manufacturer)
@@ -72,7 +116,7 @@ if(-not $found)
                 }
             }
         }
-        
+
         [void] SetName($name)
         {
             $this.Name = $name
@@ -183,13 +227,13 @@ if(-not $found)
             # As of now, nothing special for model
             $this.Model = $mod
         }
-        
+
         [void] SetLocation($loc)
         {
             # As of now, nothing special for Location
             $this.Location = $loc
         }
-        
+
         [void] UpdateFromIPAMByQuery($query)
         {
 
@@ -262,10 +306,10 @@ if(-not $found)
             <#
                 Sometimes data is not exactly correct.  This function is intended to be a last ditch effort to
                 reformat, substitute, replace, etc any data that needs to be massaged.
-             
+
                 This function should be called for each defined [EVDataPoint] prior to exporting the data for use with EV.
 
-                Since classes in PowerShell, at least as of now, do not support the idea of property setters and I can't 
+                Since classes in PowerShell, at least as of now, do not support the idea of property setters and I can't
                 guarantee properties aren't set directly, I'll call each of my faux setters here to make sure things are
                 formatted/parsed right.
             #>
@@ -290,7 +334,7 @@ if(-not $found)
 
             # Fix up IP
             $this.SetIP($this.IP)
-            
+
             # Fix up Location
             $this.SetLocation($this.Location)
         }

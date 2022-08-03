@@ -13,3 +13,7 @@ VirtualInventory/srvc-virt-inv.apikey.txt
 VirtualInventory/inventoryConfiguration - kbriney-adm2.json
 VirtualInventory/inventoryConfiguration - SRVC-VIRT-INV.json
 VirtualInventory/srvc-virt-inv.SecretKey.pem
+Utilities/VirtualInventory/invCfg - Copy.json
+Utilities/VirtualInventory/invCfg.json
+Utilities/VirtualInventory/srvc-virt-inv.apikey.txt
+Utilities/VirtualInventory/srvc-virt-inv.SecretKey.pem

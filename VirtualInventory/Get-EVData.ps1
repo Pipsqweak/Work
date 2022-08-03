@@ -10,8 +10,8 @@ $Global:DoDebugging = $false
 if($Global:DoDebugging)
 {
     # For Debugging
-    $JSONArgsFile = "C:\Users\kbriney-adm\PSScripts\VirtualInventory\inventoryConfiguration - kbriney-adm.json"
-    Set-Location -Path "C:\Users\kbriney-adm\PSScripts\VirtualInventory"
+    $JSONArgsFile = "C:\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\VirtualInventory\inventoryConfiguration - kbriney-adm.json"
+    Set-Location -Path "C:\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\VirtualInventory"
 }
 
 <#
@@ -206,245 +206,112 @@ function Collect-IntersightData
         errors mostly, "api_key_invalid" BS!!
     #>
 
+    $intersightData = @()
+    $ucsManagers = @()
+
     # Get a list of all the device registrations.
     $allDeviceRegistrations = Query-Intersight $invCfg "Invoke-AssetDeviceRegistrationApiAssetDeviceRegistrationsGet"
-    if($null -eq $allDeviceRegistrations)
+    if($null -ne $allDeviceRegistrations)
+    {
+        # Iterate through the devices...
+        $d = 0
+        while((-not $Global:isError) -and ($d -lt $allDeviceRegistrations.Count))
+        {
+            # Shortcut to a single device registration
+            $device = $allDeviceRegistrations[$d]
+
+            # Process the device based on the platform type.
+            #  As of this version, only "UCSFI" platform types are extracted from device registrations.
+            #      "IMCM5" devices are picked up via ComputePhysicalSummary
+
+            if($device.PlatformType -eq "UCSFI")
+            {
+                # Convert this to a function...
+                $ucsDataPoint = [EVDataPoint]::new($device)
+                [Log]::Info("`t+UCS Manager: {0}, {1}, {2}, {3}" -f @($ucsDataPoint.Name, $ucsDataPoint.Manufacturer, $ucsDataPoint.Model, $ucsDataPoint.SerialNumber))
+                #$intersightData += $ucsDataPoint
+                $ucsManagers += $ucsDataPoint
+            }
+            else # NOT ($device.PlatformType -eq "UCSFI")
+            {
+                # Nothing, only support UCSFI right now...
+            }
+            $d++
+        }
+    }
+    else
     {
         [Log]::Warning("No device registrations returned from Cisco Intersight.")
-        return $intersightData
     }
+
 
     # Get a list of all compute physical summaries.
+    #    Typically blades and rack servers
     $allComputePhysicalSummaries = Query-Intersight $invCfg "Invoke-ComputePhysicalSummaryApiComputePhysicalSummariesGet"
-    if($null -eq $allComputePhysicalSummaries)
+    if($null -ne $allComputePhysicalSummaries)
+    {
+        # Iterate through the compute physical summaries...
+        $d = 0
+        while((-not $Global:isError) -and ($d -lt $allComputePhysicalSummaries.Count))
+        {
+            $ucsDataPoint = [EVDataPoint]::new($allComputePhysicalSummaries[$d])
+            [Log]::Info("`t+Server: {0}, {1}, {2}, {3}" -f @($ucsDataPoint.Name, $ucsDataPoint.Manufacturer, $ucsDataPoint.Model, $ucsDataPoint.SerialNumber))
+            $intersightData += $ucsDataPoint
+            $d++
+        }
+    }
+    else # NOT ($null -ne $allComputePhysicalSummaries)
     {
         [Log]::Warning("No compute physical summaries returned from Cisco Intersight.")
-        return $intersightData
     }
 
-    # Get a list of all equipment chasses...
+    # Get a list of all equipment chassis...
+    #   NOTE: Complete these after adding the UCS Managers...
     $allChassisSummaries = Query-Intersight $invCfg "Invoke-EquipmentChassisApiEquipmentChassesGet"
-    if($null -eq $allChassisSummaries)
+    if($null -ne $allChassisSummaries)
+    {
+        # Iterate through the chassis summaries...
+        $d = 0
+        while((-not $Global:isError) -and ($d -lt $allChassisSummaries.Count))
+        {
+            $ucsDataPoint = [EVDataPoint]::new($allChassisSummaries[$d])
+            $manager = $ucsManagers | Where-Object { $ucsDataPoint.Name.StartsWith($_.Name) }
+            if ($null -ne $manager)
+            {
+                $ucsDataPoint.SetLocation($manager.Location)
+            } `
+            else # NOT ($null -ne $manager)
+            {
+                [Log]::Warning("Unable to determine UCS manager for chassis named: {0}." -f @($ucsDataPoint.Name))
+            }
+            [Log]::Info("`t+Chassis: {0}, {1}, {2}, {3}" -f @($ucsDataPoint.Name, $ucsDataPoint.Manufacturer, $ucsDataPoint.Model, $ucsDataPoint.SerialNumber))
+            $intersightData += $ucsDataPoint
+            $d++
+        }
+    }
+    else # NOT ($null -ne $allChassisSummaries)
     {
         [Log]::Warning("No chassis summaries returned from Cisco Intersight.")
-        return $intersightData
     }
 
     # Get a list of all network element summaries...
+    #   These are typically fabric interconnects
     $allNetworkElementSummaries = Query-Intersight $invCfg "Invoke-NetworkElementSummaryApiNetworkElementSummariesGet"
-    if($null -eq $allNetworkElementSummaries)
+    if($null -ne $allNetworkElementSummaries)
+    {
+        # Iterate through the network element summaries...
+        $d = 0
+        while((-not $Global:isError) -and ($d -lt $allNetworkElementSummaries.Count))
+        {
+            $ucsDataPoint = [EVDataPoint]::new($allNetworkElementSummaries[$d])
+            [Log]::Info("`t+FI: {0}, {1}, {2}, {3}" -f @($ucsDataPoint.Name, $ucsDataPoint.Manufacturer, $ucsDataPoint.Model, $ucsDataPoint.SerialNumber))
+            $intersightData += $ucsDataPoint
+            $d++
+        }
+    }
+    else # NOT ($null -ne $allNetworkElementSummaries)
     {
         [Log]::Warning("No network element summaries returned from Cisco Intersight.")
-        return $intersightData
-    }
-
-    # Got all the data we need from Intersight, now setup an array to return the results we need.
-    $intersightData = @()
-
-    # Iterate through the devices...
-    $d = 0
-    while((-not $Global:isError) -and ($d -lt $allDeviceRegistrations.Count))
-    {
-        # Shortcut to a single device registration
-        $device = $allDeviceRegistrations[$d]
-
-        # Process the device based on the platform type.
-        #  As of this version, we only have "UCSFI" and "IMCM5" device registrations.
-
-        switch($device.PlatformType)
-        {
-            # Convert this to a function...
-            "UCSFI"  # Fabric Interconnect
-            {
-                # Make sure there is host name for the device.
-                if($device.DeviceHostname.Count -gt 0)
-                {
-                    # Let's pretend we don't have all the relevant data for the chassis...until we do.
-                    $haveChassisData = $false
-
-                    # Get the chassis summary for this device.
-                    $chassisSummaries = @($allChassisSummaries | Where-Object { $_.DeviceMoId -eq $device.Moid })
-
-                    if($chassisSummaries.Length -eq 1)
-                    {
-                        $chassisSummary = $chassisSummaries[0]
-
-                        # Create a new EasyVista datapoint for the chassis
-                        $chassisDataPoint = [EVDataPoint]::new($device.DeviceHostname[0], $chassisSummary)
-
-                        [Log]::Info("`t+Chassis: {0}, {1}, {2}" -f @($chassisDataPoint.Manufacturer, $chassisDataPoint.Model, $chassisDataPoint.SerialNumber))
-                        $intersightData += $chassisDataPoint
-
-                        # The chassis IP address is part of the "network elements".  The Ipv4Address property appears to be the management VIP, while the OutOfBandIpAddress property is the actual IP address
-                        #    assigned to the FI.
-
-                        # Flag to signal we can continue collecting FI and compute data for this chassis.
-                        $haveChassisData = $true
-                    }
-                    elseif($chassisSummaries.Length -gt 1)
-                    {
-                        [Log]::Error("Too many chassis summaries returned ({0}) for DeviceMoid = {1}" -f @($chassisSummaries.Count, $device.Moid))
-                    }
-                    else
-                    {
-                        [Log]::Warning("No chassis summary with DeviceMoid = {0}" -f @($device.Moid))
-                    }
-                }
-                else
-                {
-                    [Log]::Error("No host name for device with Moid = {0}." -f @($device.Moid))
-                }
-
-                # If we managed to collect the relevant data for the chassis, continue...
-
-                if($haveChassisData)
-                {
-                    # Get a list of network elements (FIs) that belong to this device
-                    $elementSummaries = @($allNetworkElementSummaries | Where-Object { $_.RegisteredDevice.Moid -eq $device.Moid })
-
-                    # Be sure we received a response back from Intersight
-                    if($null -ne $elementSummaries)
-                    {
-                        # Iterate the list of fabric interconnects.
-                        $e = 0
-                        while($e -lt $elementSummaries.Count)
-                        {
-                            # Shortcut to a single FI...
-                            $elementSummary = $elementSummaries[$e]
-
-                            # First, if we have not already set the IP address of the chassis, do so.
-                            if([String]::IsNullOrEmpty($chassisDataPoint.IP))
-                            {
-                                # Make sure the element's IPv4Address property is set.
-                                if(-not [String]::IsNullOrEmpty($elementSummary.Ipv4Address))
-                                {
-                                    $chassisDataPoint.SetIP($elementSummary.Ipv4Address)
-                                }
-                                else
-                                {
-                                    [Log]::Warning("No Ipv4Address found for FI with Moid = {0}" -f @($elementSummary.Moid))
-                                }
-                            }
-                            else
-                            {
-                                # Nothing chassis IP address already set
-                            }
-
-                            # Create a new EasyVista datapoint for the FI
-                            $elementDataPoint = [EVDataPoint]::new($elementSummary)
-
-                            # Add the FI's data point to the list of intersight data...
-                            $intersightData += $elementDataPoint
-                            [Log]::Info("`t+FI: {0}, {1}, {2}" -f @($elementDataPoint.Manufacturer, $elementDataPoint.Model, $elementDataPoint.SerialNumber))
-
-                            $e++
-                        }
-                    }
-                    else
-                    {
-                        # Log warning, no FI information returned.
-                        [Log]::Warning("No fabric interconnects found matching filter: {0}" -f @($filter))
-                    }
-
-                    # Get a list of compute devices that belong to this chassis
-                    $chassisComputePhysicalSummaries = @($allComputePhysicalSummaries | Where-Object { $_.Owners.Contains($device.Moid) })
-
-                    if($chassisComputePhysicalSummaries.Length -gt 0)
-                    {
-                        $c = 0
-                        while($c -lt $chassisComputePhysicalSummaries.Count)
-                        {
-                            # Shortcut to the current compute physical summary
-                            $computePhysicalSummary = $chassisComputePhysicalSummaries[$c]
-
-                            # Create a new EasyVista datapoint for the server
-                            $serverDataPoint = [EVDataPoint]::new()
-
-                            $serverDataPoint.SetName($computePhysicalSummary.UserLabel)
-                            $serverDataPoint.UpdateFromIPAMByName()
-
-                            # If the IP address was not set via IPAM, then use the server's Ipv4Address
-                            if([String]::IsNullOrEmpty($serverDataPoint.IP))
-                            {
-                                $serverDataPoint.SetIP($computePhysicalSummary.Ipv4Address)
-                            }
-                            else
-                            {
-                                # Nothing, IP was set
-                            }
-
-                            $serverDataPoint.SetManufacturer($computePhysicalSummary.Vendor)
-                            $serverDataPoint.SetSerialNumber($computePhysicalSummary.Serial)
-                            $serverDataPoint.SetModel($computePhysicalSummary.Model)
-                            $serverDataPoint.SetCurrentVersion($computePhysicalSummary.Firmware)
-
-                            [Log]::Info("`t+Server: {0}, {1}, {2}" -f @($serverDataPoint.Manufacturer, $serverDataPoint.Model, $serverDataPoint.SerialNumber))
-                            $intersightData += $serverDataPoint
-
-                            $c++
-                        }
-                    }
-                    else
-                    {
-                        # Warning, no servers belong to this chassis
-                    }
-                }
-                else
-                {
-                    # Nothing, already logged an error.
-                }
-
-                break
-            }
-
-            # Convert this to a function...
-            "IMCM5"  # Stand-alone system
-            {
-                # Get the compute physical summary for this server.
-                $physicalSummaries = @($allComputePhysicalSummaries | Where-Object { $_.DeviceMoid -eq $device.Moid })
-
-                if($physicalSummaries.Length -eq 1)
-                {
-                    # Shortcut for the compute physical summary
-                    $computePhysicalSummary = $physicalSummaries[0]
-
-                    # Create a new EasyVista datapoint for the server
-                    $serverDataPoint = [EVDataPoint]::new()
-
-                    $serverDataPoint.SetName($computePhysicalSummary.UserLabel)
-                    $serverDataPoint.UpdateFromIPAMByName()
-
-                    # If the IP address was not set via IPAM, then use the server's Ipv4Address
-                    if([String]::IsNullOrEmpty($serverDataPoint.IP))
-                    {
-                        $serverDataPoint.SetIP($computePhysicalSummary.Ipv4Address)
-                    }
-
-                    $serverDataPoint.SetManufacturer($computePhysicalSummary.Vendor)
-                    $serverDataPoint.SetSerialNumber($computePhysicalSummary.Serial)
-                    $serverDataPoint.SetModel($computePhysicalSummary.Model)
-                    $serverDataPoint.SetCurrentVersion($computePhysicalSummary.Firmware)
-
-                    $intersightData += $serverDataPoint
-                    [Log]::Info("`t+Server: {0}, {1}, {2}, {3}." -f @($serverDataPoint.Name, $serverDataPoint.Manufacturer, $serverDataPoint.Model, $serverDataPoint.SerialNumber))
-                }
-                elseif($physicalSummaries.Length -eq 0)
-                {
-                    [Log]::Warning("No compute physical summary available for {0}." -f @($device.Moid))
-                }
-                else
-                {
-                    [Log]::Warning("Multiple compute physical summaries available for {0}." -f @($device.Moid))
-                }
-            }
-
-            Default
-            {
-                [Log]::Warning("Unknown device platform type: {0}" -f @($device.PlatformType))
-            }
-        }
-
-        $d++
     }
 
     return $intersightData
@@ -975,29 +842,33 @@ function Collect-SevenModeData
     {
         [Log]::Trace("`tProcessing {0}..." -f @($invCfg.Filers.SM.Nodes[$a]))
 
+        $tryNumber = 0
         # Reset $smController to $null so we can capture failed connections
         $smController = $null
-        try
-        {
-            # Make a transient connection to the 7-Mode controller
-            $smController = Connect-NaController -Name $invCfg.Filers.SM.Nodes[$a] -Credential $sevenModeCredential -Transient:$true -RPC -ErrorAction Stop
-        }
-        catch
-        {
-        }
 
-        if($null -eq $smController)
+        while(($null -eq $smController) -and ($tryNumber -lt 3))
         {
-            # Try to make a non-RPC connection...
-            [Log]::Warning("Failed to make RPC connection to 7-mode filer {0}.  Attempting non-RPC connection." -f @($invCfg.Filers.SM.Nodes[$a]))
-            $Error.Clear()
+            [Log]::Info("Connecting to 7-Mode filer: {0}.  Attempt {1}." -f @($invCfg.Filers.SM.Nodes[$a], ($tryNumber + 1)))
             try
             {
-                $smController = Connect-NaController -Name $invCfg.Filers.SM.Nodes[$a] -Credential $sevenModeCredential -Transient:$true Stop
+                # Make a transient connection to the 7-Mode controller
+                $smController = Connect-NaController -Name $invCfg.Filers.SM.Nodes[$a] -Credential $sevenModeCredential -Transient:$true -RPC -ErrorAction Stop
             }
             catch
             {
+                # Try to make a non-RPC connection...
+                [Log]::Warning("`tFailed to make RPC connection, attempting non-RPC connection.")
+                $Error.Clear()
+                try
+                {
+                    $smController = Connect-NaController -Name $invCfg.Filers.SM.Nodes[$a] -Credential $sevenModeCredential -Transient:$true Stop
+                }
+                catch
+                {
+                    [Log]::Warning("`tFailed to make non-RPC connection.")
+                }
             }
+            $tryNumber++
         }
 
         # If $smController is still $null, then we have a problem...
@@ -1105,7 +976,7 @@ function Collect-StatseekerData
 
     # Get an inventory list from Statseeker.
     [Log]::Trace("Getting inventory from statseeker...")
-    $inventoryResponse = Invoke-RestMethod ("{0}/cdt_inventory/?fields=description,deviceid,firmwareRev,hardwareRev,id,idx,isFRU,model,name,serial,softwareRev,vendor&limit=5000&offset=0" -f @($statseekerAPIURL)) -Method 'GET' -Headers $headers
+    $inventoryResponse = Invoke-RestMethod ("{0}/cdt_inventory/?fields=description,deviceid,firmwareRev,hardwareRev,id,idx,isFRU,model,name,serial,softwareRev,vendor&limit=10000&offset=0" -f @($statseekerAPIURL)) -Method 'GET' -Headers $headers
     if($null -eq $inventoryResponse)
     {
         [Log]::Error("No response from {0} when querying for inventory." -f @($invCfg.Statseeker.URL))
