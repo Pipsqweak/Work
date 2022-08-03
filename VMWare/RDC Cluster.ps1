@@ -4705,7 +4705,7 @@ function CaptureVMHostVMs
         $vmHost = Get-VMHost -Server $viServer -Name $vmHostName -ErrorAction Stop
         try
         {
-            $hostVMs = @(Get-VM -Server $viServer -Location $vmHost -ErrorAction Stop)
+            $hostVMs = @(Get-VM -Server $viServer -Location $vmHost -ErrorAction Stop | Where-Object { $_.Name -notmatch "^vCLS"})
 
             $saveFile = "{0}\{1}.txt" -f @($env:TEMP, $vmHost.Name)
             "# {0}'s VMs @{1}" -f @($vmHost.Name, [DateTime]::Now.ToString("yyyyMMdd HHmmss.fff")) | Out-File -FilePath $saveFile -Force
@@ -4713,7 +4713,7 @@ function CaptureVMHostVMs
             $a = 0
             while($a -lt $hostVMs.Length)
             {
-                $hostVMs[$a].Name | Out-File -FilePath $saveFile -Append
+                ("{0},{1}" -f @($hostVMs[$a].Name, $hostVMs[$a].PowerState)) | Out-File -FilePath $saveFile -Append
                 $a++
             }
             ReportSuccess ("Captured {0} VM for host: {1}." -f @($hostVMs.Length, $vmHost.Name))
@@ -4765,7 +4765,7 @@ function RestoreVMHostVMs
 
         try
         {
-            $existingVMs = @(Get-VM -Server $viServer -Location $vmHost -ErrorAction Stop)
+            $existingVMs = @(Get-VM -Server $viServer -Location $vmHost -ErrorAction Stop | Where-Object { $_.Name -notmatch "^vCLS \(\d+\)$"})
             try
             {
                 $vds = Get-VDSwitch -Server $viServer -VMHost $vmHost -ErrorAction Stop
