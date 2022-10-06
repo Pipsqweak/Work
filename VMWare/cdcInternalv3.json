@@ -1,5 +1,6 @@
 {
     "vCenter": "vCenter.powereng.com",
+    "ucsManager": "cdc-ucs01.powereng.com",
     "datacenterName": "CDC",
     "vSphereClusterName": "CDC-INT-CLUSTER-01",
     "switch":

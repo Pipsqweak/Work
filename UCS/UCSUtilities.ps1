@@ -179,7 +179,7 @@ function InvokeUCSFunction
     {
         if (-not $noErrorOnException)
         {
-            ReportError ("`t{0}  {1} threw an exception." -f @($failureMsg, $functionName))
+            ReportError ("`t{0} {1} threw an exception." -f @($failureMsg, $functionName))
             $success = $false
         } `
         else # NOT (-not $noErrorOnException)
@@ -1094,7 +1094,7 @@ function CreateJumboFramesQoSPolicy
 }
 
 
-function CreateUCSvNICTemplates
+function CreatevNICTemplates
 {
     [CmdLetBinding()]
     Param(
@@ -1172,19 +1172,56 @@ function CreateUCSvNICTemplates
     {
         $success, $existingUCSVLANGroups = InvokeUCSFunction -functionName "Get-UcsFabricNetGroup" -failureMsg "Failed to retrieve VLAN Groups." -cmdParams @{ Ucs = $ucs; LanCloud = $ucsLANCloud }
 
-        # For future code, ensure $existingUCSVLANGroups is an array.
-        if ($success -and (-not ($existingUCSVLANGroup -is [Array])))
+        if ($success)
         {
-            if ($null -eq $existingUCSVLANGroup)
+            if($existingUCSVLANGroups -isnot [Array])
             {
-                $existingUCSVLANGroup = @()
-            } `
-            else # NOT ($null -eq $existingUCSVLANGroup)
+                if ($null -ne $existingUCSVLANGroups)
+                {
+                    $existingUCSVLANGroups = @($existingUCSVLANGroups)
+                } `
+                else # NOT ($null -ne $existingUCSVLANGroups)
+                {
+                    $existingUCSVLANGroups = @()
+                }
+            }
+            else # NOT ($existingUCSVLANGroups -isnot [Array])
             {
-                $existingUCSVLANGroups = @($existingUCSVLANGroups)
+                # Nothing
+            }
+
+            # Test to make sure all the VLAN Groups used in the vNIC templates have been defined.
+            $testedVLANGroupNames = @()
+            $a = 0
+            while(($existingUCSVLANGroups.Length -gt 0) -and ($a -lt $vNICTemplateDefinitions.Length))
+            {
+                $b = 0
+                while($b -lt $vNICTemplateDefinitions[$a].Primary.VLANGroups.Length)
+                {
+                    if (-not ($testedVLANGroupName -contains $vNICTemplateDefinitions[$a].Primary.VLANGroups[$b]))
+                    {
+                        $testedVLANGroupNames += $vNICTemplateDefinitions[$a].Primary.VLANGroups[$b]
+                        if ($null -eq ($existingUCSVLANGroups | Where-Object { $_.Name -eq $vNICTemplateDefinitions[$a].Primary.VLANGroups[$b] }))
+                        {
+                            ReportError ("`tVLAN Group {0} does not exist on {1}." -f @($vNICTemplateDefinitions[$a].Primary.VLANGroups[$b], $ucs.Name))
+                            $success = $false
+                        }
+                        else # NOT ($null -eq ($existingUCSVLANGroups | Where-Object { $_.Name -eq $vNICTemplateDefinitions[$a].Primary.VLANGroups[$b] }))
+                        {
+                            # Nothing
+                        }
+                    } `
+                    else # NOT (-not ($testedVLANGroupName -contains $vNICTemplateDefinitions[$a].Primary.VLANGroups[$b]))
+                    {
+                        # Nothing.
+                    }
+
+                    $b++
+                }
+                $a++
             }
         } `
-        else # NOT ($success -and (-not ($existingUCSVLANGroup -is [Array])))
+        else # NOT ($success)
         {
             # Nothing.
         }
@@ -1233,6 +1270,7 @@ function CreateUCSvNICTemplates
     $a = 0
     while($success -and ($a -lt $vNICTemplateDefinitions.Length))
     {
+        ReportNotice ("`tCreating primary vNIC Template: {0}" -f @($vNICTemplateDefinitions[$a].Primary.Name))
         # Make sure there isn't already a vNIC template named: $vNICTemplateDefinitions[$a].Primary.Name
         if ($null -eq ($existingvNICTemplates | Where-Object { $_.Name -eq $vNICTemplateDefinitions[$a].Primary.Name }))
         {
@@ -1267,31 +1305,33 @@ function CreateUCSvNICTemplates
                     $b = 0
                     while($success -and ($b -lt $vNICTemplateDefinitions[$a].Primary.VLANGroups.Length))
                     {
-                        if ($null -ne ($existingUCSVLANGroups | Where-Object { $_.Name -eq $vNICTemplateDefinitions[$a].Primary.VLANGroups[$b] }))
-                        {
-                            $success, $vlanGroup = InvokeUCSFunction -functionName "Add-UcsFabricNetGroupRef" -failureMsg ("Failed to add VLAN Group {0} to {1}." -f @($vNICTemplateDefinitions[$a].Primary.VLANGroups[$b], $vNICTemplateDefinitions[$a].Primary.Name)) -cmdParams @{ Ucs = $ucs; VnicTemplate = $primaryvNICTemplate; Name = $vNICTemplateDefinitions[$a].Primary.VLANGroups[$b]; ModifyPresent = $true }
-                        } `
-                        else # NOT ($null -ne ($existingUCSVLANGroups | Where-Object { $_.Name -eq $vNICTemplateDefinitions[$a].Primary.VLANGroups[$b] }))
-                        {
-                            ReportError ("VLAN Group {0} does not exist on {1}." -f @($vNICTemplateDefinitions[$a].Primary.VLANGroups[$b], $ucs.Name))
-                            $success = $false
-                        }
+                        ReportNotice ("`t`tAdding VLAN Group: {0}..." -f @($vNICTemplateDefinitions[$a].Primary.VLANGroups[$b]))
+                        $success, $vlanGroup = InvokeUCSFunction -functionName "Add-UcsFabricNetGroupRef" -failureMsg ("Failed to add VLAN Group {0} to {1}." -f @($vNICTemplateDefinitions[$a].Primary.VLANGroups[$b], $vNICTemplateDefinitions[$a].Primary.Name)) -cmdParams @{ Ucs = $ucs; VnicTemplate = $primaryvNICTemplate; Name = $vNICTemplateDefinitions[$a].Primary.VLANGroups[$b]; ModifyPresent = $true }
+
                         $b++
                     }
 
-                    $secondaryvNICTemplateParams = @{
-                        Ucs = $ucs
-                        Org = $rootOrg
-                        Descr = $vNICTemplateDefinitions[$a].Secondary.Description
-                        IdentPoolName = $macPool.Name
-                        Name = $vNICTemplateDefinitions[$a].Secondary.Name
-                        NwCtrlPolicyName = $ucsNetworkControlPolicy.Name
-                        RedundancyPairType = "secondary"
-                        PeerRedundancyTemplName = $primaryvNICTemplate.Name
-                        SwitchId = $vNICTemplateDefinitions[$a].Secondary.Switch
-                    }
+                    if ($null -ne $vNICTemplateDefinitions[$a].Secondary)
+                    {
+                        ReportNotice ("`tCreating secondary vNIC Template: {0}" -f @($vNICTemplateDefinitions[$a].Secondary.Name))
+                        $secondaryvNICTemplateParams = @{
+                            Ucs = $ucs
+                            Org = $rootOrg
+                            Descr = $vNICTemplateDefinitions[$a].Secondary.Description
+                            IdentPoolName = $macPool.Name
+                            Name = $vNICTemplateDefinitions[$a].Secondary.Name
+                            NwCtrlPolicyName = $ucsNetworkControlPolicy.Name
+                            RedundancyPairType = "secondary"
+                            PeerRedundancyTemplName = $primaryvNICTemplate.Name
+                            SwitchId = $vNICTemplateDefinitions[$a].Secondary.Switch
+                        }
 
-                    $success, $secondaryvNICTemplate = InvokeUCSFunction -functionName "Add-UcsVnicTemplate" -failureMsg ("Failed to create secondary vNIC template {0}." -f @($vNICTemplateDefinitions[$a].Secondary.Name)) -cmdParams $secondaryvNICTemplateParams
+                        $success, $secondaryvNICTemplate = InvokeUCSFunction -functionName "Add-UcsVnicTemplate" -failureMsg ("Failed to create secondary vNIC template {0}." -f @($vNICTemplateDefinitions[$a].Secondary.Name)) -cmdParams $secondaryvNICTemplateParams
+                    } `
+                    else # NOT ($null -ne $vNICTemplateDefinitions[$a].Secondary)
+                    {
+                        # Nothing.
+                    }
                 } `
                 else # NOT ($success)
                 {
@@ -1319,7 +1359,8 @@ function CreateUCSvNICTemplates
     } `
     else # NOT ($success)
     {
-        $success, $null = InvokeUCSFunction -functionName "Complete-UcsTransaction" -failureMsg "Failed to commit UCS transaction." -cmdParams @{Ucs=$ucs} -noErrorOnNull
+        ReportError ("Rolling back UCS transaction to create vNIC templates.")
+        $success, $null = InvokeUCSFunction -functionName "Undo-UcsTransaction" -failureMsg "Failed to rollback UCS transaction." -cmdParams @{Ucs=$ucs} -noErrorOnNull
 
         # No matter the success of rolling back the transaction, make sure $success is $false
         $success = $false
@@ -2137,7 +2178,7 @@ function CreateBIOSPolicy
                             $a = 0
                             while($a -lt $biosPolicy.Settings.Length)
                             {
-                                Write-Host ("Setting {0}:{1}..." -f @($biosPolicy.Settings[$a].Name, $biosPolicy.Settings[$a].TargetTokenName))
+                                Write-Host ("`tSetting {0}:{1}..." -f @($biosPolicy.Settings[$a].Name, $biosPolicy.Settings[$a].TargetTokenName))
                                 $biosTokenFeatureGroup = Get-UcsBiosTokenFeatureGroup -Ucs $ucs -BiosPolicy $newBIOSPolicy -Name $biosPolicy.Settings[$a].Name -ErrorAction Stop
                                 if ($null -ne $biosTokenFeatureGroup)
                                 {
@@ -2148,21 +2189,22 @@ function CreateBIOSPolicy
                                         $newManagedObject = Add-UcsManagedObject -Parent $biosTokenParam -ModifyPresent -ClassId "BiosTokenSettings" -PropertyMap @{SettingsMoRn=$biosPolicy.Settings[$a].PropertyMap.SettingsMoRn; IsAssigned=$biosPolicy.Settings[$a].PropertyMap.IsAssigned; } -ErrorAction Stop
                                         if ($null -ne $newManagedObject)
                                         {
+                                            ReportSuccess ("`t`tSettingsMoRn: {0}, IsAssigned: {1}" -f @($biosPolicy.Settings[$a].PropertyMap.SettingsMoRn, $biosPolicy.Settings[$a].PropertyMap.IsAssigned))
                                             # Nothing, the setting was successfully set.
                                         } `
                                         else # NOT ($null -ne $newManagedObject)
                                         {
-                                            ReportError ("`tAdd-UcsManagedObject failed to add setting: {0} to new BIOS policy: {1}." -f @($biosPolicy.Settings[$a].Name, $newBIOSPolicy.Name))
+                                            ReportError ("`t`tAdd-UcsManagedObject failed to add setting: {0} to new BIOS policy: {1}." -f @($biosPolicy.Settings[$a].Name, $newBIOSPolicy.Name))
                                         }
                                     } `
                                     else # NOT ($null -ne $biosTokenParam)
                                     {
-                                        ReportError ("`tFailed to get BIOS token parameter: {0}." -f @($biosPolicy.Settings[$a].TargetTokenName))
+                                        ReportError ("`t`tFailed to get BIOS token parameter: {0}." -f @($biosPolicy.Settings[$a].TargetTokenName))
                                     }
                                 } `
                                 else # NOT ($null -ne $biosTokenFeatureGroup)
                                 {
-                                    ReportError ("`tFailed to get BIOS token feature group: {0}." -f @($biosPolicy.Settings[$a].Name))
+                                    ReportError ("`t`tFailed to get BIOS token feature group: {0}." -f @($biosPolicy.Settings[$a].Name))
                                 }
 
                                 $a++
@@ -2176,7 +2218,7 @@ function CreateBIOSPolicy
                             }
                             catch
                             {
-                                ReportError "`tFailed to complete UCS transaction to create new BIOS policy."
+                                ReportError "`t`tFailed to complete UCS transaction to create new BIOS policy."
                             }
                         }
                         catch
@@ -2187,16 +2229,16 @@ function CreateBIOSPolicy
                                 try
                                 {
                                     [void] (Undo-UcsTransaction -Ucs $ucs -ErrorAction Stop)
-                                    ReportWarning "`tRolled back transaction to update new BIOS policy settings."
+                                    ReportWarning "`t`tRolled back transaction to update new BIOS policy settings."
                                 }
                                 catch
                                 {
-                                    ReportError "`tFailed to roll-back UCS transaction to update new BIOS policy settings."
+                                    ReportError "`t`tFailed to roll-back UCS transaction to update new BIOS policy settings."
                                 }
                             } `
                             else # NOT ($transactionStarted)
                             {
-                                ReportError "`tFailed to start UCS transaction to update new BIOS policy settings."
+                                ReportError "`t`tFailed to start UCS transaction to update new BIOS policy settings."
                             }
 
                             try
@@ -2206,34 +2248,34 @@ function CreateBIOSPolicy
                             }
                             catch
                             {
-                                ReportError ("`Failed to remove newly created BIOS policy: {0}.  Please remove manually." -f @($newBIOSPolicy.Name))
+                                ReportError ("`t`tFailed to remove newly created BIOS policy: {0}.  Please remove manually." -f @($newBIOSPolicy.Name))
                             }
                         }
                     } `
                     else # NOT ($null -ne $newBIOSPolicy)
                     {
-                        ReportError ("`tFailed to create new BIOS policy: {0}.  Add-UcsBiosPolicy returned `$null." -f @($biosPolicy.Name))
+                        ReportError ("`t`tFailed to create new BIOS policy: {0}.  Add-UcsBiosPolicy returned `$null." -f @($biosPolicy.Name))
                     }
                 }
                 catch
                 {
-                    ReportError ("`tFailed to create new BIOS policy: {0}.  Exception calling Add-UcsBiosPolicy." -f @($biosPolicy.Name))
+                    ReportError ("`t`tFailed to create new BIOS policy: {0}.  Exception calling Add-UcsBiosPolicy." -f @($biosPolicy.Name))
                 }
             } `
             else # NOT ($null -eq $existingPolicy)
             {
-                ReportError "`tBIOS policy already exists."
+                ReportError "`t`tBIOS policy already exists."
             }
         }
         catch
         {
             $Error
-            ReportError "`tFailed to check for existing BIOS policy."
+            ReportError "`t`tFailed to check for existing BIOS policy."
         }
     }
     catch
     {
-        ReportError ("`tFailed to retrieve root organization from {0}." -f @($ucs.Name))
+        ReportError ("`t`tFailed to retrieve root organization from {0}." -f @($ucs.Name))
     }
 
     return $success
@@ -3009,7 +3051,11 @@ function CreateKeyRing
 
         [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=2)]
         [ValidateNotNullOrEmpty()]
-        [String] $state
+        [String] $state,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=2)]
+        [ValidateNotNullOrEmpty()]
+        [String] $country
     )
 
     $success = $false
@@ -3050,7 +3096,7 @@ function CreateKeyRing
                 {
                     try
                     {
-                        $certReq = Add-UcsCertRequest -Ucs $ucs -KeyRing $keyRing -Country "US" -Dns $ucs.Name.ToLower() -Locality $location -OrgName "POWER Engineers, Inc." -OrgUnitName "Operations IT" -State $state -SubjName $ucs.Name.ToLower() -ErrorAction Stop
+                        $certReq = Add-UcsCertRequest -Ucs $ucs -KeyRing $keyRing -Country $country -Dns $ucs.Name.ToLower() -Locality $location -OrgName "POWER Engineers, Inc." -OrgUnitName "Operations IT" -State $state -SubjName $ucs.Name.ToLower() -ErrorAction Stop
                         if ($null -ne $certReq)
                         {
                             try
@@ -3168,10 +3214,11 @@ function SetEquipmentGlobalPolicy
                 # While $success -eq $true, keep updating the equipment global policy
                 try
                 {
+                    ReportNotice "`t`tSetting chassis/FEX discovery policy."
                     $computeChassisDiscPolicy = Add-UcsManagedObject -Ucs $ucs -ModifyPresent -ClassId ComputeChassisDiscPolicy -PropertyMap @{Action="2-link"; Dn="org-root/chassis-discovery"; } -ErrorAction Stop
                     if ($null -eq $computeChassisDiscPolicy)
                     {
-                        ReportError "`tFailed to set chassis/FEX discovery policy.  Add-UcsManagedObject returned '$null."
+                        ReportError "`t`t`tFailed: Add-UcsManagedObject returned `$null."
                         $success = $false
                     } `
                     else # NOT ($null -eq $computeChassisDiscPolicy)
@@ -3181,7 +3228,7 @@ function SetEquipmentGlobalPolicy
                 }
                 catch
                 {
-                    ReportError "`tFailed to set chassis/FEX discovery policy.  Add-UcsManagedObject threw an exception."
+                    ReportError "`t`t`tFailed: Add-UcsManagedObject threw an exception."
                     $success = $false
                 }
 
@@ -3189,10 +3236,11 @@ function SetEquipmentGlobalPolicy
                 {
                     try
                     {
+                        ReportNotice "`t`tSetting rack server discovery policy."
                         $computeServerDiscPolicy = Add-UcsManagedObject -Ucs $ucs -ModifyPresent -ClassId ComputeServerDiscPolicy -PropertyMap @{Dn="org-root/server-discovery"; ScrubPolicyName=""; Action="immediate"; } -ErrorAction Stop
                         if ($null -eq $computeServerDiscPolicy)
                         {
-                            ReportError "`tFailed to set rack server discovery policy.  Add-UcsManagedObject returned '$null."
+                            ReportError "`t`t`tFailed: Add-UcsManagedObject returned `$null."
                             $success = $false
                         } `
                         else # NOT ($null -eq $computeServerDiscPolicy)
@@ -3202,7 +3250,7 @@ function SetEquipmentGlobalPolicy
                     }
                     catch
                     {
-                        ReportError "`tFailed to set rack server discovery policy.  Add-UcsManagedObject threw an exception."
+                        ReportError "`t`t`tFailed: Add-UcsManagedObject threw an exception."
                         $success = $false
                     }
                 } `
@@ -3215,10 +3263,11 @@ function SetEquipmentGlobalPolicy
                 {
                     try
                     {
+                        ReportNotice "`t`tSetting rack management connection policy."
                         $computeServerMgmtPolicy = $rootOrg | Add-UcsManagedObject -Ucs $ucs -ModifyPresent -ClassId ComputeServerMgmtPolicy -PropertyMap @{Action="auto-acknowledged"; } -ErrorAction Stop
                         if ($null -eq $computeServerMgmtPolicy)
                         {
-                            ReportError "`tFailed to set rack management connection policy.  Add-UcsManagedObject returned '$null."
+                            ReportError "`t`t`tFailed: Add-UcsManagedObject returned `$null."
                             $success = $false
                         } `
                         else # NOT ($null -eq $computeServerMgmtPolicy)
@@ -3228,7 +3277,7 @@ function SetEquipmentGlobalPolicy
                     }
                     catch
                     {
-                        ReportError "`tFailed to set rack management connection policy.  Add-UcsManagedObject threw an exception."
+                        ReportError "`t`t`tFailed: Add-UcsManagedObject threw an exception."
                         $success = $false
                     }
                 } `
@@ -3241,10 +3290,11 @@ function SetEquipmentGlobalPolicy
                 {
                     try
                     {
+                        ReportNotice "`t`tSetting power policy."
                         $computePsuPolicy = Add-UcsManagedObject -Ucs $ucs -ModifyPresent -ClassId ComputePsuPolicy -PropertyMap @{Redundancy="grid"; Dn="org-root/psu-policy"; } -ErrorAction Stop
                         if ($null -eq $computePsuPolicy)
                         {
-                            ReportError "`tFailed to set power policy.  Add-UcsManagedObject returned '$null."
+                            ReportError "`t`t`tFailed: Add-UcsManagedObject returned `$null."
                             $success = $false
                         } `
                         else # NOT ($null -eq $computePsuPolicy)
@@ -3254,7 +3304,7 @@ function SetEquipmentGlobalPolicy
                     }
                     catch
                     {
-                        ReportError "`tFailed to set compute power supply policy.  Add-UcsManagedObject threw an exception."
+                        ReportError "`t`t`tFailed: Add-UcsManagedObject threw an exception."
                         $success = $false
                     }
                 } `
@@ -3267,10 +3317,11 @@ function SetEquipmentGlobalPolicy
                 {
                     try
                     {
+                        ReportNotice "`t`tSetting MAC address table aging policy."
                         $fabricLanCloud = Add-UcsManagedObject -Ucs $ucs -ModifyPresent -ClassId FabricLanCloud -PropertyMap @{Dn="fabric/lan"; MacAging="mode-default"; } -ErrorAction Stop
                         if ($null -eq $fabricLanCloud)
                         {
-                            ReportError "`tFailed to set MAC address table aging policy.  Add-UcsManagedObject returned '$null."
+                            ReportError "`t`t`tFailed: Add-UcsManagedObject returned `$null."
                             $success = $false
                         } `
                         else # NOT ($null -eq $fabricLanCloud)
@@ -3280,7 +3331,7 @@ function SetEquipmentGlobalPolicy
                     }
                     catch
                     {
-                        ReportError "`tFailed to set MAC address table aging policy.  Add-UcsManagedObject threw an exception."
+                        ReportError "`t`t`tFailed: Add-UcsManagedObject threw an exception."
                         $success = $false
                     }
                 } `
@@ -3293,10 +3344,11 @@ function SetEquipmentGlobalPolicy
                 {
                     try
                     {
+                        ReportNotice "`t`tSetting Global Power Allocation Policy."
                         $powerMgmtPolicy = Add-UcsManagedObject -Ucs $ucs -ModifyPresent -ClassId PowerMgmtPolicy -PropertyMap @{Style="intelligent-policy-driven"; Dn="org-root/pwr-mgmt-policy"; } -ErrorAction Stop
                         if ($null -eq $powerMgmtPolicy)
                         {
-                            ReportError "`tFailed to set global power allocation policy.  Add-UcsManagedObject returned '$null."
+                            ReportError "`t`t`tFailed: Add-UcsManagedObject returned `$null."
                             $success = $false
                         } `
                         else # NOT ($null -eq $powerMgmtPolicy)
@@ -3306,7 +3358,7 @@ function SetEquipmentGlobalPolicy
                     }
                     catch
                     {
-                        ReportError "`tFailed to set global power allocation policy.  Add-UcsManagedObject threw an exception."
+                        ReportError "`t`t`tFailed: Add-UcsManagedObject threw an exception."
                         $success = $false
                     }
                 } `
@@ -3319,10 +3371,11 @@ function SetEquipmentGlobalPolicy
                 {
                     try
                     {
+                        ReportNotice "`t`tSetting firmware auto sync server policy."
                         $firmwareAutoSyncPolicy = $rootOrg | Add-UcsManagedObject -Ucs $ucs -ModifyPresent -ClassId FirmwareAutoSyncPolicy -PropertyMap @{SyncState="No Actions"; } -ErrorAction Stop
                         if ($null -eq $firmwareAutoSyncPolicy)
                         {
-                            ReportError "`tFailed to set firmware auto sync server policy.  Add-UcsManagedObject returned '$null."
+                            ReportError "`t`t`tFailed: Add-UcsManagedObject returned `$null."
                             $success = $false
                         } `
                         else # NOT ($null -eq $firmwareAutoSyncPolicy)
@@ -3332,7 +3385,7 @@ function SetEquipmentGlobalPolicy
                     }
                     catch
                     {
-                        ReportError "`tFailed to set firmware auto sync server policy.  Add-UcsManagedObject threw an exception."
+                        ReportError "`t`t`tFailed: Add-UcsManagedObject threw an exception."
                         $success = $false
                     }
                 } `
@@ -3490,7 +3543,7 @@ function DeleteDefaultServerPool
                 {
                     try
                     {
-                        $deletedPool = $defaultServerPool | Remove-UcsServerPool -ErrorAction Stop
+                        $deletedPool = $defaultServerPool | Remove-UcsServerPool -Confirm:$false -Force -ErrorAction Stop
                         if ($null -eq $deletedPool)
                         {
                             ReportError "`tFailed to remove default server pool.  Remove-UcsServerPool returned `$null."
@@ -3818,6 +3871,398 @@ function DeleteSANPools
 
     return $success
 }
+
+function CreatePowerControlPolicy
+{
+    [CmdLetBinding()]
+    Param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
+        [ValidateNotNull()]
+        [Cisco.Ucsm.UcsHandle] $ucs,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=1)]
+        [ValidateNotNull()]
+        [String] $powerControlPolicyName
+    )
+
+    $success = $true
+
+    ReportNotice ("`tCreating power control policy {0}..." -f @($powerControlPolicyName))
+    $success, $rootOrg = InvokeUCSFunction -functionName "Get-UcsOrg" -failureMsg "Failed to retrieve root organization." -cmdParams @{Ucs=$ucs}
+
+    if ($success)
+    {
+        $success, $pwrCtrlPolicy = InvokeUCSFunction -functionName "Add-UcsPowerPolicy" -failureMsg "Failed to create power control policy." -cmdParams @{ Ucs = $ucs; Org = $rootOrg; Name = $powerControlPolicyName; Prio = "no-cap" }
+    } `
+    else # NOT ($success)
+    {
+        # Nothing.
+    }
+
+    return $success
+}
+
+function CreateSerialOverLANPolicy
+{
+    [CmdLetBinding()]
+    Param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
+        [ValidateNotNull()]
+        [Cisco.Ucsm.UcsHandle] $ucs,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=1)]
+        [ValidateNotNull()]
+        [String] $solPolicyName
+    )
+
+    $success = $true
+
+    ReportNotice ("`tCreating serial over LAN policy" -f @($solPolicyName))
+    $success, $rootOrg = InvokeUCSFunction -functionName "Get-UcsOrg" -failureMsg "Failed to retrieve root organization." -cmdParams @{Ucs=$ucs}
+
+    if ($success)
+    {
+        $success, $pwrCtrlPolicy = InvokeUCSFunction -functionName "Add-UcsSolPolicy" -failureMsg "Failed to create serial over LAN policy." -cmdParams @{ Ucs = $ucs; Org = $rootOrg; Name = $solPolicyName }
+    } `
+    else # NOT ($success)
+    {
+        # Nothing.
+    }
+
+    return $success
+}
+
+
+<#
+    Start-UcsTransaction
+    $mo = Get-UcsOrg -Level root  | Add-UcsFirmwareComputeHostPack -BladeBundleVersion "4.2(1m)B" -Name "test" -OverrideDefaultExclusion "yes" -RackBundleVersion "4.2(1m)C"
+    $mo_1 = $mo | Add-UcsFirmwareExcludeServerComponent -ModifyPresent -ServerComponent "local-disk"
+    Complete-UcsTransaction
+#>
+
+function CreateHostFirmarePackage
+{
+    [CmdLetBinding()]
+    Param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
+        [ValidateNotNull()]
+        [Cisco.Ucsm.UcsHandle] $ucs,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=1)]
+        [ValidateNotNull()]
+        [String] $fwPackageName,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=2)]
+        [ValidateNotNull()]
+        [String] $bladeBundleVersion,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=3)]
+        [ValidateNotNull()]
+        [String] $rackBundleVersion
+    )
+
+    $success = $true
+
+    ReportNotice "`tCreating host firmware package..."
+    $success, $rootOrg = InvokeUCSFunction -functionName "Get-UcsOrg" -failureMsg "Failed to retrieve root organization." -cmdParams @{Ucs=$ucs}
+
+    if ($success)
+    {
+        $success, $null = InvokeUCSFunction -functionName "Start-UcsTransaction" -failureMsg "Failed to start UCS transaction." -cmdParams @{Ucs=$ucs} -noErrorOnNull
+        if ($success)
+        {
+            $success, $fwPackage = InvokeUCSFunction -functionName "Add-UcsFirmwareComputeHostPack" -failureMsg "Failed to create host firmware package." -cmdParams @{ Ucs = $ucs; Org = $rootOrg; Name = $fwPackageName; BladeBundleVersion = $bladeBundleVersion; RackBundleVersion = $rackBundleVersion; OverrideDefaultExclusion = "yes" }
+
+            if ($success)
+            {
+                $success, $mo = InvokeUCSFunction "Add-UcsFirmwareExcludeServerComponent" -failureMsg ("Failed to modify server component local-disk for host firmware package: {0}" -f @($fwPackageName)) -cmdParams @{Ucs = $ucs; FirmwareComputeHostPack = $fwPackage; ServerComponent = "local-disk"; ModifyPresent = $true }
+            } `
+            else # NOT ($success)
+            {
+                # Nothing.
+            }
+        } `
+        else # NOT ($success)
+        {
+            # Nothing.
+        }
+
+        if ($success)
+        {
+            $success, $mo = InvokeUCSFunction -functionName "Complete-UcsTransaction" -failureMsg "Failed to commit UCS transaction." -cmdParams @{Ucs=$ucs} -noErrorOnNull
+        } `
+        else # NOT ($success)
+        {
+            ReportError ("Failed to create host firmware package {0}.  UCS transaction rolled back." -f @($fwPackageName))
+            $success, $null = InvokeUCSFunction -functionName "Undo-UcsTransaction" -failureMsg "Failed to rollback UCS transaction." -cmdParams @{Ucs=$ucs} -noErrorOnNull
+
+            # No matter the success of rolling back the transaction, make sure $success is $false
+            $success = $false
+        }
+    } `
+    else # NOT ($success)
+    {
+        # Nothing.
+    }
+
+    return $success
+}
+
+function CreateServiceTemplates
+{
+    [CmdLetBinding()]
+    Param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
+        [ValidateNotNull()]
+        [Cisco.Ucsm.UcsHandle] $ucs,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=1)]
+        [ValidateNotNull()]
+        [String] $serviceTemplateName,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=2)]
+        [ValidateNotNull()]
+        [String] $biosProfileName,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=3)]
+        [ValidateNotNull()]
+        [String] $bootPolicyName,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=4)]
+        [ValidateNotNull()]
+        [String] $hostFwPolicyName,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=5)]
+        [ValidateNotNull()]
+        [String] $identPoolName,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=6)]
+        [ValidateNotNull()]
+        [String] $maintPolicyName,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=7)]
+        [ValidateNotNull()]
+        [String] $powerPolicyName,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=8)]
+        [ValidateNotNull()]
+        [String] $ScrubPolicyName,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=9)]
+        [ValidateNotNull()]
+        [String] $SolPolicyName
+    )
+
+    $success = $true
+
+    ReportNotice ("`tCreating service template {0}..." -f @($serviceTemplateName))
+    $success, $rootOrg = InvokeUCSFunction -functionName "Get-UcsOrg" -failureMsg "Failed to retrieve root organization." -cmdParams @{Ucs=$ucs}
+
+    if ($success)
+    {
+        $success, $null = InvokeUCSFunction -functionName "Start-UcsTransaction" -failureMsg "Failed to start UCS transaction." -cmdParams @{Ucs=$ucs} -noErrorOnNull
+        if ($success)
+        {
+            $success, $serviceTemplate = InvokeUCSFunction -functionName "Add-UcsServiceProfile" -failureMsg "Failed to create host firmware package." -cmdParams  @{ Ucs = $ucs; Org = $rootOrg; Name = $serviceTemplateName; BiosProfileName = $biosProfileName; BootPolicyName = $bootPolicyName; HostFwPolicyName = $hostFwPolicyName; IdentPoolName = $identPoolName; MaintPolicyName = $maintPolicyName; PowerPolicyName = $powerPolicyName; ScrubPolicyName = $scrubPolicyName; SolPolicyName = $solPolicyName; Type = "updating-template" }
+
+<# Right Here #>
+
+
+            if ($success)
+            {
+                $success, $mo = InvokeUCSFunction "Add-UcsFirmwareExcludeServerComponent" -failureMsg ("Failed to modify server component local-disk for host firmware package: {0}" -f @($fwPackageName)) -cmdParams @{Ucs = $ucs; FirmwareComputeHostPack = $fwPackage; ServerComponent = "local-disk"; ModifyPresent = $true }
+            } `
+            else # NOT ($success)
+            {
+                # Nothing.
+            }
+        } `
+        else # NOT ($success)
+        {
+            # Nothing.
+        }
+
+        if ($success)
+        {
+            $success, $mo = InvokeUCSFunction -functionName "Complete-UcsTransaction" -failureMsg "Failed to commit UCS transaction." -cmdParams @{Ucs=$ucs} -noErrorOnNull
+        } `
+        else # NOT ($success)
+        {
+            ReportError ("Failed to create service template profile {0}.  UCS transaction rolled back." -f @($serviceTemplateName))
+            $success, $null = InvokeUCSFunction -functionName "Undo-UcsTransaction" -failureMsg "Failed to rollback UCS transaction." -cmdParams @{Ucs=$ucs} -noErrorOnNull
+
+            # No matter the success of rolling back the transaction, make sure $success is $false
+            $success = $false
+        }
+    } `
+    else # NOT ($success)
+    {
+        # Nothing.
+    }
+
+    return $success
+}
+
+
+function p1()
+{
+    $rootOrg = Get-UcsOrg -Ucs $ch3UCS -Level "root"
+    $serviceTemplate = Add-UcsServiceProfile -Ucs $ch3UCS -Org $rootOrg -BiosProfileName $rdcConfigurationData.BIOSPolicy.Name -BootPolicyName $rdcConfigurationData.bootPolicyName -HostFwPolicyName "Latest" -IdentPoolName "CH3-UCS01-UUID" -MaintPolicyName $rdcConfigurationData.maintenancePolicyName -Name "VMWare.Int.M2" -PowerPolicyName $rdcConfigurationData.powerControlPolicyName -ScrubPolicyName $rdcConfigurationData.scrubPolicyName -SolPolicyName $rdcConfigurationData.serialOverLANPolicyName -Type "updating-template"
+    $mo_1 = Add-UcsLogicalStorageProfileBinding -Ucs $ch3UCS -ServiceProfile $serviceTemplate -StorageProfileName $rdcConfigurationData.storageProfileName
+    $mo_2 = Add-UcsVnic -Ucs $ch3UCS -ServiceProfile $serviceTemplate -AdaptorProfileName "VMWare" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName $rdcConfigurationData.macPool.Name -Mtu 9000 -Name "INT.VMNMGT.BA" -NwCtrlPolicyName "" -NwTemplName "INT.VMNMGT.BA" -Order "2" -PinToGroupName "" -QosPolicyName $rdcConfigurationData.jumboFramesQosPolicyName -StatsPolicyName "default" -SwitchId "A"
+    $mo_3 = Add-UcsVnic -Ucs $ch3UCS -ServiceProfile $serviceTemplate -AdaptorProfileName "VMWare" -Name "INT.MGTVMN.AB" -NwTemplName "INT.MGTVMN.AB" -Order "1" -SwitchId "A-B"
+    $mo_4 = Add-UcsVnic -Ucs $ch3UCS -ServiceProfile $serviceTemplate -AdaptorProfileName "VMWare" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName $rdcConfigurationData.macPool.Name -Mtu 9000 -Name "INT.STG.BX" -NwCtrlPolicyName "" -NwTemplName "INT.STG.BX" -Order "4" -PinToGroupName "" -QosPolicyName $rdcConfigurationData.jumboFramesQosPolicyName -StatsPolicyName "default" -SwitchId "A"
+    $mo_5 = Add-UcsVnic -Ucs $ch3UCS -ServiceProfile $serviceTemplate -AdaptorProfileName "VMWare" -Name "INT.STG.AX" -NwTemplName "INT.STG.AX" -Order "3"
+    $mo_6 = Add-UcsVnic -Ucs $ch3UCS -ServiceProfile $serviceTemplate -AdaptorProfileName "VMWare" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName $rdcConfigurationData.macPool.Name -Mtu 1500 -Name "INT.GST.BX" -NwCtrlPolicyName "" -NwTemplName "INT.GST.BX" -Order "6" -PinToGroupName "" -QosPolicyName "" -StatsPolicyName "default" -SwitchId "A"
+    $mo_7 = Add-UcsVnic -Ucs $ch3UCS -ServiceProfile $serviceTemplate -AdaptorProfileName "VMWare" -Name "INT.GST.AX" -NwTemplName "INT.GST.AX" -Order "5"
+    $mo_8 = Add-UcsVnicFcNode -Ucs $ch3UCS -ServiceProfile $serviceTemplate -ModifyPresent -Addr "pool-derived" -IdentPoolName "node-default"
+    $mo_9 = Add-UcsVnicDefBeh -Ucs $ch3UCS -ServiceProfile $serviceTemplate -ModifyPresent -Action "none" -Descr "" -Name "" -NwTemplName "" -PolicyOwner "local" -Type "vhba"
+    $mo_10 = Add-UcsFabricVCon -Ucs $ch3UCS -ServiceProfile $serviceTemplate -ModifyPresent -Fabric "NONE" -Id "1" -InstType "auto" -Placement "physical" -Select "all" -Share "shared" -Transport "ethernet","fc"
+    $mo_11 = Add-UcsFabricVCon -Ucs $ch3UCS -ServiceProfile $serviceTemplate -ModifyPresent -Fabric "NONE" -Id "2" -InstType "auto" -Placement "physical" -Select "all" -Share "shared" -Transport "ethernet","fc"
+    $mo_12 = Add-UcsFabricVCon -Ucs $ch3UCS -ServiceProfile $serviceTemplate -ModifyPresent -Fabric "NONE" -Id "3" -InstType "auto" -Placement "physical" -Select "all" -Share "shared" -Transport "ethernet","fc"
+    $mo_13 = Add-UcsFabricVCon -Ucs $ch3UCS -ServiceProfile $serviceTemplate -ModifyPresent -Fabric "NONE" -Id "4" -InstType "auto" -Placement "physical" -Select "all" -Share "shared" -Transport "ethernet","fc"
+    $mo_14 = $serviceTemplate | Set-UcsServerPower -State "admin-up"
+
+
+    $serviceTemplate = Add-UcsServiceProfile -Ucs $ch3UCS -Org $rootOrg -BiosProfileName $rdcConfigurationData.BIOSPolicy.Name -BootPolicyName $rdcConfigurationData.bootPolicyName -HostFwPolicyName "Latest" -IdentPoolName "CH3-UCS01-UUID" -MaintPolicyName $rdcConfigurationData.maintenancePolicyName -Name "VMWare.DMZ.M2" -PowerPolicyName $rdcConfigurationData.powerControlPolicyName -ScrubPolicyName $rdcConfigurationData.scrubPolicyName -SolPolicyName $rdcConfigurationData.serialOverLANPolicyName -Type "updating-template"
+    $mo_1 = Add-UcsLogicalStorageProfileBinding -Ucs $ch3UCS -ServiceProfile $serviceTemplate -StorageProfileName $rdcConfigurationData.storageProfileName
+    $mo_2 = Add-UcsVnic -Ucs $ch3UCS -ServiceProfile $serviceTemplate -AdaptorProfileName "VMWare" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName $rdcConfigurationData.macPool.Name -Mtu 9000 -Name "DMZ.VMNMGT.BA" -NwCtrlPolicyName "" -NwTemplName "DMZ.VMNMGT.BA" -Order "2" -PinToGroupName "" -QosPolicyName $rdcConfigurationData.jumboFramesQosPolicyName -StatsPolicyName "default" -SwitchId "A"
+    $mo_3 = Add-UcsVnic -Ucs $ch3UCS -ServiceProfile $serviceTemplate -AdaptorProfileName "VMWare" -Name "DMZ.MGTVMN.AB" -NwTemplName "DMZ.MGTVMN.AB" -Order "1" -SwitchId "A-B"
+    $mo_4 = Add-UcsVnic -Ucs $ch3UCS -ServiceProfile $serviceTemplate -AdaptorProfileName "VMWare" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName $rdcConfigurationData.macPool.Name -Mtu 9000 -Name "DMZ.STG.BX" -NwCtrlPolicyName "" -NwTemplName "DMZ.STG.BX" -Order "4" -PinToGroupName "" -QosPolicyName $rdcConfigurationData.jumboFramesQosPolicyName -StatsPolicyName "default" -SwitchId "A"
+    $mo_5 = Add-UcsVnic -Ucs $ch3UCS -ServiceProfile $serviceTemplate -AdaptorProfileName "VMWare" -Name "DMZ.STG.AX" -NwTemplName "DMZ.STG.AX" -Order "3"
+    $mo_6 = Add-UcsVnic -Ucs $ch3UCS -ServiceProfile $serviceTemplate -AdaptorProfileName "VMWare" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName $rdcConfigurationData.macPool.Name -Mtu 1500 -Name "DMZ.GST.BX" -NwCtrlPolicyName "" -NwTemplName "DMZ.GST.BX" -Order "6" -PinToGroupName "" -QosPolicyName "" -StatsPolicyName "default" -SwitchId "A"
+    $mo_7 = Add-UcsVnic -Ucs $ch3UCS -ServiceProfile $serviceTemplate -AdaptorProfileName "VMWare" -Name "DMZ.GST.AX" -NwTemplName "DMZ.GST.AX" -Order "5"
+    $mo_8 = Add-UcsVnicFcNode -Ucs $ch3UCS -ServiceProfile $serviceTemplate -ModifyPresent -Addr "pool-derived" -IdentPoolName "node-default"
+    $mo_9 = Add-UcsVnicDefBeh -Ucs $ch3UCS -ServiceProfile $serviceTemplate -ModifyPresent -Action "none" -Descr "" -Name "" -NwTemplName "" -PolicyOwner "local" -Type "vhba"
+    $mo_10 = Add-UcsFabricVCon -Ucs $ch3UCS -ServiceProfile $serviceTemplate -ModifyPresent -Fabric "NONE" -Id "1" -InstType "auto" -Placement "physical" -Select "all" -Share "shared" -Transport "ethernet","fc"
+    $mo_11 = Add-UcsFabricVCon -Ucs $ch3UCS -ServiceProfile $serviceTemplate -ModifyPresent -Fabric "NONE" -Id "2" -InstType "auto" -Placement "physical" -Select "all" -Share "shared" -Transport "ethernet","fc"
+    $mo_12 = Add-UcsFabricVCon -Ucs $ch3UCS -ServiceProfile $serviceTemplate -ModifyPresent -Fabric "NONE" -Id "3" -InstType "auto" -Placement "physical" -Select "all" -Share "shared" -Transport "ethernet","fc"
+    $mo_13 = Add-UcsFabricVCon -Ucs $ch3UCS -ServiceProfile $serviceTemplate -ModifyPresent -Fabric "NONE" -Id "4" -InstType "auto" -Placement "physical" -Select "all" -Share "shared" -Transport "ethernet","fc"
+    $mo_14 = $serviceTemplate | Set-UcsServerPower -State "admin-up"
+}
+
+<#
+# Create LDAP provider...
+
+    Start-UcsTransaction
+    $mo = Add-UcsLdapProvider -Basedn "DC=powereng,DC=com" -EnableSSL "yes" -FilterValue "sAMAccountName=`$userid" -Key "THeKUTh33u" -Name "ch3-dc01.powereng.com" -Order "1" -Rootdn "CN=srvcldap,OU=Service Accounts,DC=powereng,DC=com" -Vendor "MS-AD"
+    $mo_1 = $mo | Add-UcsLdapGroupRule -ModifyPresent -Authorization "enable" -Descr "" -Name "" -TargetAttr "memberOf" -Traversal "recursive" -UsePrimaryGroup "no"
+    Complete-UcsTransaction
+#>
+
+function CreateLDAPProvider
+{
+    [CmdLetBinding()]
+    Param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
+        [ValidateNotNull()]
+        [Cisco.Ucsm.UcsHandle] $ucs,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=1)]
+        [ValidateNotNull()]
+        [String] $ldapProviderName,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=2)]
+        [ValidateNotNull()]
+        [String] $baseDN,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=3)]
+        [ValidateNotNull()]
+        [String] $rootDN,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=4)]
+        [ValidateNotNull()]
+        [String] $bindKey,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=5)]
+        [int32] $order
+    )
+
+    $success = $true
+
+    ReportNotice ("`tCreating LDAP provider: {0}..." -f @($ldapProviderName))
+
+    $success, $null = InvokeUCSFunction -functionName "Start-UcsTransaction" -failureMsg "Failed to start UCS transaction." -cmdParams @{Ucs=$ucs} -noErrorOnNull
+    if ($success)
+    {
+        $success, $ldapProvider = InvokeUCSFunction -functionName "Add-UcsLdapProvider" -failureMsg "Failed to create LDAP provider." -cmdParams @{ Ucs = $ucs; Name = $ldapProviderName; Basedn = $baseDN; Rootdn = $rootDN; EnableSSL = "yes"; FilterValue = "sAMAccountName=`$userid"; Vendor = "MS-AD"; Order = $order; Key = $bindKey }
+
+        if ($success)
+        {
+            $success, $groupRule = InvokeUCSFunction "Add-UcsLdapGroupRule" -failureMsg ("Failed to modify LDAP provider: {0}" -f @($ldapProviderName)) -cmdParams @{Ucs = $ucs; LdapProvider = $ldapProvider; ModifyPresent = $true; Authorization = "enable"; Descr = ""; Name = ""; TargetAttr = "memberOf"; Traversal = "recursive"; UsePrimaryGroup = "no" }
+
+            if ($success)
+            {
+                $success, $ldapGlobalConfig = InvokeUCSFunction "Get-UcsLdapGlobalConfig" -failureMsg "Failed to retrieve LDAP global config." -cmdParams @{ UCS = $ucs }
+                if ($success)
+                {
+                    $success, $ldapProviders = InvokeUCSFunction "Get-UcsLdapProvider" -failureMsg "Failed to retrieve LDAP providers." -cmdParams @{ UCS = $ucs }
+
+                    if (-not ($ldapProviders -is [Array]))
+                    {
+                        $ldapProviders = @($ldapProviders)
+                    } `
+                    else # NOT (-not ($ldapProviders -is [Array]))
+                    {
+                        # Nothing.
+                    }
+
+                    $ldapProviders = @($ldapProviders | Sort-Object Order)
+                    if ($success)
+                    {
+                        $success, $ldapProviderGroup = InvokeUCSFunction "Add-UcsProviderGroup" -failureMsg "Failed to create LDAP provider group: POWERENG DCs" -cmdParams @{ UCS = $ucs; Name = "POWERENG DCs"; LdapGlobalConfig = $ldapGlobalConfig }
+
+                        # Add the providers to the provider group
+                        $a = 0
+                        while(($a -lt $ldapProviders.Length) -and $success)
+                        {
+                            $success, $null = InvokeUCSFunction "Add-UcsProviderReference" -failureMsg ("Failed to add provider reference: {0} to {1}." -f @($ldapProviders[$a].Name, $ldapProviderGroup.Name)) -cmdParams @{Ucs = $ucs; ProviderGroup = $ldapProviderGroup; ModifyPresent = $true; Descr = ""; Name = $ldapProviders[$a].Name; Order = $ldapProviders[$a].Order }
+                            $a++
+                        }
+                    } `
+                    else # NOT ($success)
+                    {
+                        # Nothing.
+                    }
+                } `
+                else # NOT ($success)
+                {
+                    # Nothing.
+                }
+            } `
+            else # NOT ($success)
+            {
+                # Nothing.
+            }
+        } `
+        else # NOT ($success)
+        {
+            # Nothing.
+        }
+    } `
+    else # NOT ($success)
+    {
+        # Nothing.
+    }
+
+    if ($success)
+    {
+        $success, $mo = InvokeUCSFunction -functionName "Complete-UcsTransaction" -failureMsg "Failed to commit UCS transaction." -cmdParams @{Ucs=$ucs} -noErrorOnNull
+    } `
+    else # NOT ($success)
+    {
+        ReportError ("Failed to LDAP provider {0}.  UCS transaction rolled back." -f @($ldapProviderName))
+        $success, $null = InvokeUCSFunction -functionName "Undo-UcsTransaction" -failureMsg "Failed to rollback UCS transaction." -cmdParams @{Ucs=$ucs} -noErrorOnNull
+
+        # No matter the success of rolling back the transaction, make sure $success is $false
+        $success = $false
+    }
+
+    return $success
+}
+
+
+<#
 function GenericShellFunction
 {
     [CmdLetBinding()]
@@ -3857,3 +4302,4 @@ function GenericShellFunction
 
     return $success
 }
+#>

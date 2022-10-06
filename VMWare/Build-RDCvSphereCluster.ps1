@@ -4,7 +4,7 @@
 # $virtualizationDefinition = Get-Content -Path ".\VMWare\cdcInternalv3.json" | ConvertFrom-Json
 # $virtualizationDefinition = Get-Content -Path ".\VMware\ddcInternalv2.json" | ConvertFrom-Json
 # $virtualizationDefinition = Get-Content -Path ".\VMWare\ddc-vdivcadv2.json" | ConvertFrom-Json
-
+# $virtualizationDefinition = Get-Content -Path ".\VMWare\ddcDMZv3.json" | ConvertFrom-Json
 
 <#
 
@@ -3874,8 +3874,7 @@ function MountDatastoreToHost
         [Object] $hostDef,
 
         [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=3)]
-        [System.Collections.Generic.SortedDictionary[[System.String],[NetApp.Ontapi.Filer.C.NcController]]]
-         $cDot,
+        [System.Collections.Generic.SortedDictionary[[System.String],[NetApp.Ontapi.Filer.C.NcController]]] $cDot,
 
         [Parameter(Mandatory=$false, ValueFromPipeline=$false, Position=4)]
         [Switch] $doReportSuccess
@@ -4030,7 +4029,7 @@ function MountDatastoreToHost
                                                         $success = $false
                                                     }
                                                 }
-                                                else # NOT ($junctionPaths[$c] -eq '')
+                                                else # NOT ([String]::IsNullOrEmpty($junctionPaths[$c]))
                                                 {
                                                     # Not the SVM root volume...
                                                     try
@@ -5310,7 +5309,7 @@ if ($null -ne $datacenter)
     if ($null -ne $cluster)
     {
         # Initially disable cluster services.  -- If this is a new datacenter...
-        Set-vSpherevCLSOnCluster -viServer $viServer -Name $virtualizationDefinition.vSphereClusterName -Disable
+        # Set-vSpherevCLSOnCluster -viServer $viServer -Name $virtualizationDefinition.vSphereClusterName -Disable
 
         $a = 0
         while($a -lt $virtualizationDefinition.hosts.Length)
@@ -5320,7 +5319,7 @@ if ($null -ne $datacenter)
         }
 
         # Enable cluster services.
-        Set-vSpherevCLSOnCluster -viServer $viServer -Name $virtualizationDefinition.vSphereClusterName -Enable
+        # Set-vSpherevCLSOnCluster -viServer $viServer -Name $virtualizationDefinition.vSphereClusterName -Enable
     } `
     else # NOT ($null -ne $cluster)
     {
@@ -5334,80 +5333,132 @@ else # NOT ($null -ne $datacenter)
 
 
 & {
-    $viServer = $vCenter
-    $doReportSuccess = $true
-    $ucs = $cdcUCS
-    $Global:ucsData = $null
-    $DoIt = $true
+    $virtualizationDefinition = Get-Content -Path ".\VMWare\ch3-dmzv3.json" | ConvertFrom-Json
 
-    # TODO: Fix ValidateSwitchDefinition to work with v2
-    # TODO: Fix functions that use $hosts -- check $hosts before use
-
-#    if (ValidateSwitchDefinition -viServer $viServer -ucsManager $ucs -dsf $dsConfig -doReportSuccess:$doReportSuccess)
-#    {
-        # TRUE
-
-        $newVDS = CreateVDS -viServer $viServer -datacenterName $virtualizationDefinition.datacenterName -dsConfig $virtualizationDefinition.switch -DoIt:$DoIt -doReportSuccess:$doReportSuccess
-        if ($null -ne $newVDS)
+    if ($null -eq $Global:ucsManagers)
+    {
+        ConnectTo -keywords $virtualizationDefinition.ucsManager
+        if (($null -ne $Global:ucsManagers) -and ($Global:ucsManagers.ContainsKey($virtualizationDefinition.ucsManager)))
         {
-            if (CreatePortGroups -viServer $viServer -dsConfig $virtualizationDefinition.switch -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
+            $virtualizationDefinition.ucsManager = $Global:ucsManagers[$virtualizationDefinition.ucsManager]
+            $goodToGo = ($null -ne $virtualizationDefinition.ucsManager) -and ($virtualizationDefinition.ucsManager -is [Cisco.Ucsm.UcsHandle])
+        } `
+        else # NOT (-not $Global:ucsManagers.ContainsKey($virtualizationDefinition.ucsManager))
+        {
+            ReportError ("Not connected to UCS Manager: {0}" -f @($virtualizationDefinition.ucsManager))
+        }
+    } `
+    else # NOT ($null -eq $Global:ucsManagers)
+    {
+        # Nothing.
+    }
+
+    if ($null -ne $Global:ucsManagers)
+    {
+        if (-not $Global:ucsManagers.ContainsKey($virtualizationDefinition.ucsManager))
+        {
+            ConnectTo -keywords $virtualizationDefinition.ucsManager
+            if ($Global:ucsManagers.ContainsKey($virtualizationDefinition.ucsManager))
             {
-                if (AddHostsToVDS -viServer $viServer -datacenterName $virtualizationDefinition.datacenterName -dsConfig $virtualizationDefinition.switch -hostDefs $virtualizationDefinition.hosts -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
+                $virtualizationDefinition.ucsManager = $Global:ucsManagers[$virtualizationDefinition.ucsManager]
+                $goodToGo = ($null -ne $virtualizationDefinition.ucsManager) -and ($virtualizationDefinition.ucsManager -is [Cisco.Ucsm.UcsHandle])
+            } `
+            else # NOT (-not $Global:ucsManagers.ContainsKey($virtualizationDefinition.ucsManager))
+            {
+                ReportError ("Not connected to UCS Manager: {0}" -f @($virtualizationDefinition.ucsManager))
+            }
+        } `
+        else # NOT (-not $Global:ucsManagers.ContainsKey($virtualizationDefinition.ucsManager))
+        {
+            # Nothing.
+        }
+    } `
+    else # NOT ($null -ne $Global:ucsManagers)
+    {
+        # Nothing.
+    }
+
+    if ($goodToGo)
+    {
+        $viServer = $vCenter
+        $doReportSuccess = $true
+        $ucs = $ch3UCS
+        $Global:ucsData = $null
+        $DoIt = $true
+
+        # TODO: Fix ValidateSwitchDefinition to work with v2
+        # TODO: Fix functions that use $hosts -- check $hosts before use
+
+    #    if (ValidateSwitchDefinition -viServer $viServer -ucsManager $ucs -dsf $dsConfig -doReportSuccess:$doReportSuccess)
+    #    {
+            # TRUE
+
+            $newVDS = CreateVDS -viServer $viServer -datacenterName $virtualizationDefinition.datacenterName -dsConfig $virtualizationDefinition.switch -DoIt:$DoIt -doReportSuccess:$doReportSuccess
+            if ($null -ne $newVDS)
+            {
+                if (CreatePortGroups -viServer $viServer -dsConfig $virtualizationDefinition.switch -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
                 {
-                    if (MigrateHostsVMNICsToVDS -viServer $viServer -ucsManager $ucs -dsConfig $virtualizationDefinition.switch -hostDefs $virtualizationDefinition.hosts -ExcludevmNIC0 -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
+                    if (AddHostsToVDS -viServer $viServer -datacenterName $virtualizationDefinition.datacenterName -dsConfig $virtualizationDefinition.switch -hostDefs $virtualizationDefinition.hosts -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
                     {
-                        if (MigrateHostsVMKsToVDS -viServer $viServer -dsConfig $virtualizationDefinition.switch -hostDefs $virtualizationDefinition.hosts -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
+                        if (MigrateHostsVMNICsToVDS -viServer $viServer -ucsManager $virtualizationDefinition.ucsManager -dsConfig $virtualizationDefinition.switch -hostDefs $virtualizationDefinition.hosts -ExcludevmNIC0 -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
                         {
-                            if (MigrateHostsVMNICsToVDS -viServer $viServer -ucsManager $ucs -dsConfig $virtualizationDefinition.switch -hostDefs $virtualizationDefinition.hosts -OnlyvmNIC0 -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
+                            if (MigrateHostsVMKsToVDS -viServer $viServer -dsConfig $virtualizationDefinition.switch -hostDefs $virtualizationDefinition.hosts -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
                             {
-                                $a = 0
-                                while($a -lt $virtualizationDefinition.hosts.Length)
+                                if (MigrateHostsVMNICsToVDS -viServer $viServer -ucsManager $virtualizationDefinition.ucsManager -dsConfig $virtualizationDefinition.switch -hostDefs $virtualizationDefinition.hosts -OnlyvmNIC0 -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
                                 {
-                                    RemoveVMHostStdSwitches -viServer $viServer -vmHostName $virtualizationDefinition.hosts[$a].vmHostName
-                                    $a++
+                                    $a = 0
+                                    while($a -lt $virtualizationDefinition.hosts.Length)
+                                    {
+                                        RemoveVMHostStdSwitches -viServer $viServer -vmHostName $virtualizationDefinition.hosts[$a].vmHostName
+                                        $a++
+                                    }
+
+                                    if (MountDatastoresToHosts -viServer $viServer -datastores $virtualizationDefinition.datastores -hostDefs $virtualizationDefinition.hosts -cDot $cDot -doReportSuccess:$doReportSuccess)
+                                    {
+
+                                    } `
+                                    else # NOT (MountDatastoresToESXiHosts -viServer $viServer -datastores $virtualizationDefinition.datastores -hosts $virtualizationDefinition.hosts -cDot $cDot -doReportSuccess:$doReportSuccess)
+                                    {
+                                        ReportError "Failed to mount datastores to hosts."
+                                    }
                                 }
-
-                                if (MountDatastoresToHosts -viServer $viServer -datastores $virtualizationDefinition.datastores -hostDefs $virtualizationDefinition.hosts -cDot $cDot -doReportSuccess:$doReportSuccess)
+                                else # NOT (MigrateVMNICsToVDS -viServer $viServer -ucsManager $virtualizationDefinition.ucsManager -dsConfig $virtualizationDefinition.switch -hosts $virtualizationDefinition.hosts -OnlyvmNIC0 -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
                                 {
-
-                                } `
-                                else # NOT (MountDatastoresToESXiHosts -viServer $viServer -datastores $virtualizationDefinition.datastores -hosts $virtualizationDefinition.hosts -cDot $cDot -doReportSuccess:$doReportSuccess)
-                                {
-                                    ReportError "Failed to mount datastores to hosts."
+                                    ReportError ("Failed to migrate vmnic0 to {0}." -f @($virtualizationDefinition.switch.name))
                                 }
                             }
-                            else # NOT (MigrateVMNICsToVDS -viServer $viServer -ucsManager $ucs -dsConfig $virtualizationDefinition.switch -hosts $virtualizationDefinition.hosts -OnlyvmNIC0 -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
+                            else # NOT (MigrateVMKsToVDS -viServer $viServer -dsConfig $virtualizationDefinition.switch -hosts $virtualizationDefinition.hosts -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
                             {
-                                ReportError ("Failed to migrate vmnic0 to {0}." -f @($virtualizationDefinition.switch.name))
+                                ReportError ("Failed to migrate any/all VMKs to {0}." -f @($virtualizationDefinition.switch.name))
                             }
                         }
-                        else # NOT (MigrateVMKsToVDS -viServer $viServer -dsConfig $virtualizationDefinition.switch -hosts $virtualizationDefinition.hosts -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
+                        else # NOT (MigrateVMNICsToVDS -viServer $viServer -ucsManager $virtualizationDefinition.ucsManager -dsConfig $virtualizationDefinition.switch -hosts $virtualizationDefinition.hosts -ExcludevmNIC0 -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
                         {
-                            ReportError ("Failed to migrate any/all VMKs to {0}." -f @($virtualizationDefinition.switch.name))
+                            ReportError ("Failed to migrate any/all VMNICs to {0}." -f @($virtualizationDefinition.switch.name))
                         }
                     }
-                    else # NOT (MigrateVMNICsToVDS -viServer $viServer -ucsManager $ucs -dsConfig $virtualizationDefinition.switch -hosts $virtualizationDefinition.hosts -ExcludevmNIC0 -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
+                    else # NOT (AddVMHostsToVDS -viServer $viServer -dsConfig $virtualizationDefinition.switch -hosts $virtualizationDefinition.hosts -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
                     {
-                        ReportError ("Failed to migrate any/all VMNICs to {0}." -f @($virtualizationDefinition.switch.name))
+                        ReportError ("Failed to add VM hosts to {0}." -f @(Quoted $virtualizationDefinition.switch.name))
                     }
                 }
-                else # NOT (AddVMHostsToVDS -viServer $viServer -dsConfig $virtualizationDefinition.switch -hosts $virtualizationDefinition.hosts -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
+                else # NOT (CreatePortGroups -viServer $viServer -dsConfig $virtualizationDefinition.switch -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
                 {
-                    ReportError ("Failed to add VM hosts to {0}." -f @(Quoted $virtualizationDefinition.switch.name))
+                    ReportError ("Failed to add port groups to {0}." -f @(Quoted $virtualizationDefinition.switch.name))
                 }
             }
-            else # NOT (CreatePortGroups -viServer $viServer -dsConfig $virtualizationDefinition.switch -DoIt:$DoIt -doReportSuccess:$doReportSuccess)
+            else # NOT ($null -ne $newVDS)
             {
-                ReportError ("Failed to add port groups to {0}." -f @(Quoted $virtualizationDefinition.switch.name))
+                ReportError ("Failed to create new distributed switch {0}." -f @(Quoted $virtualizationDefinition.switch.name))
             }
-        }
-        else # NOT ($null -ne $newVDS)
-        {
-            ReportError ("Failed to create new distributed switch {0}." -f @(Quoted $virtualizationDefinition.switch.name))
-        }
-#    }
-#    else # NOT (ValidateSwitchDefinition -viServer $viServer -ucsManager $ddcUCS -dsf $dsConfig -doReportSuccess)
-#    {
-#        ReportError "Unable to valid the distributed switch configuration."
-#    }
+    #    }
+    #    else # NOT (ValidateSwitchDefinition -viServer $viServer -ucsManager $ddcUCS -dsf $dsConfig -doReportSuccess)
+    #    {
+    #        ReportError "Unable to valid the distributed switch configuration."
+    #    }
+    } `
+    else # NOT ($goodToGo)
+    {
+        # Nothing.
+    }
 }

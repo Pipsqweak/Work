@@ -1,0 +1,105 @@
+[------------- Sending Request to Server ------------
+
+<configResolveDn
+dn="sys"
+cookie="1663705478/e5d450d3-11f3-41e5-a19f-17e14438c913"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1663705478/e5d450d3-11f3-41e5-a19f-17e14438c913"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1663705478/e5d450d3-11f3-41e5-a19f-17e14438c913"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1663705478/e5d450d3-11f3-41e5-a19f-17e14438c913"
+inHierarchical="false">
+</configResolveDn>
+
+<configEstimateImpact
+cookie="1663705478/e5d450d3-11f3-41e5-a19f-17e14438c913">
+    <inConfigs>
+<pair key="sys/ldap-ext/provider-ch3-dc01.powereng.com">
+    <aaaLdapProvider
+    basedn="DC=powereng,DC=com"
+    enableSSL="yes"
+    filter="sAMAccountName=$userid"
+    key="THeKUTh33u"
+    name="ch3-dc01.powereng.com"
+    order="1"
+    rootdn="CN=srvcldap,OU=Service Accounts,DC=powereng,DC=com"
+    vendor="MS-AD"
+    dn="sys/ldap-ext/provider-ch3-dc01.powereng.com"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+        <aaaLdapGroupRule
+        authorization="enable"
+        descr=""
+        name=""
+        targetAttr="memberOf"
+        traversal="recursive"
+        usePrimaryGroup="no"
+        
+        rn="ldapgroup-rule"
+        
+        
+        sacl="addchild,del,mod">
+        </aaaLdapGroupRule>
+    </aaaLdapProvider>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1663705478/e5d450d3-11f3-41e5-a19f-17e14438c913"
+inHierarchical="false">
+    <inConfigs>
+<pair key="sys/ldap-ext/provider-ch3-dc01.powereng.com">
+    <aaaLdapProvider
+    basedn="DC=powereng,DC=com"
+    enableSSL="yes"
+    filter="sAMAccountName=$userid"
+    key="THeKUTh33u"
+    name="ch3-dc01.powereng.com"
+    order="1"
+    rootdn="CN=srvcldap,OU=Service Accounts,DC=powereng,DC=com"
+    vendor="MS-AD"
+    dn="sys/ldap-ext/provider-ch3-dc01.powereng.com"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+        <aaaLdapGroupRule
+        authorization="enable"
+        descr=""
+        name=""
+        targetAttr="memberOf"
+        traversal="recursive"
+        usePrimaryGroup="no"
+        
+        rn="ldapgroup-rule"
+        
+        
+        sacl="addchild,del,mod">
+        </aaaLdapGroupRule>
+    </aaaLdapProvider>
+</pair>
+    </inConfigs>
+</configConfMos>
+
+<configResolveDn
+dn="sys"
+cookie="1663705478/e5d450d3-11f3-41e5-a19f-17e14438c913"
+inHierarchical="false">
+</configResolveDn>
+-----------------------------------------------------]

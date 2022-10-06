@@ -1,0 +1,59 @@
+[------------- Sending Request to Server ------------
+
+<configEstimateImpact
+cookie="1664481706/304bb080-f548-444b-9cff-9183c95c5f58">
+    <inConfigs>
+<pair key="sys/auth-realm/domain-local">
+    <aaaDomain
+    name="local"
+    dn="sys/auth-realm/domain-local"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+        <aaaDomainAuth
+        descr=""
+        name=""
+        providerGroup=""
+        realm="local"
+        use2Factor="no"
+        
+        rn="domain-auth"
+        
+        
+        sacl="addchild,del,mod">
+        </aaaDomainAuth>
+    </aaaDomain>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1664481706/304bb080-f548-444b-9cff-9183c95c5f58"
+inHierarchical="false">
+    <inConfigs>
+<pair key="sys/auth-realm/domain-local">
+    <aaaDomain
+    name="local"
+    dn="sys/auth-realm/domain-local"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+        <aaaDomainAuth
+        descr=""
+        name=""
+        providerGroup=""
+        realm="local"
+        use2Factor="no"
+        
+        rn="domain-auth"
+        
+        
+        sacl="addchild,del,mod">
+        </aaaDomainAuth>
+    </aaaDomain>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]

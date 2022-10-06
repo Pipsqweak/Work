@@ -1,48 +1,74 @@
 {
-    "ucsManager": "ucspe.powereng.com",
+    "ucsManager":  "ny7-ucs01.powereng.com",
+    "uuidSuffixPoolStart_Comment": "uuidSuffixPoolStart should be different for each UCS Manager.  Shown here as a decimal number, but UCS displays hex.  12288 = 0x3000",
+    "uuidSuffixPoolStart" : 36864,
+    "ipPool_Comment": "The addresses in ext-mgmt must be on the same VLAN as the management port on for the fabric interconnects.",
+    "ipPool": {
+        "name": "ext-mgmt",
+        "from": "10.230.5.33",
+        "to": "10.230.5.40",
+        "defaultGateway": "10.230.5.1",
+        "subnetMask": "255.255.255.0",
+        "primaryDNS": "10.230.3.10",
+        "secondaryDNS": "10.230.3.20"
+    },
+    "macPool_Comment": "MAC Address pools should be different for each UCS Manager.",
+    "macPool": {
+        "name": "NY7_MAC_POOL",
+        "from": "00:25:B5:08:00:00",
+        "to": "00:25:B5:08:00:FF"
+    },
+    "keyring": {
+        "state": "NY",
+        "country": "US",
+        "location": "NY7"
+    },
+    "managementConfig" : {
+        "systemName": "ny7-ucs01",
+        "domainName" : "powereng.com",
+        "systemOwner": "Ops IT Infrastructure",
+        "description": "NY7 UCS",
+        "site": "NY7",
+        "dnsServers": [
+            "10.230.3.10",
+            "10.245.3.10"
+        ],
+        "timeZone": "America/New_York (Eastern Time)",
+        "timeZoneComment": "See timezones.txt for a list of supported timezones.",
+        "ntpServers": [
+            "ntp1.powereng.com",
+            "ntp2.powereng.com"
+        ]
+    },
+    "NO_CHANGES_PAST_HERE" : "NO MORE CHANGES",
     "uplinkPorts": [
         {
             "filancloud": "A",
-            "portid": 1,
-            "slotid": 1
+            "slotid": 1,
+            "portid": 1
         },
         {
             "filancloud": "A",
-            "portid": 2,
-            "slotid": 1
+            "slotid": 1,
+            "portid": 2
         },
         {
             "filancloud": "B",
-            "portid": 107,
-            "slotid": 1
+            "slotid": 1,
+            "portid": 1
         },
         {
             "filancloud": "B",
-            "portid": 108,
-            "slotid": 1
+            "slotid": 1,
+            "portid": 2
         }
     ],
+    "diskGroupConfigurationPolicyName":  "M2RAID1",
+    "storageProfileName": "M2RAID1",
     "standardNetworkControlPolicyName": "STANDARD",
     "jumboFramesQosPolicyName": "JUMBOFRAMES",
-    "uuidSuffixPoolStart_Comment": "uuidSuffixPoolStart should be different for each UCS Manager.  Shown here as a decimal number, but UCS displays hex.  12288 = 0x3000",
-    "uuidSuffixPoolStart": 12288,
-    "diskGroupConfigurationPolicyName": "M.2-RAID1",
-    "ipPool": {
-        "name": "ext-mgmt",
-        "from": "192.168.1.50",
-        "to": "192.168.1.75",
-        "defaultGateway": "192.168.1.1",
-        "subnetMask": "255.255.255.0",
-        "primaryDNS": "192.168.1.20",
-        "secondaryDNS": "192.168.1.30"
-    },
-    "storageProfileName": "M.2-RAID1",
-    "macPool_Comment": "MAC pools should be different for each UCS Manager.",
-    "macPool": {
-        "name": "UCSPE-MAC-POOL",
-        "from": "00:25:B5:12:00:00",
-        "to": "00:25:B5:12:00:FF"
-    },
+    "serialOverLANPolicyName": "SERIALOVERLAN",
+    "powerControlPolicyName": "NOCAP",
     "vlans": [
         {
             "Name": "VL01-PSRV",
@@ -75,6 +101,10 @@
         {
             "Name": "VL21-INFOSEC-MGMT",
             "ID": 21
+        },
+        {
+            "Name": "VL29-ENTPROV",
+            "ID": 29
         },
         {
             "Name": "VL40-CLIENTLAN",
@@ -127,6 +157,7 @@
                 "VL09-LB-FARM",
                 "VL20-VOICE-ELAN",
                 "VL21-INFOSEC-MGMT",
+                "VL29-ENTPROV",
                 "VL40-CLIENTLAN",
                 "VL80-DEV1",
                 "VL82-PSRVDEV",
@@ -136,7 +167,6 @@
         {
             "Name": "MGMT-VMOTION",
             "Members": [
-                "VL01-PSRV",
                 "VL05-INFRAMGMT",
                 "VL11-STORAGE"
             ]
@@ -170,12 +200,14 @@
             ]
         }
     ],
-    "bootPolicyName": "M.2-Boot",
-    "scrubPolicyName": "NOSCRUB",
-    "keyring": {
-        "state": "ID",
-        "location": "Meridian"
+    "inbandProfile":
+    {
+        "vlanGroup": "MGMT-VMOTION",
+        "network": "VL05-INFRAMGMT",
+        "ipPoolName": "ext-mgmt"
     },
+    "bootPolicyName": "M2Boot",
+    "scrubPolicyName": "NOSCRUB",
     "vNICTemplates": [
         {
             "Primary": {
@@ -274,23 +306,6 @@
             }
         }
     ],
-    "managementConfig": {
-        "systemName": "ucspe",
-        "domainName": "powereng.com",
-        "systemOwner": "Ops IT Infrastructure",
-        "description": "Lab UCS Platform Emulator",
-        "site": "LAB",
-        "dnsServers": [
-            "10.86.3.10",
-            "10.247.3.10"
-        ],
-        "timeZone": "America/Boise (Mountain Time - south Idaho & east Oregon)",
-        "timeZoneComment": "See timezones.txt for a list of supported timezones.",
-        "ntpServers": [
-            "ntp1.powereng.com",
-            "ntp2.powereng.com"
-        ]
-    },
     "maintenancePolicyName": "USERACK",
     "BIOSPolicy": {
         "Name": "PEI-BIOS-Policy",
@@ -938,5 +953,10 @@
         "pB6cu/J8agmwzk0OWH1taTfLz2RZYt9Gmj/43BmKeIKpIk7vU9H2j2Ujt/5yeCAv",
         "a8Wvus4h4tfS1ns=",
         "-----END CERTIFICATE-----"
-    ]
+    ],
+    "firmwarePackage": {
+        "Name": "Latest",
+        "bladeBundleVersion": "4.2(1m)B",
+        "rackBundleVersion": "4.2(1m)C"
+    }
 }

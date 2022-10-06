@@ -27,9 +27,9 @@ $netGrp = $lanCloud | Add-UcsFabricNetGroup -Ucs $ddcUCS -ModifyPresent -Name $v
 $result = $netGrp | Add-UcsFabricPooledVlan -Ucs $ddcUCS -ModifyPresent -Name $vlanName
 Complete-UcsTransaction
 
-$a = 0
 $ucsManagers = @($labUCS, $cdcUCS, $ddcUCS)
 $basePath = "E:\UCS Backups\"
+$a = 0
 while($a -lt $ucsManagers.Length)
 {
     $mo = Backup-Ucs -Type config-all -PathPattern ($basePath + '${ucs}\${yyyy}${MM}${dd}-${HH}${mm}-config-all.xml') -Ucs $ucsManagers[$a] -Xml
@@ -299,4 +299,98 @@ Complete-UcsTransaction
 Start-UcsTransaction
 $mo = Get-UcsOrg -Level root  | Add-UcsServiceProfile -ModifyPresent  -Descr "CDC-ESX-C2-B1" -Name "CDC-ESX-C2-B1" -UsrLbl "CDC-ESX-C2-B1"
 $mo_1 = $mo | Add-UcsManagedObject -ModifyPresent  -ClassId LsServerExtension -PropertyMap @{AssetTag="48769"; }
+Complete-UcsTransaction
+
+
+# Create Power Control Policy
+
+Get-UcsOrg -Level root  | Add-UcsPowerPolicy -Name "NOCAP" -Prio "no-cap"
+
+
+# Create Serial over LAN policy
+
+Get-UcsOrg -Level root  | Add-UcsSolPolicy -Name "SerialOverLan"
+
+# Create Host Firmware Package
+
+
+Start-UcsTransaction
+$mo = Get-UcsOrg -Level root  | Add-UcsFirmwareComputeHostPack -BladeBundleVersion "4.2(1m)B" -Name "test" -OverrideDefaultExclusion "yes" -RackBundleVersion "4.2(1m)C"
+$mo_1 = $mo | Add-UcsFirmwareExcludeServerComponent -ModifyPresent -ServerComponent "local-disk"
+Complete-UcsTransaction
+
+
+# Create Service Profile Template
+
+Start-UcsTransaction
+$rootOrg = Get-UcsOrg -Level root
+$serviceTemplate = $rootOrg | Add-UcsServiceProfile -BiosProfileName "PEI-BIOS-Policy" -BootPolicyName "M.2-Boot" -HostFwPolicyName "Latest" -IdentPoolName "CDC-UCSPE-UUID" -MaintPolicyName "USERACK" -Name "VMWare.Int.M2" -PowerPolicyName "NOCAP" -ScrubPolicyName "NOSCRUB" -SolPolicyName "SERIALOVERLAN" -Type "updating-template"
+$mo_1 = $serviceTemplate | Add-UcsLogicalStorageProfileBinding -StorageProfileName "M.2-RAID1"
+$mo_2 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName "" -Mtu 1500 -Name "INT.VMNMGT.BA" -NwCtrlPolicyName "" -NwTemplName "INT.VMNMGT.BA" -Order "2" -PinToGroupName "" -QosPolicyName "" -StatsPolicyName "default" -SwitchId "A"
+$mo_3 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "VMWare" -Name "INT.MGTVMN.AB" -NwTemplName "INT.MGTVMN.AB" -Order "1" -SwitchId "A-B"
+$mo_4 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName "" -Mtu 1500 -Name "INT.STG.BX" -NwCtrlPolicyName "" -NwTemplName "INT.STG.BX" -Order "4" -PinToGroupName "" -QosPolicyName "" -StatsPolicyName "default" -SwitchId "A"
+$mo_5 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "VMWare" -Name "INT.STG.AX" -NwTemplName "INT.STG.AX" -Order "3"
+$mo_6 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName "" -Mtu 1500 -Name "INT.GST.BX" -NwCtrlPolicyName "" -NwTemplName "INT.GST.BX" -Order "6" -PinToGroupName "" -QosPolicyName "" -StatsPolicyName "default" -SwitchId "A"
+$mo_7 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "VMWare" -Name "INT.GST.AX" -NwTemplName "INT.GST.AX" -Order "5"
+$mo_8 = $serviceTemplate | Add-UcsVnicFcNode -ModifyPresent -Addr "pool-derived" -IdentPoolName "node-default"
+$mo_9 = $serviceTemplate | Add-UcsVnicDefBeh -ModifyPresent -Action "none" -Descr "" -Name "" -NwTemplName "" -PolicyOwner "local" -Type "vhba"
+$mo_10 = $serviceTemplate | Add-UcsFabricVCon -ModifyPresent -Fabric "NONE" -Id "1" -InstType "auto" -Placement "physical" -Select "all" -Share "shared" -Transport "ethernet","fc"
+$mo_11 = $serviceTemplate | Add-UcsFabricVCon -ModifyPresent -Fabric "NONE" -Id "2" -InstType "auto" -Placement "physical" -Select "all" -Share "shared" -Transport "ethernet","fc"
+$mo_12 = $serviceTemplate | Add-UcsFabricVCon -ModifyPresent -Fabric "NONE" -Id "3" -InstType "auto" -Placement "physical" -Select "all" -Share "shared" -Transport "ethernet","fc"
+$mo_13 = $serviceTemplate | Add-UcsFabricVCon -ModifyPresent -Fabric "NONE" -Id "4" -InstType "auto" -Placement "physical" -Select "all" -Share "shared" -Transport "ethernet","fc"
+$mo_14 = $serviceTemplate | Set-UcsServerPower -State "admin-up"
+Complete-UcsTransaction
+
+# Upload firmware
+
+# Didn't work...
+Add-UcsFirmwareDownloader -FileName "ucs-mini-k9-bundle-infra.4.2.1m.A.bin" -Protocol "local" -Server "local"
+
+# Did work...
+$fileName = "E:\Software\UCS Firmware\4.2(1m)\ucs-k9-bundle-b-series.4.2.1m.B.bin"
+# $fileName = "E:\Software\UCS Firmware\4.2(1m)\ucs-k9-bundle-c-series.4.2.1m.C.bin"
+
+$trash = Send-UcsFirmware -Ucs $ch3UCS -LiteralPath $fileName | Watch-Ucs -Property TransferState -SuccessValue downloaded -FailureValue failed -PollSec 30 -TimeoutSec 600 -ErrorAction SilentlyContinue
+
+
+# Change HTTPS to TLSv1.2
+Add-UcsManagedObject -ModifyPresent  -ClassId CommHttps -PropertyMap @{Dn="sys/svc-ext/https-svc"; AllowedSSLProtocols="tlsv1_2"; }
+
+# Create LDAP Provider...
+Start-UcsTransaction
+$mo = Add-UcsLdapProvider -Basedn "DC=powereng,DC=com" -EnableSSL "yes" -FilterValue "sAMAccountName=`$userid" -Key "THeKUTh33u" -Name "ch3-dc01.powereng.com" -Order "1" -Rootdn "CN=srvcldap,OU=Service Accounts,DC=powereng,DC=com" -Vendor "MS-AD"
+$mo_1 = $mo | Add-UcsLdapGroupRule -ModifyPresent -Authorization "enable" -Descr "" -Name "" -TargetAttr "memberOf" -Traversal "recursive" -UsePrimaryGroup "no"
+Complete-UcsTransaction
+
+# Create LDAP Provider Group
+Start-UcsTransaction
+$mo = Get-UcsLdapGlobalConfig | Add-UcsProviderGroup -Name "POWERENG DCs"
+$mo_1 = $mo | Add-UcsProviderReference -ModifyPresent -Descr "" -Name "ch3-dc01.powereng.com" -Order "1"
+$mo_2 = $mo | Add-UcsProviderReference -ModifyPresent -Descr "" -Name "ch3-dc02.powereng.com" -Order "2"
+$mo_3 = $mo | Add-UcsProviderReference -ModifyPresent -Descr "" -Name "cdc-dc01.powereng.com" -Order "3"
+Complete-UcsTransaction
+
+# Create LDAP Group Map
+Start-UcsTransaction
+$mo = Add-UcsLdapGroupMap -Name "CN=SRV-UCS-READ-ONLY,OU=Server Administration,OU=Groups,OU=IT,OU=PEI,DC=powereng,DC=com"
+$mo_1 = $mo | Add-UcsUserRole -Descr "" -Name "read-only"
+Complete-UcsTransaction
+
+Start-UcsTransaction -Ucs $ucs
+$ldapGroupMap = Add-UcsLdapGroupMap -Ucs $ucs -Name "CN=SRV-UCS-ADM,OU=Server Administration,OU=Groups,OU=IT,OU=PEI,DC=powereng,DC=com"
+# Need both
+$newLDAPGroupMapRole = Add-UcsUserRole -Ucs $ucs -LdapGroupMap $ldapGroupMap -Descr "" -Name "read-only"
+$newLDAPGroupMapRole = Add-UcsUserRole -Ucs $ucs -LdapGroupMap $ldapGroupMap -Descr "" -Name "admin"
+Complete-UcsTransaction -Ucs $ucs
+
+# Create local authentication domain
+Start-UcsTransaction
+$mo = Add-UcsAuthDomain -Name "local"
+$mo_1 = $mo | Set-UcsAuthDomainDefaultAuth -Descr "" -Name "" -ProviderGroup "" -Realm "local" -Use2Factor "no"
+Complete-UcsTransaction
+
+# Create powereng.com authentication domain
+Start-UcsTransaction
+$mo = Add-UcsAuthDomain -Name "powereng.com"
+$mo_1 = $mo | Set-UcsAuthDomainDefaultAuth -Descr "" -Name "" -ProviderGroup "POWERENG DCs" -Realm "ldap" -Use2Factor "no"
 Complete-UcsTransaction

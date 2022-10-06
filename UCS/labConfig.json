@@ -25,7 +25,7 @@
     "standardNetworkControlPolicyName": "STANDARD",
     "jumboFramesQosPolicyName": "JUMBOFRAMES",
     "uuidSuffixPoolStart_Comment": "uuidSuffixPoolStart should be different for each UCS Manager.  Shown here as a decimal number, but UCS displays hex.  12288 = 0x3000",
-    "uuidSuffixPoolStart" : 8192,
+    "uuidSuffixPoolStart" : 12288,
     "diskGroupConfigurationPolicyName":  "M.2-RAID1",
     "ipPool_Comment": "The addresses in ext-mgmt must be on the same VLAN as the management port on for the fabric interconnects.",
     "ipPool": {

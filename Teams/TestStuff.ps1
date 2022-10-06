@@ -599,3 +599,107 @@ while($a -lt $vmHosts.Length)
     $result += $d
     $a++
 }
+
+while($true)
+{
+    $sis = Get-NcSis -Name "vol_vmware_SATA_02" -Vserver "BDC-SVMA01" -Controller $Global:cDot['BDC-CDOTCLST01']
+    $v1 =  Get-NcVol -Name "vol_vmware_SATA_02" -Vserver "BDC-SVMA01" -Controller $Global:cDot['BDC-CDOTCLST01']
+    Write-Host ("{0} | {1} | Savings: {2:N2}TB" -f @([DateTime]::Now.ToString(), $sis.Progress, ($v1.VolumeSisAttributes.TotalSpaceSaved / 1tb)))
+    Start-Sleep -Milliseconds 600000
+}
+
+
+$datastores = @(Get-Datastore -Server $vCenter | Sort-Object Type, Name)
+$uniqueDatastores = @()
+$a = 0
+while($a -lt $datastores.Length)
+{
+    if(($datastores[$a].Type -eq "NFS") -and (@($uniqueDatastores | Where-Object { ($_.RemoteHost -eq $datastores[$a].RemoteHost) -and ($_.RemotePath -eq $datastores[$a].RemotePath)}).Length -eq 0))
+    {
+        $uniqueDatastores += $datastores[$a]
+    }
+    $a++
+}
+
+$fileQueryFlags = [VMware.Vim.FileQueryFlags]::new()
+$fileQueryFlags.FileSize = $true
+$fileQueryFlags.FileType = $true
+$fileQueryFlags.Modification = $true
+
+$searchSpec = [VMware.Vim.HostDatastoreBrowserSearchSpec]::new()
+$searchSpec.details = $fileQueryFlags
+$searchSpec.sortFoldersFirst = $true
+$searchSpec.MatchPattern = "*.*"
+
+$allFiles = @()
+
+$a = 0
+while($a -lt $uniqueDatastores.Length)
+{
+    $dsView = $uniqueDatastores[$a] | Get-View
+    $dsBrowser = Get-View -Server $vCenter $dsView.browser
+
+    $rootPath = "[{0}]" -f @($dsView.summary.Name)
+
+    Write-Host ("Searching {0}..." -f @($rootPath))
+
+    # Used to filter out folders/files that start with a '.'
+    #   like:
+    #       .snapshot
+    #       .dvsData
+    #       .vSphere-HA
+    $folderExcludeStr = "\[{0}\] \." -f @($dsView.summary.Name)
+
+    $searchResult = $dsBrowser.SearchDatastoreSubFolders($rootPath, $searchSpec)
+    $noSnaps = $searchResult | Where-Object { $_.FolderPath -notmatch $folderExcludeStr }
+
+    foreach ($folder in $searchResult)
+    {
+        foreach ($fileResult in $folder.File)
+        {
+            $file = "" | Select-Object Datastore, Name, Size, Modified, FullPath
+            $file.Datastore = $dsView.summary.Name
+            $file.Name = $fileResult.Path
+            $file.Size = $fileResult.Filesize
+            $file.Modified = $fileResult.Modification
+            $file.FullPath = $folder.FolderPath + $file.Name
+            Write-Host ("{0}`t{1}`t{2}`t{3}`t{4}" -f @($file.Datastore,$file.Name, $file.Size, $file.Modified, $file.FullPath))
+            $allFiles += $file
+        }
+    }
+
+    $a++
+}
+
+$groups = $allFiles | Group-Object -Property Datastore
+
+$a = 0
+while($a -lt $groups.Count)
+{
+    $grpSum = ($groups[$a].Group | Measure-Object -Property Size -Sum).Sum
+    Write-Host ("{0}: {1:N2}GB" -f @($groups[$a].Name, ($grpSum / 1gb)))
+    $a++
+}
+
+$vmHosts = Get-VMHost -Server $vCenter
+$nateData = @()
+$q = 0
+while($q -lt $vmHosts.Length)
+{
+    $l = "" | Select-Object VMHost, IP
+
+    try
+    {
+        $na = Get-VMHostNetworkAdapter -Server $vCenter -VMHost $vmHosts[$q] -VMKernel -Name "vmk0"
+
+        $l.VMHost = $vmHosts[$q].Name.Replace(".powereng.com","")
+        $l.IP = $na.IP
+
+        $l
+        $nateData += $l
+    }
+    catch {
+        Write-Host ("{0} failed" -f @($vmHosts[$q].Name))
+    }
+    $q++
+}

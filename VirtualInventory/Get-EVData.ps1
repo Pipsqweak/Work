@@ -1341,13 +1341,17 @@ $statseekerData | ForEach-Object { $evData += $_ }
 # Fail safe for any known field issues...
 $evData | ForEach-Object { $_.FixUp() }
 
+# Now deal with an anomalous duplicate record issue...
+$evData2 = @()
+$evData | ForEach-Object { $sn = $_.SerialNumber; if(@($evData2 | Where-Object { $_.SerialNumber -eq $sn }).Length -eq 0) { $evData2 += $_ } }
+
 # Export EasyVista Data
 
 $exportFileName = "{0}\{1}-VirtualInventory.csv" -f @($inventoryConfig.ExportPath, [DateTime]::Now.ToString("yyyyMMdd"))
 [Log]::Info("Exporting EV Data to: {0}" -f @($exportFileName))
 
 # When exporting the data, Select-Object the specific properties of each [EVDataPoint] we want to avoid the hidden properties.
-$exportData = @($evData | Sort-Object Name | Select-Object Name, IP, SerialNumber, CurrentVersion, OperatingSystem, Manufacturer, Model, Location | ConvertTo-Csv -Delimiter "," -NoTypeInformation) -join "`r`n"
+$exportData = @($evData2 | Sort-Object Name | Select-Object Name, IP, SerialNumber, CurrentVersion, OperatingSystem, Manufacturer, Model, Location | ConvertTo-Csv -Delimiter "," -NoTypeInformation) -join "`r`n"
 
 # EV prefers to have the export encoding with UTF-8-BOM
 # Create the encoder...

@@ -227,7 +227,7 @@ function RenameLocalDatastores($vCenter, $vmHost)
 
 $adCreds = Get-Credential -Message "Provide credentials to join ESXi host(s) to domain in the form: user@domain.name.net."
 
-foreach($location in @( <# "CDCTEST", "DDCTEST", #> "CDCDMZTEST"))
+foreach($location in @( <# "CDCTEST", "DDCTEST", #> "CH3-DMZ-CLUSTER-01"))
 {
     $vmHosts = Get-VMHost -Server $vCenter -Location $location
     # Write-Host ("`r`n{0,-30}{1,-26}{2,13}{3,17}" -f @("VMHost", "Setting", "CurrentValue", "RecommendedValue"))
@@ -236,7 +236,7 @@ foreach($location in @( <# "CDCTEST", "DDCTEST", #> "CDCDMZTEST"))
     while($a -lt $vmHosts.Length)
     {
 
-        $vmHostNTPServers = Get-VMHostNtpServer -Server $vCenter -VMHost $vmHosts[$a]
+        $vmHostNTPServers = @(Get-VMHostNtpServer -Server $vCenter -VMHost $vmHosts[$a])
         $b = 0
         while($b -lt $vmHostNTPServers.Length)
         {
@@ -312,7 +312,7 @@ foreach($location in @( <# "CDCTEST", "DDCTEST", #> "CDCDMZTEST"))
 
                 # Nothing.
             }
-        }
+        } `
         else # NOT ($null -ne $ntpService)
         {
             # FALSE

@@ -1,0 +1,95 @@
+[------------- Sending Request to Server ------------
+
+<configEstimateImpact
+cookie="1663709690/f1097e83-8bf8-4563-aeeb-a0012d043b60">
+    <inConfigs>
+<pair key="sys/ldap-ext/providergroup-POWERENG DCs">
+    <aaaProviderGroup
+    name="POWERENG DCs"
+    dn="sys/ldap-ext/providergroup-POWERENG DCs"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+        <aaaProviderRef
+        descr=""
+        name="ch3-dc01.powereng.com"
+        order="1"
+        
+        rn="provider-ref-ch3-dc01.powereng.com"
+        
+        
+        sacl="addchild,del,mod">
+        </aaaProviderRef>
+        <aaaProviderRef
+        descr=""
+        name="ch3-dc02.powereng.com"
+        order="2"
+        
+        rn="provider-ref-ch3-dc02.powereng.com"
+        
+        
+        sacl="addchild,del,mod">
+        </aaaProviderRef>
+        <aaaProviderRef
+        descr=""
+        name="cdc-dc01.powereng.com"
+        order="3"
+        
+        rn="provider-ref-cdc-dc01.powereng.com"
+        
+        
+        sacl="addchild,del,mod">
+        </aaaProviderRef>
+    </aaaProviderGroup>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1663709690/f1097e83-8bf8-4563-aeeb-a0012d043b60"
+inHierarchical="false">
+    <inConfigs>
+<pair key="sys/ldap-ext/providergroup-POWERENG DCs">
+    <aaaProviderGroup
+    name="POWERENG DCs"
+    dn="sys/ldap-ext/providergroup-POWERENG DCs"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+        <aaaProviderRef
+        descr=""
+        name="ch3-dc01.powereng.com"
+        order="1"
+        
+        rn="provider-ref-ch3-dc01.powereng.com"
+        
+        
+        sacl="addchild,del,mod">
+        </aaaProviderRef>
+        <aaaProviderRef
+        descr=""
+        name="ch3-dc02.powereng.com"
+        order="2"
+        
+        rn="provider-ref-ch3-dc02.powereng.com"
+        
+        
+        sacl="addchild,del,mod">
+        </aaaProviderRef>
+        <aaaProviderRef
+        descr=""
+        name="cdc-dc01.powereng.com"
+        order="3"
+        
+        rn="provider-ref-cdc-dc01.powereng.com"
+        
+        
+        sacl="addchild,del,mod">
+        </aaaProviderRef>
+    </aaaProviderGroup>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]

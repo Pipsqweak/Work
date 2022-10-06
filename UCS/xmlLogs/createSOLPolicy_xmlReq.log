@@ -1,0 +1,35 @@
+[------------- Sending Request to Server ------------
+
+<configEstimateImpact
+cookie="1662660080/f2230124-d95b-494b-b302-f7c495f7944d">
+    <inConfigs>
+<pair key="org-root/sol-SerialOverLan">
+    <solPolicy
+    name="SerialOverLan"
+    dn="org-root/sol-SerialOverLan"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+    </solPolicy>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1662660080/f2230124-d95b-494b-b302-f7c495f7944d"
+inHierarchical="false">
+    <inConfigs>
+<pair key="org-root/sol-SerialOverLan">
+    <solPolicy
+    name="SerialOverLan"
+    dn="org-root/sol-SerialOverLan"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+    </solPolicy>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]

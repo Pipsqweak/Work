@@ -1,0 +1,507 @@
+[------------- Sending Request to Server ------------
+
+<configResolveChildren
+cookie="1662667879/cddbe665-9e66-43ba-9fd7-87952723f464"
+classId="lsServer"
+inDn="org-root"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1662667879/cddbe665-9e66-43ba-9fd7-87952723f464"
+
+inDn="org-root"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveDn
+dn="sys"
+cookie="1662667879/cddbe665-9e66-43ba-9fd7-87952723f464"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1662667879/cddbe665-9e66-43ba-9fd7-87952723f464"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1662667879/cddbe665-9e66-43ba-9fd7-87952723f464"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1662667879/cddbe665-9e66-43ba-9fd7-87952723f464"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1662667879/cddbe665-9e66-43ba-9fd7-87952723f464"
+inHierarchical="false">
+</configResolveDn>
+
+<configResolveDn
+dn="sys"
+cookie="1662667879/cddbe665-9e66-43ba-9fd7-87952723f464"
+inHierarchical="false">
+</configResolveDn>
+
+<configEstimateImpact
+cookie="1662667879/cddbe665-9e66-43ba-9fd7-87952723f464">
+    <inConfigs>
+<pair key="org-root/ls-VMWare.Int.M2">
+    <lsServer
+    biosProfileName="PEI-BIOS-Policy"
+    bootPolicyName="M.2-Boot"
+    hostFwPolicyName="Latest"
+    identPoolName="CDC-UCSPE-UUID"
+    maintPolicyName="USERACK"
+    name="VMWare.Int.M2"
+    powerPolicyName="NOCAP"
+    scrubPolicyName="NOSCRUB"
+    solPolicyName="SERIALOVERLAN"
+    type="updating-template"
+    dn="org-root/ls-VMWare.Int.M2"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+        <lstorageProfileBinding
+        storageProfileName="M.2-RAID1"
+        
+        rn="profile-binding"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </lstorageProfileBinding>
+        <vnicEther
+        adaptorProfileName=""
+        addr="derived"
+        adminCdnName=""
+        adminHostPort="ANY"
+        adminVcon="any"
+        cdnPropInSync="yes"
+        cdnSource="vnic-name"
+        identPoolName=""
+        mtu="1500"
+        name="INT.VMNMGT.BA"
+        nwCtrlPolicyName=""
+        nwTemplName="INT.VMNMGT.BA"
+        order="2"
+        pinToGroupName=""
+        qosPolicyName=""
+        statsPolicyName="default"
+        switchId="A"
+        
+        rn="ether-INT.VMNMGT.BA"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </vnicEther>
+        <vnicEther
+        adaptorProfileName="VMWare"
+        name="INT.MGTVMN.AB"
+        nwTemplName="INT.MGTVMN.AB"
+        order="1"
+        switchId="A-B"
+        
+        rn="ether-INT.MGTVMN.AB"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </vnicEther>
+        <vnicEther
+        adaptorProfileName=""
+        addr="derived"
+        adminCdnName=""
+        adminHostPort="ANY"
+        adminVcon="any"
+        cdnPropInSync="yes"
+        cdnSource="vnic-name"
+        identPoolName=""
+        mtu="1500"
+        name="INT.STG.BX"
+        nwCtrlPolicyName=""
+        nwTemplName="INT.STG.BX"
+        order="4"
+        pinToGroupName=""
+        qosPolicyName=""
+        statsPolicyName="default"
+        switchId="A"
+        
+        rn="ether-INT.STG.BX"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </vnicEther>
+        <vnicEther
+        adaptorProfileName="VMWare"
+        name="INT.STG.AX"
+        nwTemplName="INT.STG.AX"
+        order="3"
+        
+        rn="ether-INT.STG.AX"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </vnicEther>
+        <vnicEther
+        adaptorProfileName=""
+        addr="derived"
+        adminCdnName=""
+        adminHostPort="ANY"
+        adminVcon="any"
+        cdnPropInSync="yes"
+        cdnSource="vnic-name"
+        identPoolName=""
+        mtu="1500"
+        name="INT.GST.BX"
+        nwCtrlPolicyName=""
+        nwTemplName="INT.GST.BX"
+        order="6"
+        pinToGroupName=""
+        qosPolicyName=""
+        statsPolicyName="default"
+        switchId="A"
+        
+        rn="ether-INT.GST.BX"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </vnicEther>
+        <vnicEther
+        adaptorProfileName="VMWare"
+        name="INT.GST.AX"
+        nwTemplName="INT.GST.AX"
+        order="5"
+        
+        rn="ether-INT.GST.AX"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </vnicEther>
+        <vnicFcNode
+        addr="pool-derived"
+        identPoolName="node-default"
+        
+        rn="fc-node"
+        
+        
+        sacl="addchild,del,mod">
+        </vnicFcNode>
+        <vnicDefBeh
+        action="none"
+        descr=""
+        name=""
+        nwTemplName=""
+        policyOwner="local"
+        type="vhba"
+        
+        rn="def-beh-vhba"
+        
+        
+        sacl="addchild,del,mod">
+        </vnicDefBeh>
+        <fabricVCon
+        fabric="NONE"
+        id="1"
+        instType="auto"
+        placement="physical"
+        select="all"
+        share="shared"
+        transport="ethernet,fc"
+        
+        rn="vcon-1"
+        
+        
+        sacl="addchild,del,mod">
+        </fabricVCon>
+        <fabricVCon
+        fabric="NONE"
+        id="2"
+        instType="auto"
+        placement="physical"
+        select="all"
+        share="shared"
+        transport="ethernet,fc"
+        
+        rn="vcon-2"
+        
+        
+        sacl="addchild,del,mod">
+        </fabricVCon>
+        <fabricVCon
+        fabric="NONE"
+        id="3"
+        instType="auto"
+        placement="physical"
+        select="all"
+        share="shared"
+        transport="ethernet,fc"
+        
+        rn="vcon-3"
+        
+        
+        sacl="addchild,del,mod">
+        </fabricVCon>
+        <fabricVCon
+        fabric="NONE"
+        id="4"
+        instType="auto"
+        placement="physical"
+        select="all"
+        share="shared"
+        transport="ethernet,fc"
+        
+        rn="vcon-4"
+        
+        
+        sacl="addchild,del,mod">
+        </fabricVCon>
+        <lsPower
+        state="admin-up"
+        
+        rn="power"
+        
+        
+        sacl="addchild,del,mod">
+        </lsPower>
+    </lsServer>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1662667879/cddbe665-9e66-43ba-9fd7-87952723f464"
+inHierarchical="false">
+    <inConfigs>
+<pair key="org-root/ls-VMWare.Int.M2">
+    <lsServer
+    biosProfileName="PEI-BIOS-Policy"
+    bootPolicyName="M.2-Boot"
+    hostFwPolicyName="Latest"
+    identPoolName="CDC-UCSPE-UUID"
+    maintPolicyName="USERACK"
+    name="VMWare.Int.M2"
+    powerPolicyName="NOCAP"
+    scrubPolicyName="NOSCRUB"
+    solPolicyName="SERIALOVERLAN"
+    type="updating-template"
+    dn="org-root/ls-VMWare.Int.M2"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+        <lstorageProfileBinding
+        storageProfileName="M.2-RAID1"
+        
+        rn="profile-binding"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </lstorageProfileBinding>
+        <vnicEther
+        adaptorProfileName=""
+        addr="derived"
+        adminCdnName=""
+        adminHostPort="ANY"
+        adminVcon="any"
+        cdnPropInSync="yes"
+        cdnSource="vnic-name"
+        identPoolName=""
+        mtu="1500"
+        name="INT.VMNMGT.BA"
+        nwCtrlPolicyName=""
+        nwTemplName="INT.VMNMGT.BA"
+        order="2"
+        pinToGroupName=""
+        qosPolicyName=""
+        statsPolicyName="default"
+        switchId="A"
+        
+        rn="ether-INT.VMNMGT.BA"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </vnicEther>
+        <vnicEther
+        adaptorProfileName="VMWare"
+        name="INT.MGTVMN.AB"
+        nwTemplName="INT.MGTVMN.AB"
+        order="1"
+        switchId="A-B"
+        
+        rn="ether-INT.MGTVMN.AB"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </vnicEther>
+        <vnicEther
+        adaptorProfileName=""
+        addr="derived"
+        adminCdnName=""
+        adminHostPort="ANY"
+        adminVcon="any"
+        cdnPropInSync="yes"
+        cdnSource="vnic-name"
+        identPoolName=""
+        mtu="1500"
+        name="INT.STG.BX"
+        nwCtrlPolicyName=""
+        nwTemplName="INT.STG.BX"
+        order="4"
+        pinToGroupName=""
+        qosPolicyName=""
+        statsPolicyName="default"
+        switchId="A"
+        
+        rn="ether-INT.STG.BX"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </vnicEther>
+        <vnicEther
+        adaptorProfileName="VMWare"
+        name="INT.STG.AX"
+        nwTemplName="INT.STG.AX"
+        order="3"
+        
+        rn="ether-INT.STG.AX"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </vnicEther>
+        <vnicEther
+        adaptorProfileName=""
+        addr="derived"
+        adminCdnName=""
+        adminHostPort="ANY"
+        adminVcon="any"
+        cdnPropInSync="yes"
+        cdnSource="vnic-name"
+        identPoolName=""
+        mtu="1500"
+        name="INT.GST.BX"
+        nwCtrlPolicyName=""
+        nwTemplName="INT.GST.BX"
+        order="6"
+        pinToGroupName=""
+        qosPolicyName=""
+        statsPolicyName="default"
+        switchId="A"
+        
+        rn="ether-INT.GST.BX"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </vnicEther>
+        <vnicEther
+        adaptorProfileName="VMWare"
+        name="INT.GST.AX"
+        nwTemplName="INT.GST.AX"
+        order="5"
+        
+        rn="ether-INT.GST.AX"
+        status="created"
+        
+        sacl="addchild,del,mod">
+        </vnicEther>
+        <vnicFcNode
+        addr="pool-derived"
+        identPoolName="node-default"
+        
+        rn="fc-node"
+        
+        
+        sacl="addchild,del,mod">
+        </vnicFcNode>
+        <vnicDefBeh
+        action="none"
+        descr=""
+        name=""
+        nwTemplName=""
+        policyOwner="local"
+        type="vhba"
+        
+        rn="def-beh-vhba"
+        
+        
+        sacl="addchild,del,mod">
+        </vnicDefBeh>
+        <fabricVCon
+        fabric="NONE"
+        id="1"
+        instType="auto"
+        placement="physical"
+        select="all"
+        share="shared"
+        transport="ethernet,fc"
+        
+        rn="vcon-1"
+        
+        
+        sacl="addchild,del,mod">
+        </fabricVCon>
+        <fabricVCon
+        fabric="NONE"
+        id="2"
+        instType="auto"
+        placement="physical"
+        select="all"
+        share="shared"
+        transport="ethernet,fc"
+        
+        rn="vcon-2"
+        
+        
+        sacl="addchild,del,mod">
+        </fabricVCon>
+        <fabricVCon
+        fabric="NONE"
+        id="3"
+        instType="auto"
+        placement="physical"
+        select="all"
+        share="shared"
+        transport="ethernet,fc"
+        
+        rn="vcon-3"
+        
+        
+        sacl="addchild,del,mod">
+        </fabricVCon>
+        <fabricVCon
+        fabric="NONE"
+        id="4"
+        instType="auto"
+        placement="physical"
+        select="all"
+        share="shared"
+        transport="ethernet,fc"
+        
+        rn="vcon-4"
+        
+        
+        sacl="addchild,del,mod">
+        </fabricVCon>
+        <lsPower
+        state="admin-up"
+        
+        rn="power"
+        
+        
+        sacl="addchild,del,mod">
+        </lsPower>
+    </lsServer>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]

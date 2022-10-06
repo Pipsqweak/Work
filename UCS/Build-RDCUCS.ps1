@@ -1,11 +1,13 @@
 #$rdcConfigurationData = Get-Content -Path ".\UCS\rdcConfig.json" | ConvertFrom-Json
-$rdcConfigurationData = Get-Content -Path ".\UCS\labConfig.json" | ConvertFrom-Json
+#$rdcConfigurationData = Get-Content -Path ".\UCS\labConfig.json" | ConvertFrom-Json
+#$rdcConfigurationData = Get-Content -Path ".\UCS\ucspe.json" | ConvertFrom-Json
+$rdcConfigurationData = Get-Content -Path ".\UCS\ch3-rdc-ucs.json" | ConvertFrom-Json
 
 # Need to fix up the embedded certificate chain
 $rdcConfigurationData.pki_ca_chain = $rdcConfigurationData.pki_ca_chain -join "`n"
 
 # Connect to the UCS manager for the RDC...
-$rdcConfigurationData.ucsManager = $ucsPE
+$rdcConfigurationData.ucsManager = $ch3UCS
 $rdcConfigurationData.ucsManager = Connect-Ucs -Name $rdcConfigurationData.ucsManager -NotDefault
 
 $Global:standardNetworkControlPolicyName = "STANDARD"
@@ -15,6 +17,7 @@ $Global:jumboFramesQosPolicyName = "JUMBOFRAMES"
 
 ReportNotice ("Configuring UCS Manager: " -f @($rdcConfigurationData.ucsManager.Name))
 
+# NOTES:  Did not set the Link Grouping Preference...
 if (SetEquipmentGlobalPolicy -ucs $rdcConfigurationData.ucsManager)
 {
     ReportSuccess "`tEquipment global policy set."
@@ -24,7 +27,8 @@ else
     ReportError "`tFailed to set equipment global policy."
 }
 
-if (SetUplinkPorts -ucs $rdcConfigurationData.ucsManager -uplinks $rdcConfigurationData.uplinks)
+# NOTES: Set server ports...
+if (SetUplinkPorts -ucs $rdcConfigurationData.ucsManager -uplinks $rdcConfigurationData.uplinkPorts)
 {
     ReportSuccess "`tUplinks added."
 } `
@@ -87,6 +91,9 @@ else
     ReportError "`tFailed to create boot policy."
 }
 
+<#
+    NOTE: Likely don't need to set the management interface addresses since we are already connected to it...
+#>
 if (SetManagementConfiguration -ucs $rdcConfigurationData.ucsManager -mgmtConfig $rdcConfigurationData.managementConfig)
 {
     ReportSuccess "`tManagement configuration set."
@@ -234,7 +241,7 @@ else # NOT (CreateMaintenancePolicy -ucs $rdcConfigurationData.ucsManager -polic
     ReportError ("`tFailed to create maintenance policy {0}." -f @($rdcConfigurationData.maintenancePolicyName))
 }
 
-if (CreateBIOSPolicy -ucs $rdcConfigurationData.ucsManager -policyName $rdcConfigurationData.BIOSPolicy)
+if (CreateBIOSPolicy -ucs $rdcConfigurationData.ucsManager -biosPolicy $rdcConfigurationData.BIOSPolicy)
 {
     # TRUE
 
@@ -251,25 +258,73 @@ else # NOT (CreateBIOSPolicy -ucs $rdcConfigurationData.ucsManager -policyName $
 if(CreateTrustPoint -Ucs $rdcConfigurationData.ucsManager)
 {
     ReportSuccess "`tCreated trust point: PEI_CA2_TP"
-    if(CreateStorageProfile -Ucs $rdcConfigurationData.ucsManager -profileName $rdcConfigurationData.storageProfileName -dgcPolicyName $rdcConfigurationData.diskGroupConfigurationPolicyName)
-    {
-        ReportSuccess ("`tBuilt storage profile {0}." -f @((Quoted $rdcConfigurationData.storageProfileName)))
-    } `
-    else
-    {
-        ReportError ("`tFailed to build disk group configuration policy {0}." -f @((Quoted $rdcConfigurationData.diskGroupConfigurationPolicyName)))
-    }
 } `
 else
 {
     ReportError ("`tFailed to create trust point PEI_CA2_TP.")
 }
 
-if (CreateUCSvNICTemplates -ucs $rdcConfigurationData.ucsManager -vNICTemplateDefinitions $rdcConfigurationData.vNICTemplates -macPoolName $rdcConfigurationData.macPool.name -networkControlPolicyName $rdcConfigurationData.standardNetworkControlPolicyName -jumboFramesQosPolicyName $rdcConfigurationData.jumboFramesQosPolicyName)
+<# TODO: Test against the lab. #>
+<# Notes: ERROR:  Certificate request for keyring CH3-UCS01_CERT does not contain the request string. #>
+if(CreateKeyRing -ucs $rdcConfigurationData.ucsManager -location $rdcConfigurationData.keyring.location -state $rdcConfigurationData.keyring.state -country $rdcConfigurationData.keyring.country)
+{
+    ReportSuccess "`tCreated keyring."
+} `
+else
+{
+    ReportError ("`tFailed to create keyring.")
+}
+
+if (CreatevNICTemplates -ucs $rdcConfigurationData.ucsManager -vNICTemplateDefinitions $rdcConfigurationData.vNICTemplates -macPoolName $rdcConfigurationData.macPool.name -networkControlPolicyName $rdcConfigurationData.standardNetworkControlPolicyName -jumboFramesQosPolicyName $rdcConfigurationData.jumboFramesQosPolicyName)
 {
     ReportSuccess "`tvNIC Templates created."
 } `
 else
 {
     ReportError "`tFailed to create vNIC Templates."
+}
+
+if (CreatePowerControlPolicy -ucs $rdcConfigurationData.ucsManager -powerControlPolicyName $rdcConfigurationData.powerControlPolicyName)
+{
+    ReportSuccess "`tPower control policy created."
+} `
+else
+{
+    # Nothing already reported an error
+}
+
+if (CreateSerialOverLANPolicy -ucs $rdcConfigurationData.ucsManager -solPolicyName $rdcConfigurationData.serialOverLANPolicyName)
+{
+    ReportSuccess "`tSerial over LAN policy created."
+} `
+else
+{
+    # Nothing already reported an error
+}
+
+# This will fail on UCS PE since we can't upload any firmware packages
+if (CreateHostFirmarePackage -ucs $rdcConfigurationData.ucsManager -fwPackageName $rdcConfigurationData.firmwarePackage.Name -bladeBundleVersion $rdcConfigurationData.firmwarePackage.bladeBundleVersion -rackBundleVersion $rdcConfigurationData.firmwarePackage.rackBundleVersion)
+{
+    ReportSuccess "`tHost firmware package created."
+} `
+else
+{
+    # Nothing already reported an error
+}
+
+
+# Change this to "IntegrateWithAD"
+#Create the LDAP providers
+$a = 0
+while($a -lt $rdcConfigurationData.ldapConfig.providerNames.Length)
+{
+    if(CreateLDAPProvider -ucs $rdcConfigurationData.ucsManager -ldapProviderName $rdcConfigurationData.ldapConfig.providerNames[$a] -baseDN $rdcConfigurationData.ldapConfig.baseDN -rootDN $rdcConfigurationData.ldapConfig.rootDN -bindKey $rdcConfigurationData.ldapConfig.bindKey -order ($a + 1))
+    {
+        ReportSuccess ("`tLDAP provider {0} created." -f @($rdcConfigurationData.ldapConfig.providerNames[$a]))
+    } `
+    else
+    {
+        # Nothing already reported an error
+    }
+    $a++
 }
