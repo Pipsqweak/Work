@@ -989,7 +989,7 @@ function CreateDataMaps
     This is needed, especially for virtual machines, because they can (and do) have VMDKs stored on different datastores.  This means the same virtual machine could be selected from the first
     Select-Object because it exists on multiple datastores.  The second Select-Object then filters out all the duplicates.
 
-    Data that is inheritantly unique does not use the same technique.  There is no reason to use the second Select-Object to get only unique records since it's already unique.
+    Data that is inherently unique does not use the same technique.  There is no reason to use the second Select-Object to get only unique records since it's already unique.
 
 #>
     $dataMaps = [System.Collections.Generic.List[System.Object]]::new()

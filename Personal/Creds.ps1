@@ -197,6 +197,64 @@ function ConnectTo-vCenter
     return $k
 }
 
+function ConnectTo-vCenterCIS
+{
+    [CmdLetBinding()]
+    Param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
+        [Object] $connectionToMake,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=1)]
+        [System.Management.Automation.PSCredential] $credential
+    )
+
+    $k = $null
+    try
+    {
+        Write-Verbose ("Connecting to vCenter CIS {0}..." -f @($connectionToMake.Server))
+        $k = Connect-CISServer -Server $connectionToMake.Server -Credential $credential -ErrorAction Stop -Verbose:$false
+        if ($null -ne $k)
+        {
+            if ($null -eq $Global:vCtrCIS)
+            {
+                $Global:vCtrCIS = [System.Collections.Generic.SortedDictionary[System.String, VMware.VimAutomation.Cis.Core.Impl.V1.CisServerImpl]]::new()
+            } `
+            else # NOT ($null -eq $Global:vCtrCIS)
+            {
+                # Nothing.
+            }
+
+            if (-not $Global:vCtrCIS.ContainsKey($connectionToMake.Name))
+            {
+                 $Global:vCtrCIS.Add($connectionToMake.Name, $k)
+            } `
+            else # NOT (-not $Global:vCtrCIS.ContainsKey($connectionToMake.Name))
+            {
+                Write-Warning ("`$vCtr already contains an entry for {0}." -f @($connectionToMake.Name))
+            }
+
+            if (-not $Global:vCtrCIS.ContainsKey($connectionToMake.Server))
+            {
+                 $Global:vCtrCIS.Add($connectionToMake.Server, $k)
+            } `
+            else # NOT (-not $Global:vCtrCIS.ContainsKey($connectionToMake.Server))
+            {
+                Write-Warning ("`$vCtrCIS already contains an entry for {0}." -f @($connectionToMake.Server))
+            }
+        } `
+        else # NOT ($null -ne $k)
+        {
+            Write-Error ("No connection object returned from Connect-CISServer for {0}" -f @($connectionToMake.Server))
+        }
+    }
+    catch
+    {
+        Write-Error ("Failed to connect to vCenter CIS: {0}" -f @($connectionToMake.Server))
+    }
+
+    return $k
+}
+
 function ConnectTo-UCS
 {
     [CmdLetBinding()]
@@ -330,13 +388,17 @@ function ConnectTo
             {
                 $newConnection = ConnectTo-CDOT $connectionsToMake[$a] $credential
             } `
-            elseif(($connectionsToMake[$a].Tags -contains "ucs") -or ($connectionsToMake[$a].Tags -contains "ucspe")) # NOT ($connectionsToMake[$a].Tags -contains "netapp")
+            elseif(($connectionsToMake[$a].Tags -contains "ucs") -or ($connectionsToMake[$a].Tags -contains "ucspe"))
             {
                 $newConnection = ConnectTo-UCS $connectionsToMake[$a] $credential
             }
-            elseif($connectionsToMake[$a].Tags -contains "vcenter") # NOT (($connectionsToMake[$a].Tags -contains "ucs") -or ($connectionsToMake[$a].Tags -contains "ucspe"))
+            elseif($connectionsToMake[$a].Tags -contains "vcenter")
             {
                 $newConnection = ConnectTo-vCenter $connectionsToMake[$a] $credential
+            }
+            elseif($connectionsToMake[$a].Tags -contains "vcenterCIS")
+            {
+                $newConnection = ConnectTo-vCenterCIS $connectionsToMake[$a] $credential
             }
             else # NOT ($connectionsToMake[$a].Tags -contains "vCenter")
             {
