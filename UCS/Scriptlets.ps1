@@ -394,3 +394,52 @@ Start-UcsTransaction
 $mo = Add-UcsAuthDomain -Name "powereng.com"
 $mo_1 = $mo | Set-UcsAuthDomainDefaultAuth -Descr "" -Name "" -ProviderGroup "POWERENG DCs" -Realm "ldap" -Use2Factor "no"
 Complete-UcsTransaction
+
+
+$volData = @($vols | Select-Object @{N="Cluster";E={@($_.NcController.Name -split '\.')[0].ToUpper()}}, Vserver, Name, Aggregate, TotalSize, @{N="Used";E={$_.TotalSize - $_.Available}}, Available, Encrypt, @{N="UUID"; E={$_.VolumeIdAttributes.Uuid}})
+
+
+
+$dataPath = "E:\Scripts\GetStorageCapacityData\Data"
+$dataFiles = Get-ChildItem -Path $dataPath | Where-Object { $_.Name.EndsWith("-StorageCapacity.csv") }
+
+$aggrData = @()
+$a = 0
+while($a -lt $dataFiles.Length)
+{
+    $data = Import-Csv -Path $dataFiles[$a].FullName
+    $b = 0
+    while($b -lt $data.Length)
+    {
+        $aggrData += $data[$b]
+        $b++
+    }
+    $a++
+}
+
+
+
+$session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+$session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.47"
+$session.Cookies.Add((New-Object System.Net.Cookie("UM-CSRF", "281c37b5-74ad-4707-b1cf-d8b764864038", "/", "ddc-ntapaiqum01")))
+$session.Cookies.Add((New-Object System.Net.Cookie("JSESSIONID", "Bc6AZIsosm6qbYHSSLud8HzumErn5tMSYR5_ANkC.ddc-ntapaiqum01", "/", "ddc-ntapaiqum01")))
+$session.Cookies.Add((New-Object System.Net.Cookie("_pk_ses.1.292b", "1", "/", "ddc-ntapaiqum01")))
+$session.Cookies.Add((New-Object System.Net.Cookie("user-name", "kbriney-adm", "/", "ddc-ntapaiqum01")))
+$session.Cookies.Add((New-Object System.Net.Cookie("rbac-role", "Administrator", "/", "ddc-ntapaiqum01")))
+$session.Cookies.Add((New-Object System.Net.Cookie("_pk_id.1.292b", "77496e919fc3f439.1648074357.13.1666283562.1666283211.", "/", "ddc-ntapaiqum01")))
+$output = Invoke-WebRequest -UseBasicParsing -Uri "https://ddc-ntapaiqum01/api/datacenter/cluster/clusters" `
+-WebSession $session `
+-Headers @{
+"Accept-Encoding"="gzip, deflate, br"
+  "Accept-Language"="en-US,en;q=0.9"
+  "Referer"="https://ddc-ntapaiqum01/docs/api/"
+  "Sec-Fetch-Dest"="empty"
+  "Sec-Fetch-Mode"="cors"
+  "Sec-Fetch-Site"="same-origin"
+  "UM-CSRF-Token"="281c37b5-74ad-4707-b1cf-d8b764864038"
+  "accept"="application/json"
+  "authorization"="Basic a2JyaW5leS1hZG06QkB0bUBuNXVjazUh"
+  "sec-ch-ua"="`"Chromium`";v=`"106`", `"Microsoft Edge`";v=`"106`", `"Not;A=Brand`";v=`"99`""
+  "sec-ch-ua-mobile"="?0"
+  "sec-ch-ua-platform"="`"Windows`""
+}
