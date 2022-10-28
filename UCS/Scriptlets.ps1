@@ -443,3 +443,128 @@ $output = Invoke-WebRequest -UseBasicParsing -Uri "https://ddc-ntapaiqum01/api/d
   "sec-ch-ua-mobile"="?0"
   "sec-ch-ua-platform"="`"Windows`""
 }
+
+
+
+@($storageInformation | ForEach-Object {
+    $_.Aggregates | Foreach-Object {
+        $_.Volumes | ForEach-Object {
+            $_.Datastores | ForEach-Object {
+                $datastoreID = $_.ID
+
+                $_.VirtualMachines | ForEach-Object {
+                    $dsFileSizes = [System.Collections.Generic.SortedDictionary[[System.String],[Int64]]]::new()
+                    $_.Source.ExtensionData.LayoutEx.File | Foreach-Object {
+                        if($_.Name -match "^\[(.*?)\]")
+                        {
+                            $fileDSName = $Matches[1]
+                            if(-not $dsFileSizes.ContainsKey($fileDSName))
+                            {
+                                $dsFileSizes.Add($fileDSName,0)
+                            }
+                            $dsFileSizes[$fileDSName] += $_.Size
+                        }
+                    }
+                }
+
+
+                <#
+                Select-Object `
+                    @{N="RunID";E={$runID}},
+                    @{N="VirtualMachineID";E={$_.ID}},
+                    @{N="DatastoreID";E={$datastoreID}}
+                #>
+            }
+        }
+    }
+} `
+| Sort-Object VirtualMachineID,DatastoreID)
+
+$cNum = 4
+$vServerNum = 18
+$vNum = 2
+$dsNum = 0
+$vmNum = 81
+$datastores = $storageInformation[$cNum].VServers[$vServerNum].Volumes[$vNum].Datastores
+$vm = $datastores[$dsNum].VirtualMachines[$vmNum]
+$dsFileSizes = [System.Collections.Generic.SortedDictionary[[System.String],[Int64]]]::new()
+
+$datastores[$dsNum].VirtualMachines[$vmNum].Source.ExtensionData.LayoutEx.File | Foreach-Object {
+    if($_.Name -match "^\[(.*?)\]")
+    {
+        $fileDSName = $Matches[1]
+        if(-not $dsFileSizes.ContainsKey($fileDSName))
+        {
+            $dsFileSizes.Add($fileDSName,0)
+        }
+        $dsFileSizes[$fileDSName] += $_.Size
+    }
+}
+
+$dsName = @($dsFileSizes.Keys)[0]
+
+
+@($dsFileSizes.Keys) | Foreach-Object {
+    $dsName = $_
+    $datastore = @($datastores | Where-Object { ($_.Name -eq $dsName) -and ($_.VirtualMachines -contains $vm) })
+    if($datastore.Length -eq 1)
+    {
+        $d = "" | Select-Object RunID,VirtualMachineID,DatastoreID,Used
+        $d.RunID = $runID
+        $d.DatastoreID = $datastore[0].ID
+        $d.VirtualMachineID = $vm.ID
+        $d.Used = $dsFileSizes[$dsName]
+        $d
+    }
+}
+
+$storageInformation[$cNum].VServers | ForEach-Object { Write-Host ("{0}: {1}" -f @($storageInformation[$cNum].VServers.IndexOf($_), $_.Name)) }
+$storageInformation[$cNum].VServers[$vServerNum].Volumes | ForEach-Object { Write-Host ("{0}: {1}" -f @($storageInformation[$cNum].VServers[$vServerNum].Volumes.IndexOf($_), $_.Name)) }
+$storageInformation[$cNum].VServers[$vServerNum].Volumes[$vNum].Datastores | ForEach-Object { Write-Host ("{0}: {1}" -f @($storageInformation[$cNum].VServers[$vServerNum].Volumes[$vNum].Datastores.IndexOf($_), $_.Name)) }
+$storageInformation[$cNum].VServers[$vServerNum].Volumes[$vNum].Datastores[$dsNum].VirtualMachines | ForEach-Object { Write-Host ("{0}: {1}" -f @($storageInformation[$cNum].VServers[$vServerNum].Volumes[$vNum].Datastores[$dsNum].VirtualMachines.IndexOf($_), $_.Name)) }
+$storageInformation[$cNum].VServers[$vServerNum].Volumes[$vNum].Datastores[$dsNum].VirtualMachines[$vmNum].Source.ExtensionData.LayoutEx.File | ForEach-Object { Write-Host ("{0}: {1}" -f @($storageInformation[$cNum].VServers[$vServerNum].Volumes[$vNum].Datastores[$dsNum].VirtualMachines[$vmNum].Source.ExtensionData.LayoutEx.File.IndexOf($_), $_.Name)) }
+
+
+
+$vmDSData = @($storageInformation | ForEach-Object {
+    $_.Aggregates | Foreach-Object {
+        $_.Volumes | ForEach-Object {
+            $_.Datastores | ForEach-Object {
+                $datastores = $_
+                $datastoreID = $_.ID
+                $_.VirtualMachines | Foreach-Object {
+                    $vm = $_
+                    $dsFileSizes = [System.Collections.Generic.SortedDictionary[[System.String],[Int64]]]::new()
+                    $_.Source.ExtensionData.LayoutEx.File | Foreach-Object {
+                        if($_.Name -match "^\[(.*?)\]")
+                        {
+                            $fileDSName = $Matches[1]
+                            if(-not $dsFileSizes.ContainsKey($fileDSName))
+                            {
+                                $dsFileSizes.Add($fileDSName,0)
+                            }
+                            $dsFileSizes[$fileDSName] += $_.Size
+                        }
+                    }
+                    @($dsFileSizes.Keys) | Foreach-Object {
+                        $dsName = $_
+                        $datastore = @($datastores | Where-Object { ($_.Name -eq $dsName) -and ($_.VirtualMachines -contains $vm) })
+                        if($datastore.Length -eq 1)
+                        {
+                            $d = "" | Select-Object RunID,VirtualMachineID,DatastoreID,Used
+                            $d.RunID = $runID
+                            $d.DatastoreID = $datastore[0].ID
+                            $d.VirtualMachineID = $vm.ID
+                            $d.Used = $dsFileSizes[$dsName]
+                            $d
+                        }
+                    }
+                }
+            }
+        }
+    }
+} | Select-Object `
+    RunID,
+    VirtualMachineID,
+    DatastoreID,
+    Used)

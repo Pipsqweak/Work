@@ -5,6 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch StorageInformation",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "C:\\Users\\kbriney-adm\\PSScripts\\Repos\\PEI-IT-OPS\\StorageInformation\\CaptureSnaplockData.ps1",
+            "args": [
+            ],
+            "cwd": "C:\\Users\\kbriney-adm\\PSScripts\\Repos\\PEI-IT-OPS\\StorageInformation"
+        },
+        {
             "name": "Launch Permissions Scanner",
             "type": "PowerShell",
             "request": "launch",

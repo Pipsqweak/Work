@@ -1,12 +1,9 @@
-<#
 [CmdLetBinding()]
 Param(
     [Parameter(Mandatory=$true,Position=0)]
     [String]
     $JSONArgsFile
 )
-
-#>
 
 <#
     SPECIAL NOTE:
@@ -782,6 +779,23 @@ Write-Host ("No volumes found for {0}:{1}" -f @($vmDatastores[$a].ID, $vmDatasto
     }
 }
 
+<#
+Write-Host ("Processing datastore: {0}) {1}:{2}" -f @($a, $vmDatastores[$a].Name, $vmDatastores[$a].Id))
+$dsVolumes = $clusters.FindVolumeByDatastore($vmDatastores[$a])
+$dsVolumes.Count
+
+
+$dsVolume = $dsVolumes[0]
+$ds = $dsVolume.AddDatastore($vmDatastores[$a])
+$ds
+
+
+LogInfo ("Adding datastore {0} to volume {1}" -f @($ds.Identity, $dsVolume.Identity))
+Write-Host ("Adding datastore {0} to volume {1}" -f @($ds.Name, $dsVolume.Name))
+CollectDatastoreVirtualMachineInformation $vCenter $ds $clusters
+$a++
+#>
+
 function CollectStorageInformation()
 {
     # Just a diagnostic timer to see how long data collection takes.
@@ -792,8 +806,8 @@ function CollectStorageInformation()
     $clusters = CollectClusterInformation
 
     <#
-        NOTE: I would liked to have collected/correlated snapmirror information while populating $clusters, but the problem is, I want to correlate source volume to destination mirror volume, but until all
-              volume information is collected, there is no guarantee I'll have collected data for a given destination when collecting information for the source.  So I'll wait until I have all the volume
+        NOTE: I would have liked to have collected/correlated snapmirror information while populating $clusters, but the problem is, to associate the destination volume to the source volume, both volumes have
+              to have been discovered. There is no guarantee a particular destination volume has already been discovered when collecting information about its source.  So I'll wait until I have all the volume
               information prior to matching up source to destination mirror.
     #>
     CollectSnapmirrorInformation $clusters
@@ -996,64 +1010,280 @@ function CreateDataMaps
 
     # Data map for DataCollectionData
     AddDataMap $conn "DataCollectionRuns" @("ID") `
-        @("" | Select-Object @{N="ID";E={$runID}},@{N="CollectionDT";E={$storageInformation.WhenCollected}}) $dataMaps
+        @("" | Select-Object `
+            @{N="ID";E={$runID}},
+            @{N="CollectionDT";E={$storageInformation.WhenCollected}}) $dataMaps
 
     # Data map for Clusters
     AddDataMap $conn "Clusters" @("UUID") `
-        @($storageInformation | Select-Object -Unique UUID,Location,SerialNumber,Contact,Name | Sort-Object Name) $dataMaps
+        @($storageInformation | Select-Object -Unique `
+            UUID,
+            Location,
+            SerialNumber,
+            Contact,
+            Name `
+        | Sort-Object Name) $dataMaps
 
     # Data map for VServers
     AddDataMap $conn "VServers" @("UUID") `
-        @($storageInformation | ForEach-Object { $_.VServers | Select-Object UUID,@{N="ClusterUUID";E={$_.Cluster.UUID}},Name,CIFSServerName,Type } | Select-Object -Unique UUID,ClusterUUID,Name,CIFSServerName,Type | Sort-Object Name) $dataMaps
+        @($storageInformation | ForEach-Object {
+            $_.VServers | Select-Object `
+                UUID,
+                @{N="ClusterUUID";E={$_.Cluster.UUID}},
+                Name,
+                CIFSServerName,
+                Type
+        } | Select-Object -Unique `
+            UUID,
+            ClusterUUID,
+            Name,
+            CIFSServerName,
+            Type `
+        | Sort-Object Name) $dataMaps
 
     # Data map for Aggregates:
     AddDataMap $conn "Aggregates" @("UUID") `
-        @($storageInformation | ForEach-Object { $_.Aggregates | Select-Object UUID,@{N="ClusterUUID";E={$_.Cluster.UUID}},Name,SnaplockType } | Select-Object -Unique UUID,ClusterUUID,Name,SnaplockType | Sort-Object Name) $dataMaps
+        @($storageInformation | ForEach-Object {
+            $_.Aggregates | Select-Object `
+                UUID,
+                @{N="ClusterUUID";E={$_.Cluster.UUID}},
+                Name,
+                SnaplockType
+        } | Select-Object -Unique `
+            UUID,
+            ClusterUUID,
+            Name,
+            SnaplockType `
+        | Sort-Object Name) $dataMaps
 
     # Data map for Volumes:
     AddDataMap $conn "Volumes" @("UUID") `
-        @($storageInformation | ForEach-Object { $_.Aggregates | Foreach-Object { $_.Volumes | Select-Object UUID,@{N="VServerUUID";E={$_.VServer.UUID}},@{N="AggregateUUID";E={$_.Aggregate.UUID}},Name,SnaplockType } } | Select-Object -Unique UUID,VServerUUID,AggregateUUID,Name,SnaplockType | Sort-Object Name) $dataMaps
+        @($storageInformation | ForEach-Object {
+            $_.Aggregates | Foreach-Object {
+                $_.Volumes | Select-Object `
+                    UUID,
+                    @{N="VServerUUID";E={$_.VServer.UUID}},
+                    @{N="AggregateUUID";E={$_.Aggregate.UUID}},
+                    Name,
+                    SnaplockType
+            }
+        } | Select-Object -Unique `
+            UUID,
+            VServerUUID,
+            AggregateUUID,
+            Name,
+            SnaplockType `
+        | Sort-Object Name) $dataMaps
 
     # Data map for Datastores:
     AddDataMap $conn "Datastores" @("ID") `
-        @($storageInformation | ForEach-Object { $_.Aggregates | Foreach-Object { $_.Volumes | ForEach-Object { $_.Datastores | Select-Object ID,Name } } } | Select-Object -Unique ID,Name  | Sort-Object Name) $dataMaps
+        @($storageInformation | ForEach-Object {
+            $_.Aggregates | Foreach-Object {
+                $_.Volumes | ForEach-Object {
+                    $_.Datastores `
+                    | Select-Object `
+                        ID,
+                        Name
+                }
+            }
+        } | Select-Object -Unique `
+            ID,
+            Name `
+        | Sort-Object Name) $dataMaps
 
     # Data map for VirtualMachines:
     AddDataMap $conn "VirtualMachines" @("ID") `
-        @($storageInformation | ForEach-Object { $_.Aggregates | Foreach-Object { $_.Volumes | ForEach-Object { $_.Datastores | ForEach-Object { $_.VirtualMachines | Select-Object ID, Name } } } } | Select-Object -Unique ID, Name | Sort-Object Name,ID) $dataMaps
+        @($storageInformation | ForEach-Object {
+            $_.Aggregates | Foreach-Object {
+                $_.Volumes | ForEach-Object {
+                    $_.Datastores | ForEach-Object {
+                        $_.VirtualMachines `
+                        | Select-Object `
+                            ID,
+                            Name
+                    }
+                }
+            }
+        } | Select-Object -Unique `
+            ID,
+            Name `
+        | Sort-Object Name,ID) $dataMaps
 
     # Data map for AggregateData:
     AddDataMap $conn "AggregateData" @("RunID","AggregateUUID") `
-        @($storageInformation | ForEach-Object { $_.Aggregates | Select-Object @{N="RunID";E={$runID}},@{N="AggregateUUID";E={$_.UUID}},Size,Used,Available } | Sort-Object AggregateUUID) $dataMaps
+        @($storageInformation | ForEach-Object {
+            $_.Aggregates | Select-Object `
+                @{N="RunID";E={$runID}},
+                @{N="AggregateUUID";E={$_.UUID}},
+                Size,
+                Used,
+                Available
+            } `
+        | Sort-Object AggregateUUID) $dataMaps
 
     # Data map for VolumeData:
     AddDataMap $conn "VolumeData" @("RunID","VolumeUUID") `
-        @($storageInformation | ForEach-Object { $_.Aggregates | Foreach-Object { $_.Volumes | Select-Object @{N="RunID";E={$runID}},@{N="VolumeUUID";E={$_.UUID}},IsSnaplockProtected,Size,Used,Available } } | Sort-Object VolumeUUID) $dataMaps
+        @($storageInformation | ForEach-Object {
+            $_.Aggregates | Foreach-Object {
+                $_.Volumes | Select-Object `
+                    @{N="RunID";E={$runID}},
+                    @{N="VolumeUUID";E={$_.UUID}},
+                    IsSnaplockProtected,
+                    IsEncrypted,
+                    Size,
+                    Used,
+                    Available
+            }
+        } `
+        | Sort-Object VolumeUUID) $dataMaps
 
     # Data map for SnapshotData:
     AddDataMap $conn "SnapshotData" @("UUID","VolumeUUID","RunID") `
-        @($storageInformation | ForEach-Object { $_.Aggregates | Foreach-Object { $_.Volumes | ForEach-Object { $_.Snapshots | Select-Object @{N="RunID";E={$runID}},UUID,@{N="VolumeUUID";E={$_.Volume.UUID}},Created,ExpiryTime,SnaplockExpiryTime,SnapmirrorLabel,Name,@{N="Size";E={$_.Total}},@{N="CumulativeSize";E={$_.CumulativeTotal}} } } } | Sort-Object VolumeUUID,Created) $dataMaps
+        @($storageInformation | ForEach-Object {
+            $_.Aggregates | Foreach-Object {
+                $_.Volumes | ForEach-Object {
+                    $_.Snapshots | Select-Object `
+                        @{N="RunID";E={$runID}},
+                        UUID,
+                        @{N="VolumeUUID";E={$_.Volume.UUID}},
+                        Created,
+                        ExpiryTime,
+                        SnaplockExpiryTime,
+                        SnapmirrorLabel,
+                        Name,
+                        @{N="Size";E={$_.Total}},
+                        @{N="CumulativeSize";E={$_.CumulativeTotal}}
+                }
+            }
+        } `
+        | Sort-Object VolumeUUID,Created) $dataMaps
 
     # Data map for SnapmirrorData:
     AddDataMap $conn "SnapmirrorData" @("SourceVolumeUUID","DestinationVolumeUUID","RunID") `
-        @($storageInformation | ForEach-Object { $_.Aggregates | Foreach-Object { $_.Volumes | ForEach-Object { $sourceVolumeUUID = $_.UUID; $_.SnapmirrorDestinations | Select-Object @{N="RunID";E={$runID}},@{N="SourceVolumeUUID";E={$sourceVolumeUUID}},@{N="DestinationVolumeUUID";E={$_.UUID}} } } } | Sort-Object SourceVolumeUUID,DestinationVolumeUUID) $dataMaps
+        @($storageInformation | ForEach-Object {
+            $_.Aggregates | Foreach-Object {
+                $_.Volumes | ForEach-Object {
+                    $sourceVolumeUUID = $_.UUID  # Need this here since $_.UUID will mean something different in the next Select-Object...
+                    $_.SnapmirrorDestinations | Select-Object `
+                        @{N="RunID";E={$runID}},
+                        @{N="SourceVolumeUUID";E={$sourceVolumeUUID}},
+                        @{N="DestinationVolumeUUID";E={$_.UUID}}
+                }
+            }
+        } `
+        | Sort-Object SourceVolumeUUID,DestinationVolumeUUID) $dataMaps
 
     # Data map for ShareData:
     AddDataMap $conn "ShareData" @("VolumeUUID","RunID") `
-        @($storageInformation | ForEach-Object { $_.Aggregates | Foreach-Object { $_.Volumes | ForEach-Object { $_.Shares | Select-Object @{N="RunID";E={$runID}},@{N="VolumeUUID";E={$_.Volume.UUID}},Path,Name } } } | Sort-Object VolumeUUID,Name) $dataMaps
+        @($storageInformation | ForEach-Object {
+            $_.Aggregates | Foreach-Object {
+                $_.Volumes | ForEach-Object {
+                    $_.Shares | Select-Object `
+                        @{N="RunID";E={$runID}},
+                        @{N="VolumeUUID";E={$_.Volume.UUID}},
+                        Path,
+                        Name
+                }
+            }
+        } `
+        | Sort-Object VolumeUUID,Name) $dataMaps
 
     # Data map for DatastoreData:
-    AddDataMap $conn "DatastoreData" @("VolumeUUID","DatastoreID","RunID") `
-        @($storageInformation | ForEach-Object { $_.Aggregates | Foreach-Object { $_.Volumes | ForEach-Object { $_.Datastores | Select-Object @{N="RunID";E={$runID}},@{N="VolumeUUID";E={$_.Volume.UUID}},@{N="DatastoreID";E={$_.ID}} } } } | Sort-Object VolumeUUID,DatastoreID) $dataMaps
+        # 25 Oct 2022:
+        #   Added Capacity, FreeSpace, and Uncommitted
+    AddDataMap $conn "DatastoreData" @("VolumeUUID","DatastoreID","RunID", "Capacity", "FreeSpace", "Uncommitted") `
+        @($storageInformation | ForEach-Object {
+            $_.Aggregates | Foreach-Object {
+                $_.Volumes | ForEach-Object {
+                    $_.Datastores | Select-Object `
+                        @{N="RunID";E={$runID}},
+                        @{N="VolumeUUID";E={$_.Volume.UUID}},
+                        @{N="DatastoreID";E={$_.ID}},
+                        # Sometimes, Uncommitted will be $null, to be uniform, I handled all the Summary data the same way.
+                        @{N="Capacity";E={$_v = $_.Source.ExtensionData.Summary.Capacity; if($null -eq $_v) { $_v = 0 }; $_v }},
+                        @{N="FreeSpace";E={$_v = $_.Source.ExtensionData.Summary.FreeSpace; if($null -eq $_v) { $_v = 0 }; $_v }},
+                        @{N="Uncommitted";E={$_v = $_.Source.ExtensionData.Summary.Uncommitted; if($null -eq $_v) { $_v = 0 }; $_v }}
+                }
+            }
+        } `
+        | Sort-Object VolumeUUID,DatastoreID) $dataMaps
 
     # Data map for VirtualMachineData:
     AddDataMap $conn "VirtualMachineData" @("VirtualMachineID","RunID") `
-        @($storageInformation | ForEach-Object { $_.Aggregates | Foreach-Object { $_.Volumes | ForEach-Object { $_.Datastores | ForEach-Object { $_.VirtualMachines | Select-Object @{N="RunID";E={$runID}},@{N="VirtualMachineID";E={$_.ID}},@{N="PowerState";E={$_.PowerState}} } } } } | Sort-Object VirtualMachineID) $dataMaps
+        @($storageInformation | ForEach-Object {
+            $_.Aggregates | Foreach-Object {
+                $_.Volumes | ForEach-Object {
+                    $_.Datastores | ForEach-Object {
+                        $_.VirtualMachines | Select-Object `
+                            @{N="RunID";E={$runID}},
+                            @{N="VirtualMachineID";E={$_.ID}},
+                            @{N="PowerState";E={$_.PowerState}}
+                    }
+                }
+            }
+        } `
+        | Sort-Object VirtualMachineID) $dataMaps
 
     # Data map for VirtualMachine_DatastoreData:
-    AddDataMap $conn "VirtualMachine_DatastoreData" @("VirtualMachineID","DatastoreID","RunID") `
-        @($storageInformation | ForEach-Object { $_.Aggregates | Foreach-Object { $_.Volumes | ForEach-Object { $_.Datastores | ForEach-Object { $datastoreID = $_.ID; $_.VirtualMachines | Select-Object @{N="RunID";E={$runID}},@{N="VirtualMachineID";E={$_.ID}},@{N="DatastoreID";E={$datastoreID}} } } } } | Sort-Object VirtualMachineID,DatastoreID) $dataMaps
-
+    AddDataMap $conn "VirtualMachine_DatastoreData" @("VirtualMachineID","DatastoreID","RunID","Used") `
+        @($storageInformation | ForEach-Object {
+            $_.Aggregates | Foreach-Object {
+                $_.Volumes | ForEach-Object {
+                    $_.Datastores | ForEach-Object {
+                        $datastores = $_  # Capture $datastores for later use
+                        $_.VirtualMachines | Foreach-Object {
+                            $vm = $_      # Capture $vm for later use
+                            $dsFileSizes = [System.Collections.Generic.SortedDictionary[[System.String],[Int64]]]::new()  # Dictionary to collect datastore usage
+                            $_.Source.ExtensionData.LayoutEx.File | Foreach-Object {
+                                if($_.Name -match "^\[(.*?)\]")  # Use a regular expression to get the datastore name
+                                {
+                                    $fileDSName = $Matches[1]
+                                    if(-not $dsFileSizes.ContainsKey($fileDSName))
+                                    {
+                                        $dsFileSizes.Add($fileDSName, 0)
+                                    }
+                                    $dsFileSizes[$fileDSName] += $_.Size
+                                }
+                            }
+                            @($dsFileSizes.Keys) | Foreach-Object {
+                                $dsName = $_
+                                $datastore = @($datastores | Where-Object { ($_.Name -eq $dsName) -and ($_.VirtualMachines -contains $vm) })
+                                if($datastore.Length -eq 1)
+                                {
+                                    $d = "" | Select-Object RunID,VirtualMachineID,DatastoreID,Used
+                                    $d.RunID = $runID
+                                    $d.DatastoreID = $datastore[0].ID
+                                    $d.VirtualMachineID = $vm.ID
+                                    $d.Used = $dsFileSizes[$dsName]
+                                    $d
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } | Select-Object -Unique `
+            RunID,
+            VirtualMachineID,
+            DatastoreID,
+            Used `
+        | Sort-Object VirtualMachineID, DatastoreID) $dataMaps
+<#
+        @($storageInformation | ForEach-Object {
+            $_.Aggregates | Foreach-Object {
+                $_.Volumes | ForEach-Object {
+                    $_.Datastores | ForEach-Object {
+                        $datastoreID = $_.ID
+                        $_.VirtualMachines | Select-Object `
+                            @{N="RunID";E={$runID}},
+                            @{N="VirtualMachineID";E={$_.ID}},
+                            @{N="DatastoreID";E={$datastoreID}}
+                    }
+                }
+            }
+        } `
+        | Sort-Object VirtualMachineID,DatastoreID) $dataMaps
+#>
     return $dataMaps.ToArray()
 }
 
@@ -1162,7 +1392,6 @@ function UpdateRowFromDataMapSource($tableName, $row, $dataMapColumnNames, $data
         $b++
     }
 }
-
 
 <#
     PASS 1: Enumerate existing DB data comparing to collected data.
@@ -1378,6 +1607,11 @@ function UpdateDBFromDataMap($conn, $dataMap)
     #  Meaning the data represents things like volume size, volume used, etc.  "point-in-time data."
     $isAllNewData = $dataMap.Columns.ContainsKey("RUNID")
 
+
+
+    # Change this to not load all data when -not $isAllNewData
+
+
     # Build custom statements for the datamap
     $customStatements = BuildDatamapExpressionStatements $dataMap
 
@@ -1489,7 +1723,7 @@ function UpdateDBInsertNewRows($conn, $dataMap)
     {
         $row = $dataMap.NewRows.Rows[$rowNumber]
 
-        # If the query string builder is empty, the start it out with $insertQuery
+        # If the query string builder is empty, then start it out with $insertQuery
         if($querySB.Length -eq 0)
         {
             [void] $querySB.AppendLine($insertQuery)
@@ -1531,8 +1765,14 @@ function UpdateDBInsertNewRows($conn, $dataMap)
         }
 
         <#
+            Reference:
+                https://learn.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server?redirectedfrom=MSDN&view=sql-server-ver15
+                    Parameters per user-defined function: 2100
+
+                I chose to stop adding parameters closer to 2000 just to be safe.
+
             If
-                1) adding the new row of parameters to $cmd.Parameters will exceed 2000, OR
+                1) adding the next row of parameters to $cmd.Parameters will exceed 2000 parameters, OR
                 2) we are at the end of rows to insert
             then execute the INSERT and reset to start again if we need to.
         #>
@@ -1699,9 +1939,6 @@ $Global:scriptConfig = LoadConfigurationData $JSONArgsFile
 
 # If errors were logged terminate the script
 if($Global:ErrorLogged) { return }
-
-# Use configuration data to define the log file name.
-$Global:LogPath = "{0}\{1}.log" -f @($Global:scriptConfig.LogPath, [DateTime]::Now.ToString("yyyyMMdd"))
 
 # Get all but the most recent $scriptConfig.LogsToKeep log files so we can delete them
 $oldLogs = @(Get-ChildItem -Path $Global:scriptConfig.LogPath | Sort-Object -Descending LastWriteTime | Select-Object -Skip $Global:scriptConfig.LogsToKeep)

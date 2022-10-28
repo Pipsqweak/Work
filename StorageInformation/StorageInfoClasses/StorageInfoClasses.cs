@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DataONTAP.C.Types.Cluster;
@@ -12,7 +13,6 @@ using DataONTAP.C.Types.Net;
 using DataONTAP.C.Types.Cifs;
 using VMware.VimAutomation.ViCore.Impl.V1.Inventory;
 using VMware.VimAutomation.ViCore.Impl.V1.DatastoreManagement;
-using System.Collections;
 
 abstract public class DataObject<T>
 {
@@ -56,7 +56,7 @@ abstract public class NetAppObject<T> : DataObject<T>, IComparable
 }
 
 public class NetAppCluster : NetAppObject<ClusterIdentityInfo>
-{ 
+{
     public string Location { get { return (null != Source) ? (string)Source.ClusterLocation : null; } }
     public string SerialNumber { get { return ((null != Source) && (null != Source.ClusterSerialNumber)) ? (string)Source.ClusterSerialNumber : string.Empty; } }
     public string Contact { get { return (null != Source) ? (string)Source.ClusterContact : null; } }
@@ -104,7 +104,7 @@ public class NetAppCluster : NetAppObject<ClusterIdentityInfo>
         {
             throw new Exception(String.Format("Cluster mismatch in {0}.{1}.  Cluster controller name: {2}, vServer controller name: {3}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name, Source.NcController.Name, vServer.NcController.Name));
         }
-        
+
         return newNetAppVServer;
     }
 
@@ -216,8 +216,8 @@ public class NetAppClusterCollection : IList<NetAppCluster>
     public List<NetAppVServer> FindVServerByName(string vServerName)
     {
         List<NetAppVServer> vServers = new List<NetAppVServer>();
-        
-        _clusters.ForEach(c => 
+
+        _clusters.ForEach(c =>
         {
             c.FindVServerByName(vServerName).ForEach(v => vServers.Add(v));
         });
@@ -392,7 +392,7 @@ public class NetAppClusterCollection : IList<NetAppCluster>
 
         return netAppVolumes;
     }
-    
+
     public List<NetAppVolume> FindVolumeByShare(CifsShare cifsShare)
     {
         List<NetAppVolume> netAppVolumes = null;
@@ -432,13 +432,13 @@ public class NetAppClusterCollection : IList<NetAppCluster>
     {
         /*
          * Return a unique list of VMWareVirtualMachines with Name = vmName && ID == vmID
-         * 
+         *
          * Clusters -> c
          *      c.VServers -> vs
          *          vs.Volumes -> v
          *              v.Datastores -> ds
          *                  ds.VirtualMachines -> vm
-         *                  
+         *
          *                      return all unique vms where vm.Name == vmName && vm.ID == vmID
          */
         List<VMWareVirtualMachine> vms = new List<VMWareVirtualMachine>();
@@ -520,7 +520,7 @@ public class NetAppVServer : NetAppClusterObject<VserverInfo>
         Volumes = new List<NetAppVolume>();
         LIFs = new List<NetAppLIF>();
     }
-    
+
     public NetAppVServer(NetAppCluster cluster, VserverInfo vServer, string cifsServerName) : base(cluster, vServer)
     {
         InitVServer(cluster, vServer, cifsServerName);
@@ -839,6 +839,7 @@ public class NetAppVolume : NetAppObject<VolumeAttributes>
     public override string Name { get { return ((null != Source) && (null != Source.Name)) ? Source.Name : string.Empty; } }
     public override Guid UUID { get { return (null != Source) ? Guid.Parse((string)Source.VolumeIdAttributes.Uuid) : Guid.Empty; } }
     public string JunctionPath { get { return ((null != Source) && (null != Source.VolumeIdAttributes.JunctionPath)) ? (string)Source.VolumeIdAttributes.JunctionPath : string.Empty; } }
+    public bool IsEncrypted { get { return ((null != Source) && (Source.EncryptSpecified)) ? (bool) Source.Encrypt : false; } }
 
     public List<NetAppShare> Shares { get; private set; }
     public List<NetAppVolume> SnapmirrorDestinations { get; private set; }
@@ -1065,7 +1066,7 @@ public class NetAppSnapshot : NetAppObject<SnapshotInfo>,IComparable<SnapshotInf
     public int CompareTo(SnapshotInfo other)
     {
         int retval = 1;
-        
+
         retval = UUID.CompareTo(Guid.Parse((string)other.SnapshotInstanceUuid));
         if (retval == 0)
         {

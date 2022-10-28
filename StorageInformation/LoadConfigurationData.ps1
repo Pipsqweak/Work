@@ -111,7 +111,7 @@ if ($Global:CMLoggingAvailable)
 
         if(-not [String]::IsNullOrEmpty($JSONArgsFile))
         {
-            if([System.IO.File]::Exists($JSONArgsFile))
+            if(Test-Path -Path $JSONArgsFile -PathType Leaf)
             {
                 try
                 {
@@ -119,90 +119,97 @@ if ($Global:CMLoggingAvailable)
 
                     if($null -ne $scriptConfig)
                     {
-                        LogInfo ("Loaded configuration:`r`n{0}" -f @(($scriptConfig | ConvertTo-Json -Depth 10).Replace("    ", " ")))
-
                         $tempPath = TestConfigPath $scriptConfig.LogPath "LogPath"
+
                         if(-not $Global:ErrorLogged)
                         {
                             $scriptConfig.LogPath = $tempPath
-                        }
+                            # Use configuration data to define the log file name.
+                            $Global:LogPath = "{0}\{1}.log" -f @($scriptConfig.LogPath, [DateTime]::Now.ToString("yyyyMMdd"))
 
-                        if($null -eq $scriptConfig.LogsToKeep)
-                        {
-                            LogError "Configuration data missing 'LogsToKeep'."
-                        }
+                            LogInfo ("Loaded configuration:`r`n{0}" -f @(($scriptConfig | ConvertTo-Json -Depth 10).Replace("    ", " ")))
 
-                        if($null -ne $scriptConfig.Filers)
-                        {
-                            if($null -ne $scriptConfig.Filers.CDOT)
+                            if($null -eq $scriptConfig.LogsToKeep)
                             {
-                                if(($null -eq $scriptConfig.Filers.CDOT.UserName) -or ([String]::IsNullOrEmpty($scriptConfig.Filers.CDOT.UserName)))
+                                LogError "Configuration data missing 'LogsToKeep'."
+                            }
+
+                            if($null -ne $scriptConfig.Filers)
+                            {
+                                if($null -ne $scriptConfig.Filers.CDOT)
                                 {
-                                    LogError "Configuration data missing CDOT 'Filers' user name."
+                                    if(($null -eq $scriptConfig.Filers.CDOT.UserName) -or ([String]::IsNullOrEmpty($scriptConfig.Filers.CDOT.UserName)))
+                                    {
+                                        LogError "Configuration data missing CDOT 'Filers' user name."
+                                    }
+
+                                    if($null -eq $scriptConfig.Filers.CDOT.Password)
+                                    {
+                                        LogError "Configuration data missing CDOT 'Filers' password."
+                                    }
+
+                                    if(($null -eq $scriptConfig.Filers.CDOT.Controllers) -or ($scriptConfig.Filers.CDOT.Controllers.Length -eq 0))
+                                    {
+                                        LogError "Configuration data missing CDOT 'Filers' controller list."
+                                    }
+                                }
+                                else
+                                {
+                                    LogError "Configuration data missing CDOT 'Filers' data."
                                 }
 
-                                if($null -eq $scriptConfig.Filers.CDOT.Password)
+                                if($null -ne $scriptConfig.Filers.SM)
                                 {
-                                    LogError "Configuration data missing CDOT 'Filers' password."
-                                }
+                                    if(($null -eq $scriptConfig.Filers.SM.UserName) -or ([String]::IsNullOrEmpty($scriptConfig.Filers.SM.UserName)))
+                                    {
+                                        LogError "Configuration data missing SM 'Filers' user name."
+                                    }
 
-                                if(($null -eq $scriptConfig.Filers.CDOT.Controllers) -or ($scriptConfig.Filers.CDOT.Controllers.Length -eq 0))
+                                    if($null -eq $scriptConfig.Filers.SM.Password)
+                                    {
+                                        LogError "Configuration data missing SM 'Filers' password."
+                                    }
+
+                                    if(($null -eq $scriptConfig.Filers.SM.Nodes) -or ($scriptConfig.Filers.SM.Nodes.Length -eq 0))
+                                    {
+                                        LogError "Configuration data missing SM 'Filers' nodes list."
+                                    }
+                                }
+                                else
                                 {
-                                    LogError "Configuration data missing CDOT 'Filers' controller list."
+                                    LogError "Configuration data missing SM 'Filers' data."
                                 }
                             }
                             else
                             {
-                                LogError "Configuration data missing CDOT 'Filers' data."
+                                LogError "Configuration data missing 'Filers' data."
                             }
 
-                            if($null -ne $scriptConfig.Filers.SM)
+                            if($null -ne $scriptConfig.vCenter)
                             {
-                                if(($null -eq $scriptConfig.Filers.SM.UserName) -or ([String]::IsNullOrEmpty($scriptConfig.Filers.SM.UserName)))
+                                if(($null -eq $scriptConfig.vCenter.UserName) -or ([String]::IsNullOrEmpty($scriptConfig.vCenter.UserName)))
                                 {
-                                    LogError "Configuration data missing SM 'Filers' user name."
+                                    LogError "Configuration data missing vCenter user name."
                                 }
 
-                                if($null -eq $scriptConfig.Filers.SM.Password)
+                                if($null -eq $scriptConfig.vCenter.Password)
                                 {
-                                    LogError "Configuration data missing SM 'Filers' password."
+                                    LogError "Configuration data missing vCenter password."
                                 }
 
-                                if(($null -eq $scriptConfig.Filers.SM.Nodes) -or ($scriptConfig.Filers.SM.Nodes.Length -eq 0))
+                                if(($null -eq $scriptConfig.vCenter.Server) -or ([String]::IsNullOrEmpty($scriptConfig.vCenter.Server)))
                                 {
-                                    LogError "Configuration data missing SM 'Filers' nodes list."
+                                    LogError "Configuration data missing vCenter server name."
                                 }
                             }
                             else
                             {
-                                LogError "Configuration data missing SM 'Filers' data."
+                                LogError "Configuration data missing 'vCenter' data."
                             }
                         }
                         else
                         {
-                            LogError "Configuration data missing 'Filers' data."
-                        }
-
-                        if($null -ne $scriptConfig.vCenter)
-                        {
-                            if(($null -eq $scriptConfig.vCenter.UserName) -or ([String]::IsNullOrEmpty($scriptConfig.vCenter.UserName)))
-                            {
-                                LogError "Configuration data missing vCenter user name."
-                            }
-
-                            if($null -eq $scriptConfig.vCenter.Password)
-                            {
-                                LogError "Configuration data missing vCenter password."
-                            }
-
-                            if(($null -eq $scriptConfig.vCenter.Server) -or ([String]::IsNullOrEmpty($scriptConfig.vCenter.Server)))
-                            {
-                                LogError "Configuration data missing vCenter server name."
-                            }
-                        }
-                        else
-                        {
-                            LogError "Configuration data missing 'vCenter' data."
+                            Write-Error ("Log path: {0} is unavailable." -f @($scriptConfig.LogPath))
                         }
                     }
                     else

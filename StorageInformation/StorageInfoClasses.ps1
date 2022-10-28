@@ -23,7 +23,7 @@ $requiredAssemblies = @(
     "VMware.VimAutomation.ViCore.Types"
 )
 
-# Array to collect the .dll locations for each required assembly
+# Array to collect the .dll locations for each required assembly.  Used as a parameter for Add-Type.
 $requiredAssembliesLocations = @()
 $requiredAssemblies | ForEach-Object {
     try
@@ -31,7 +31,7 @@ $requiredAssemblies | ForEach-Object {
         # Load the assembly based on name
         $assembly = [System.Reflection.Assembly]::Load($_)
 
-        # If the assembly was successfully loaded, capture its location $requiredAssemblies so we can use the array as a parameter for Add-Type
+        # If the assembly was successfully loaded, capture its location in $requiredAssembliesLocations.
         if($null -ne $assembly)
         {
             $requiredAssembliesLocations += $assembly.Location
@@ -52,11 +52,11 @@ if($requiredAssembliesLocations.Length -eq $requiredAssemblies.Length)
 {
 #    Add-Type -Path ".\SnaplockClasses.cs" -ReferencedAssemblies $requiredAssembliesLocations
     Add-Type -Path $csSourceFile -ReferencedAssemblies $requiredAssembliesLocations
-    LogInfo "Snaplock C# classes loaded."
-}
+    LogInfo "Storage Information C# classes loaded."
+} `
 else
 {
     LogError "Unable to add snaplock classes.  Missing required assemblies."
 }
 
-<# Completed locating required assemblies and adding the C# code. #>
+<# Completed loading required assemblies and adding the C# code. #>
