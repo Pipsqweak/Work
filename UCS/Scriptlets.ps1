@@ -568,3 +568,53 @@ $vmDSData = @($storageInformation | ForEach-Object {
     VirtualMachineID,
     DatastoreID,
     Used)
+
+
+$a = 0
+while($a -lt $vmHosts.Length)
+{
+    Write-Host $vmHosts[$a].Name
+    $esxcli = Get-EsxCli -VMHost $vmHosts[$a] -V2
+
+    $esxcli.system.hostname.get.Invoke()
+    $nfsDS = $esxcli.storage.nfs.list.Invoke()
+    $nfsDS | ft -AutoSize
+    $a++
+}
+
+
+# DDC - Enable Maintenance mode - ALL DDC delivery groups
+Set-BrokerDesktopGroup -AdminAddress $citrixHost -Name "Virtual Desktop" -InMaintenanceMode $True
+#Get-BrokerDesktopGroup -filter {Name -like "DDC*"} | Set-BrokerDesktopGroup -InMaintenanceMode $True
+Get-BrokerDesktopGroup -AdminAddress $citrixHost -filter {Name -like "DDC*" -and Name -notlike "DDC-SPTest*"} | Set-BrokerDesktopGroup -InMaintenanceMode $True
+
+try
+{
+    $snapshots = @(Get-NcSnapshot -Controller @($cDot.Values) -ErrorAction Stop)
+    $oldDate = [DateTime]::Now.AddDays(-180)
+    $oldSnaps = $snapshots | Where-Object { $_.Created -lt $oldDate } | Select-Object Created, @{N='Cluster';E={($_.NCController.Name -split '\.')[0].ToUpper()}},VServer,Volume,Name,CumulativeTotal | Sort-Object Created
+    $oldSnaps | ConvertTo-Csv -NoTypeInformation -Delimiter "`t" | Set-Clipboard
+}
+catch
+{
+    Write-Error "Failed to retrieve CDOT snapshots."
+}
+
+
+
+
+
+$si = Get-View -Server $vCenter ServiceInstance
+$scheduledTaskManager = Get-View -Server $vCenter $si.Content.ScheduledTaskManager
+$scheduledTaskManager.ScheduledTask | ForEach-Object { (Get-View -Server $vCenter  $_).Info } | Select-Object Name,NextRunTime
+
+$spec = [VMware.Vim.ScheduledTaskSpec]::new()
+$spec.Name = "{0} - Automatic Compliance Check" -f @("FTW")
+$spec.Enabled = $true
+$spec.Scheduler = [VMware.Vim.WeeklyTaskScheduler]::new()
+$spec.Scheduler.
+$spec.Scheduler.Wednesday = $true
+$spec.Scheduler.Hour = (Get-Date -Hour 5).ToUniversalTime().Hour
+$spec.Scheduler.Interval = "1"
+$spec.Action = New-Object VMware.Vim.MethodAction
+$spec.Action.Name = "RebootGuest"
