@@ -5,43 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch StorageInformation",
+            "name": "PowerShell 7: Launch Current File",
             "type": "PowerShell",
             "request": "launch",
-            "script": "C:\\Users\\kbriney-adm\\PSScripts\\Repos\\PEI-IT-OPS\\StorageInformation\\CaptureSnaplockData.ps1",
-            "args": [
-            ],
-            "cwd": "C:\\Users\\kbriney-adm\\PSScripts\\Repos\\PEI-IT-OPS\\StorageInformation"
-        },
+            "script": "${file}",
+            "cwd": "${file}",
+            "program": "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
+       },
         {
-            "name": "Launch Permissions Scanner",
+            "name": "PowerShell Launch Current File",
             "type": "PowerShell",
             "request": "launch",
-            "script": "C:\\Users\\kbriney\\KLB\\PEI-IT-Ops\\Permissions\\Scanner.ps1",
-            "args": [
-                "-jsonArgsFile 'C:\\Users\\kbriney\\KLB\\PEI-IT-OPS\\Permissions\\Scanner.json'"
-            ],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "Launch Permissions Scanner (Get-ACL)",
-            "type": "PowerShell",
-            "request": "launch",
-            "script": "C:\\Users\\kbriney\\KLB\\PEI-IT-Ops\\Permissions\\Get-ACLs\\Get-ACLs3.ps1",
-            "args": [
-                "-jsonArgsFile 'C:\\tmp\\PermissionsScanner\\arbprdnas1-Line-args.json'"
-            ],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "Launch Backup-CheckPoint",
-            "type": "PowerShell",
-            "request": "launch",
-            "script": "C:\\Users\\kbriney\\KLB\\PEI-IT-Ops\\Common\\ScriptApp.ps1",
-            "args": [
-                "-scriptAppPath 'C:\\Users\\kbriney\\KLB\\PEI-IT-Ops\\CheckPoint\\Backup-CheckPoint' -jsonArgsFile boimgmt"
-            ],
-            "cwd": "${workspaceFolder}"
+            "script": "${file}",
+            "cwd": "${cwd}"
         },
         {
             "name": "PowerShell Launch Current File",

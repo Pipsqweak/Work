@@ -2,7 +2,11 @@
 Param(
     [Parameter(Mandatory=$true,Position=0)]
     [String]
-    $JSONArgsFile
+    $JSONArgsFile,
+
+    [Parameter(Mandatory=$false,Position=1)]
+    [Switch]
+    $NoDBUpdates
 )
 
 <#
@@ -247,7 +251,7 @@ function CollectAggregateVolumeInformation([NetAppAggregate] $aggr)
                     LogInfo ("        +Volume: {0}:{1}" -f @($vServer.Identity, $vol.Identity))
 
                     CollectVolumeShareInformation $vol
-                    CollectVolumeSnapshotInformation $vol
+                    # CollectVolumeSnapshotInformation $vol
                 }
                 catch
                 {
@@ -641,7 +645,6 @@ function CollectDatastoreVirtualMachineInformation([VMware.VimAutomation.ViCore.
         $a = 0
         while(($a -lt $dsVirtualMachines.Length) -and (-not $Global:ErrorLogged))
         {
-Write-Host ("Processing VM: {0}:{1} from datastore: {2}:{3}" -f @($dsVirtualMachines[$a].Name, $dsVirtualMachines[$a].Id, $datastore.Name, $datastore.Id))
             # Get a list of unique [VMWareVirtualMachine] objects matching $dsVirtualMachines[$a].Name/ID  (so should be 0 or 1 objects)
             $vms = $clusters.FindVirtualMachineByNameAndId($dsVirtualMachines[$a].Name, $dsVirtualMachines[$a].ID)
                 # $virtualMachines | Where-Object { ($_.Name -eq $dsVirtualMachines[$a].Name) -and ($_.Id -eq $dsVirtualMachines[$a].ID) }
@@ -716,7 +719,6 @@ function CollectVMwareInformation([VMware.VimAutomation.ViCore.Impl.V1.VIServerI
         try
         {
             $vmDatastores = @(Get-Datastore -Server $vCenter -ErrorAction Stop | Where-Object { $_.Type -eq "NFS" })
-Write-Host ("Found {0} NFS datastores" -f @($vmDatastores.Length))
         }
         catch
         {
@@ -726,7 +728,6 @@ Write-Host ("Found {0} NFS datastores" -f @($vmDatastores.Length))
         $a = 0
         while(($a -lt $vmDatastores.Length) -and (-not $Global:ErrorLogged))
         {
-Write-Host ("Processing datastore: {0}) {1}:{2}" -f @($a, $vmDatastores[$a].Name, $vmDatastores[$a].Id))
             $dsVolumes = $clusters.FindVolumeByDatastore($vmDatastores[$a])
 
             if($dsVolumes.Count -eq 1)
@@ -737,7 +738,6 @@ Write-Host ("Processing datastore: {0}) {1}:{2}" -f @($a, $vmDatastores[$a].Name
                 if($null -ne $ds)
                 {
                     LogInfo ("Adding datastore {0} to volume {1}" -f @($ds.Identity, $dsVolume.Identity))
-Write-Host ("Adding datastore {0} to volume {1}" -f @($ds.Name, $dsVolume.Name))
                     CollectDatastoreVirtualMachineInformation $vCenter $ds $clusters
                 }
                 else
@@ -750,12 +750,6 @@ Write-Host ("Unable to add datastore: {0}:{1} to volume:{2}" -f @($vmDatastores[
             {
                 if($dsVolumes.Count -gt 1)
                 {
-Write-Host ("Multiple volumes found for {0}:{1}" -f @($vmDatastores[$a].ID, $vmDatastores[$a].Name))
-foreach($v in $dsVolumes)
-{
-    Write-Host ("`t{0}" -f @($v.Name))
-}
-
                     LogError ("Multiple volumes found for {0}:{1}" -f @($vmDatastores[$a].ID, $vmDatastores[$a].Name))
                     foreach($v in $dsVolumes)
                     {
@@ -764,7 +758,6 @@ foreach($v in $dsVolumes)
                 }
                 else
                 {
-Write-Host ("No volumes found for {0}:{1}" -f @($vmDatastores[$a].ID, $vmDatastores[$a].Name))
                     LogWarning ("No volumes found for {0}:{1}" -f @($vmDatastores[$a].ID, $vmDatastores[$a].Name))
                 }
             }
@@ -779,30 +772,13 @@ Write-Host ("No volumes found for {0}:{1}" -f @($vmDatastores[$a].ID, $vmDatasto
     }
 }
 
-<#
-Write-Host ("Processing datastore: {0}) {1}:{2}" -f @($a, $vmDatastores[$a].Name, $vmDatastores[$a].Id))
-$dsVolumes = $clusters.FindVolumeByDatastore($vmDatastores[$a])
-$dsVolumes.Count
-
-
-$dsVolume = $dsVolumes[0]
-$ds = $dsVolume.AddDatastore($vmDatastores[$a])
-$ds
-
-
-LogInfo ("Adding datastore {0} to volume {1}" -f @($ds.Identity, $dsVolume.Identity))
-Write-Host ("Adding datastore {0} to volume {1}" -f @($ds.Name, $dsVolume.Name))
-CollectDatastoreVirtualMachineInformation $vCenter $ds $clusters
-$a++
-#>
-
 function CollectStorageInformation()
 {
     # Just a diagnostic timer to see how long data collection takes.
     $timer1 = [System.Diagnostics.Stopwatch]::new()
     $timer1.Start()
 
-    # Start by collecting as much information as we can about all the clusters.  VServer, Aggregates, Volumes, Shares, Snapshots, etc...
+    # Start by collecting as much information as we can about all the clusters.  VServer, Aggregates, Volumes, Shares, etc...
     $clusters = CollectClusterInformation
 
     <#
@@ -986,7 +962,7 @@ function CreateDataMaps
 
         [Parameter(Mandatory=$true,Position=2)]
         [ValidateNotNull()]
-        [ValidateRange(1, [Int32]::MaxValue)]
+        [ValidateRange(0, [Int32]::MaxValue)]
         [Int32]
         $runID
     )
@@ -1057,23 +1033,17 @@ function CreateDataMaps
         | Sort-Object Name) $dataMaps
 
     # Data map for Volumes:
+    #    Concerning AggregateUUID -- Since a volume is assigned a new UUID when it is moved from one aggregate to another,
+    #       a "new" entry will be created in the Volumes table
     AddDataMap $conn "Volumes" @("UUID") `
         @($storageInformation | ForEach-Object {
             $_.Aggregates | Foreach-Object {
-                $_.Volumes | Select-Object `
+                $_.Volumes | Select-Object -Unique `
                     UUID,
-                    @{N="VServerUUID";E={$_.VServer.UUID}},
-                    @{N="AggregateUUID";E={$_.Aggregate.UUID}},
                     Name,
                     SnaplockType
             }
-        } | Select-Object -Unique `
-            UUID,
-            VServerUUID,
-            AggregateUUID,
-            Name,
-            SnaplockType `
-        | Sort-Object Name) $dataMaps
+        } | Sort-Object Name) $dataMaps
 
     # Data map for Datastores:
     AddDataMap $conn "Datastores" @("ID") `
@@ -1083,12 +1053,14 @@ function CreateDataMaps
                     $_.Datastores `
                     | Select-Object `
                         ID,
-                        Name
+                        Name,
+                        Datacenter
                 }
             }
         } | Select-Object -Unique `
             ID,
-            Name `
+            Name,
+            Datacenter `
         | Sort-Object Name) $dataMaps
 
     # Data map for VirtualMachines:
@@ -1122,21 +1094,27 @@ function CreateDataMaps
         | Sort-Object AggregateUUID) $dataMaps
 
     # Data map for VolumeData:
+    #  VolumeData does not need to contain Aggregate UUID -- This is because, when a volume is moved from one aggregate to another,
+    #     the volume is assigned a new UUID.  This will result in a new entry in the Volumes table.
     AddDataMap $conn "VolumeData" @("RunID","VolumeUUID") `
         @($storageInformation | ForEach-Object {
             $_.Aggregates | Foreach-Object {
                 $_.Volumes | Select-Object `
                     @{N="RunID";E={$runID}},
                     @{N="VolumeUUID";E={$_.UUID}},
+                    @{N="VServerUUID";E={$_.VServer.UUID}},
+                    @{N="AggregateUUID";E={$_.Aggregate.UUID}},
                     IsSnaplockProtected,
                     IsEncrypted,
                     Size,
                     Used,
-                    Available
+                    Available,
+                    SnapshotCount
             }
         } `
         | Sort-Object VolumeUUID) $dataMaps
 
+<#
     # Data map for SnapshotData:
     AddDataMap $conn "SnapshotData" @("UUID","VolumeUUID","RunID") `
         @($storageInformation | ForEach-Object {
@@ -1157,6 +1135,7 @@ function CreateDataMaps
             }
         } `
         | Sort-Object VolumeUUID,Created) $dataMaps
+#>
 
     # Data map for SnapmirrorData:
     AddDataMap $conn "SnapmirrorData" @("SourceVolumeUUID","DestinationVolumeUUID","RunID") `
@@ -1291,13 +1270,13 @@ function GetNewRunID($conn)
 {
     $cmd = $conn.CreateCommand()
     $cmd.CommandType = [System.Data.CommandType]::Text
-    $cmd.CommandText = "SELECT MAX(ID)+1 FROM DataCollectionRuns;"
+    $cmd.CommandText = "SELECT ISNULL(MAX(ID) + 1, 1) FROM DataCollectionRuns;"
     $newRunID = $cmd.ExecuteScalar()
 
     return $newRunID
 }
 
-function BuildDatamapExpressionStatements($datamap)
+function BuildDatamapExpressionStatements($datamap, $isAllNewData)
 {
 
     $orderByClause = [System.Text.StringBuilder]::new()
@@ -1335,9 +1314,19 @@ function BuildDatamapExpressionStatements($datamap)
     $d.DataSourceSearchStatement = "`$dataElements = @(`$dataMap.DataSource | Where-Object {{ {0} }})" -f @($dataSourceWhereClause.ToString())
     $d.RowSearchStatement = "`$rows = @(`$dt.Rows | Where-Object {{ {0} }})" -f @($rowWhereClause.ToString())
 
-    # Create the SQL SELECT statement                     Join all .ColumnNames in .PropertyMap with "," to select all columns in the table.
-    $d.SelectStatement = "SELECT {0} FROM [{1}]{2};" -f @((@(@($dataMap.Columns.Keys) | ForEach-Object { "[{0}]" -f @($_) }) -join ", "), $dataMap.TableName, $orderByClause.ToString())
+    $allNewDataLimiterClause = ""
+    if ($isAllNewData)
+    {
+        # If we only need the schema for the table, and not the actual data, then append a WHERE clause to ensure no data is returned.
+        $allNewDataLimiterClause = " WHERE (0=1) "
+    } `
+    else # NOT ($isAllNewData)
+    {
+        # Nothing.
+    }
 
+    # Create the SQL SELECT statement                     Join all .ColumnNames in .PropertyMap with "," to select all columns in the table.
+    $d.SelectStatement = "SELECT {0} FROM [{1}]{2}{3};" -f @((@(@($dataMap.Columns.Keys) | ForEach-Object { "[{0}]" -f @($_) }) -join ", "), $dataMap.TableName, $allNewDataLimiterClause, $orderByClause.ToString())
 
     return @(, $d)
 }
@@ -1382,11 +1371,10 @@ function UpdateRowFromDataMapSource($tableName, $row, $dataMapColumnNames, $data
             try
             {
                 Invoke-Expression $stmt -ErrorAction Stop
-                # Write-Host ("{0}:{1} changed: {2} -> {3}" -f @($tableName, $columnName, $oldValue, $newValue))
             }
             catch
             {
-                Write-Host -ForegroundColor Red ("FAILED: {0}" -f @($stmt))
+                LogError ("FAILED: {0}" -f @($stmt))
             }
         }
         $b++
@@ -1420,42 +1408,15 @@ function UpdateDBFirstPass($datamap, $dt, $customStatements)
 
             1 { # Existing data element : Update row
                 UpdateRowFromDataMapSource $dataMap.TableName $row $dataMapColumnNames $dataElements[0]
-                <#
-                $b = 0
-                while($b -lt $dataMapColumnNames.Length)
-                {
-                    $rowValue = $row.$($dataMapColumnNames[$b])
-                    if($rowValue -is [System.DBNull])
-                    {
-                        $rowValue = $null
-                    }
-                    if($rowValue -ne $dataElements[0].$($dataMapColumnNames[$b]))
-                    {
-                        # Trying to set a UNIQUEIDENTIFIER (Guid) column equal to the dataelement value directly was throwing an exception:
-                        #   Exception setting "VSERVERUUID": "Type of value has a mismatch with column typeCouldn't store <3593eca7-5be6-11e5-9609-00a098666986> in VSERVERUUID Column.  Expected type is Guid."
-                        # So I adjusted the code as follows, which appears to work.
-                        if($row.$($dataMapColumnNames[$b]) -is [Guid])
-                        {
-                            $row.$($dataMapColumnNames[$b]) = $dataElements[0].$($dataMapColumnNames[$b]).Guid.ToString()
-                        }
-                        else #
-                        {
-                            $row.$($dataMapColumnNames[$b]) = $dataElements[0].$($dataMapColumnNames[$b])
-                        }
-                        Write-Host ("{0}:{4} value changed: {1}:{2}:{3}" -f @($dataMap.TableName, $b, $dataMapColumnNames[$b], $dataElements[0].$($dataMapColumnNames[$b]), $a))
-                    }
-                    $b++
-                }
-                #>
                 break
             }
 
             default { # WTH?  More than 1
-                Write-Host -ForegroundColor Red ("Multiple {0} data found with:" -f @($dataMap.TableName))
+                LogWarning ("Multiple {0} data found with:" -f @($dataMap.TableName))
                 $b = 0
                 while($b -lt $dataMap.KeyColumns.Length)
                 {
-                    Write-Host -ForegroundColor Red ("`t{0} = {1}" -f @($dataMap.KeyColumns[$b], $row.$($dataMap.KeyColumns[$b])))
+                    LogWarning ("`t{0} = {1}" -f @($dataMap.KeyColumns[$b], $row.$($dataMap.KeyColumns[$b])))
                     $b++
                 }
                 break
@@ -1463,14 +1424,6 @@ function UpdateDBFirstPass($datamap, $dt, $customStatements)
         }
 
         $a++
-        if(($a % 1000) -eq 0)
-        {
-            Write-Host ("Pass 1: Processed {0} records for {1}..." -f @($a, $dataMap.TableName))
-        }
-    }
-    if(($a % 1000) -ne 0)
-    {
-        Write-Host ("Pass 1: Processed {0} total records for {1}..." -f @($a, $dataMap.TableName))
     }
 }
 
@@ -1504,82 +1457,21 @@ function UpdateDBSecondPass($dataMap, $dt, $customStatements, $isAllNewData)
             0 { # New data row : INSERT
                 $newRow = $dt.NewRow()
                 UpdateRowFromDataMapSource $dataMap.TableName $newRow $dataMapColumnNames $dataElement
-
-                <#
-                $b = 0
-                while($b -lt $dataMapColumnNames.Length)
-                {
-                    <#
-                        Had some weirdness here.  Trying to do the assignment directly was throwing exceptions assigning GUID to GUID, so I had to get creative.
-                        The script was throwing a type mismatch exception.
-
-                        Originally I had the following:
-
-                            $newRow.$($dataMap.PropertyMap[$b].ColumnName) = $dataElement.$($dataMap.PropertyMap[$b].ColumnName)
-
-                        Finally, I came up with the following to "dynamically" cast the source element...
-
-THERE WAS A COMMENT BLOCK END HERE
-
-                    # Create a powershell statement to assign the source data element with casting to the new row's column, then invoke the statement...
-                    $castType = $null
-                    $newValue = $dataElement.$($dataMapColumnNames[$b])
-
-                    if($null -ne $newValue)
-                    {
-                        $castType = "[{0}]" -f @($newValue.GetType().FullName)
-                    }
-                    else
-                    {
-                        # The following handles converting null to DBNull so the DB server doesn't reject the statements.
-                        $newValue = [System.DBNull]::Value
-                    }
-
-                    $stmt = "`$newRow.{0} = {1}`$newValue" -f @($dataMapColumnNames[$b], $castType)
-                    try
-                    {
-                        Invoke-Expression $stmt -ErrorAction Stop
-                    }
-                    catch
-                    {
-                        Write-Host -ForegroundColor Red ("FAILED: {0}" -f @($stmt))
-                    }
-
-                    $b++
-                }
-                #>
                 $dt.Rows.Add($newRow)
                 break
             }
 
             1 { # Existing row : UPDATE -- Always use $rows[0] since there is only 1 element in the array.
-                UpdateRowFromDataMapSource $rows[0] $dataMapColumnNames $dataElement
-<#
-                $b = 0
-                while($b -lt $dataMapColumnNames.Length)
-                {
-                    $rowValue = $rows[0].$($dataMapColumnNames[$b])
-                    if($rowValue -is [System.DBNull])
-                    {
-                        $rowValue = $null
-                    }
-                    if($rowValue -ne $dataElement.$($dataMapColumnNames[$b]))
-                    {
-                        $rows[0].$($dataMapColumnNames[$b]) = $dataElement.$($dataMapColumnNames[$b])
-                        Write-Host ("{0} value changed: {1}:{2}:{3}" -f @($dataMap.TableName, $b, $dataMapColumnNames[$b], $dataElement.$($dataMapColumnNames[$b])))
-                    }
-                    $b++
-                }
-#>
+                UpdateRowFromDataMapSource $dataMap.TableName $rows[0] $dataMapColumnNames $dataElement
                 break
             }
 
             default { # WTH?  More than 1
-                Write-Host -ForegroundColor Red ("{0} rows found with:" -f @($rows.Length))
+                LogWarning ("{0} rows found with:" -f @($rows.Length))
                 $b = 0
                 while($a -lt $dataMap.KeyColumns.Length)
                 {
-                    Write-Host -ForegroundColor Red ("`t{0} = {1}" -f @($dataMap.KeyColumns[$b], $dataElement.$($dataMap.KeyColumns[$b])))
+                    LogWarning ("`t{0} = {1}" -f @($dataMap.KeyColumns[$b], $dataElement.$($dataMap.KeyColumns[$b])))
                     $b++
                 }
                 break
@@ -1587,14 +1479,6 @@ THERE WAS A COMMENT BLOCK END HERE
         }
 
         $a++
-        if(($a % 1000) -eq 0)
-        {
-            Write-Host ("Pass 2: Processed {0} records for {1}..." -f @($a, $dataMap.TableName))
-        }
-    }
-    if(($a % 1000) -ne 0)
-    {
-        Write-Host ("Pass 2: Processed {0} total records for {1}..." -f @($a, $dataMap.TableName))
     }
 }
 
@@ -1607,15 +1491,11 @@ function UpdateDBFromDataMap($conn, $dataMap)
     #  Meaning the data represents things like volume size, volume used, etc.  "point-in-time data."
     $isAllNewData = $dataMap.Columns.ContainsKey("RUNID")
 
-
-
-    # Change this to not load all data when -not $isAllNewData
-
-
     # Build custom statements for the datamap
-    $customStatements = BuildDatamapExpressionStatements $dataMap
+    $customStatements = BuildDatamapExpressionStatements $dataMap $isAllNewData
 
-    # Create the SQL SELECT statement                     Join all .ColumnNames in .PropertyMap with "," to select all columns in the table.
+    # Create the SQL SELECT statement
+    #     Join all .ColumnNames in .PropertyMap with "," to select all columns in the table.
     $cmd.CommandText = $customStatements.SelectStatement
 
     # Create a DataReader object to read all the data from the SQL database table
@@ -1625,7 +1505,7 @@ function UpdateDBFromDataMap($conn, $dataMap)
     $dt = [System.Data.DataTable]::new()
     $dt.Load($rdr)
 
-    # If the datamap represents only point-in-time data, then no need to bother trying to update existing database data...
+    # If the datamap represents only point-in-time data, then no need to update existing data...
     if(-not $isAllNewData)
     {
         UpdateDBFirstPass $datamap $dt $customStatements
@@ -1635,13 +1515,6 @@ function UpdateDBFromDataMap($conn, $dataMap)
 
     $dataMap.NewRows = $dt.GetChanges([System.Data.DataRowState]::Added)
     $dataMap.ModifiedRows = $dt.GetChanges([System.Data.DataRowState]::Modified)
-
-    if($null -ne $dataMap.NewRows)
-    {
-        Write-Host ("New: {0}" -f @($dataMap.NewRows.Rows.Count))
-
-        # See Insertsql.ps1 to add new rows...
-    }
 
     if($null -ne $dataMap.ModifiedRows)
     {
@@ -1783,7 +1656,6 @@ function UpdateDBInsertNewRows($conn, $dataMap)
 
             $r = $cmd.ExecuteNonQuery()
             $totalInserts += $r
-            Write-Host ("Added {0} rows [{1} total]" -f @($r, $totalInserts))
 
             # Clear $querySB and reseed it with $insertQuery so it's read for any remaining rows (if the query got to large)...
             [void] $querySB.Clear()
@@ -1791,6 +1663,7 @@ function UpdateDBInsertNewRows($conn, $dataMap)
             $cmd.Parameters.Clear()
         }
     }
+    LogInfo ("    Added {0} rows" -f @($totalInserts))
 }
 
 function UpdateDBUpdateModifiedRows($conn, $dataMap)
@@ -1861,7 +1734,6 @@ function UpdateDBUpdateModifiedRows($conn, $dataMap)
 
         # Construct the UPDATE query using the string arrays we created above.
         $cmd.CommandText = "UPDATE [{0}] SET {1} WHERE {2};" -f @($dataMap.TableName, ($setPieces -join ", "), ($wherePieces -join " AND "))
-        Write-Host ($cmd.CommandText)
 
         # Send it!
         $r = $cmd.ExecuteNonQuery()
@@ -1869,13 +1741,18 @@ function UpdateDBUpdateModifiedRows($conn, $dataMap)
 
         $rowNumber++
     }
+
+    LogInfo ("    Updated {0} rows" -f @($totalUpdates))
 }
 
 
 <# Main Function below #>
 
+<#
+    $JSONArgsFile = "SnaplockReporter-kbriney-adm.json"
+    $NoDBUpdates = $true
+#>
 
-$JSONArgsFile = "SnaplockReporter-kbriney-adm.json"
 
 Import-Module DataONTAP
 Import-Module VMware.VimAutomation.Core
@@ -1887,7 +1764,6 @@ $requiredFiles = @(
     "LoadConfigurationData.ps1",                 # Loads and verifies the contents of $JSONArgsFile
     "StorageInfoClasses.ps1",                    # Loads C# classes
     "StorageInfoClasses\StorageInfoClasses.cs",  # C# source code to define classes used in this script
-    "LocalDB.ps1",                               # Defines a class providing SQL connectivity via LocalDB (https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb?view=sql-server-ver15)
     "Connect-NetApp.ps1"                         # Script to connect to NetApp Clusters and 7-mode filers
 )
 
@@ -1953,12 +1829,6 @@ if($oldLogs.Length -gt 0)
 # If errors were logged terminate the script
 if($Global:ErrorLogged) { return }
 
-# Load the LocalDB class...
-. .\LocalDB.ps1
-
-# If errors were logged terminate the script
-if($Global:ErrorLogged) { return }
-
 # Source in Connect-NetApp.ps1 to connect to all the NetApp clusters/7-mode filers as required.
 . .\Connect-NetApp.ps1
 
@@ -1975,30 +1845,80 @@ catch
     LogError ("Failed to connect to vCenter server {0}." -f @($Global:scriptConfig.vCenter.Server))
 }
 
-<#
-    NOTE: Still need to clean up the following code...
-#>
-
-$myConn = [LocalDB]::GetLocalDB("StorageInformation", $false)
-$runID = GetNewRunID $myConn
-Write-Host ("Run ID: {0}" -f @($runID))
-$storageInformationCollection = CollectStorageInformation
-$dataMaps = CreateDataMaps $myConn $storageInformationCollection $runID
-
-$j = 0
-while($j -lt $dataMaps.Length)
+if ($NoDBUpdates)
 {
-    Write-Host ("{0}" -f @($dataMaps[$j].TableName))
-    UpdateDBFromDataMap $myConn $datamaps[$j]
+    LogInfo "Not updating the database."
+} `
+else # NOT (-not $NoDBUpdates)
+{
+    # Nothing.
+}
 
-    if(($null -ne $dataMaps[$j].NewRows) -and ($dataMaps[$j].NewRows.Rows.Count -gt 0))
+$runID = -1
+$connectionString = "Data Source={0};Initial Catalog={1};Integrated Security=True;" -f @($Global:scriptConfig.Database.Server, $Global:scriptConfig.Database.Name)
+try
+{
+    $myConn = [System.Data.SqlClient.SqlConnection]::new($connectionString)
+    $myConn.Open()
+}
+catch
+{
+    LogErrror ("Exception creating connection to {0}:{1}.`r`n" -f @($Global:scriptConfig.Database.Server, $Global:scriptConfig.Database.Name))
+}
+
+if (($null -ne $myConn) -and ($myConn.State -eq [System.Data.ConnectionState]::Open))
+{
+    if (-not $NoDBUpdates)
     {
-        UpdateDBInsertNewRows $myConn $dataMaps[$j]
+        $runID = GetNewRunID $myConn
+    } `
+    else # NOT (-not $NoDBUpdates)
+    {
+        $runID = 0
     }
 
-    if(($null -ne $dataMaps[$j].ModifiedRows) -and ($dataMaps[$j].ModifiedRows.Rows.Count -gt 0))
+    if($runID -gt -1)
     {
-        UpdateDBUpdateModifiedRows $myConn $dataMaps[$j]
+        LogInfo ("Data collection Run ID: {0}" -f @($runID))
+        $storageInformationCollection = CollectStorageInformation
+        $dataMaps = CreateDataMaps $myConn $storageInformationCollection $runID
+
+        if (-not $NoDBUpdates)
+        {
+            $j = 0
+            while($j -lt $dataMaps.Length)
+            {
+                LogInfo ("Updating table: {0}" -f @($dataMaps[$j].TableName))
+                UpdateDBFromDataMap $myConn $datamaps[$j]
+
+                if(($null -ne $dataMaps[$j].NewRows) -and ($dataMaps[$j].NewRows.Rows.Count -gt 0))
+                {
+                    UpdateDBInsertNewRows $myConn $dataMaps[$j]
+                }
+
+                if(($null -ne $dataMaps[$j].ModifiedRows) -and ($dataMaps[$j].ModifiedRows.Rows.Count -gt 0))
+                {
+                    UpdateDBUpdateModifiedRows $myConn $dataMaps[$j]
+                }
+                $j++
+            }
+        } `
+        else # NOT (-not $NoDBUpdates)
+        {
+            # Nothing.
+        }
+    } `
+    else
+    {
+        LogError ("Failed to retrieve a new data collection run ID.")
     }
-    $j++
+
+    if(($null -ne $myConn) -and ($myConn.State -ne [System.Data.ConnectionState]::Closed))
+    {
+        $myConn.Close();
+    }
+} `
+else # NOT (($null -ne $myConn) -and ($myConn.State -eq [System.Data.ConnectionState]::Open))
+{
+    # Nothing -- already logged an error
 }

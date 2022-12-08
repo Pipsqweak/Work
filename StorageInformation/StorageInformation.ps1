@@ -1,119 +1,144 @@
 ﻿class DataObject
 {
-    [DateTime] $whenCollected
-    [System.Object] $sourceObject = $null
+    [System.Object] $_sourceObject = $null
+    hidden [System.String] $_identity
 
-    DataObject([System.Object] $sourceObject, [DateTime] $whenCollected)
+    DataObject([System.Object] $sourceObject)
     {
-        $this.sourceObject = $sourceObject
-        $this.whenCollected = $whenCollected
+        if ($null -eq $sourceObject)
+        {
+            throw "Missing sourceObject in DataObject."
+        } `
+        else # NOT ($null -eq $sourceObject)
+        {
+            # Nothing.
+        }
+
+        $this._sourceObject = $sourceObject
+
+        # .Identity psuedo property
+        $this | Add-Member -Name Identity -MemberType ScriptProperty -Value {
+            return $this._identity
+        } -SecondValue {
+            param($value)
+            $this._identity = $value
+        }
+
+        # .Name psuedo property  (use -Force to override in inherited classes)
+        $this | Add-Member -Name Name -MemberType ScriptProperty -Value {
+            if (-not [String]::IsNullOrEmpty($this._sourceObject.Name))
+            {
+                return $this._sourceObject.Name
+            } `
+            else # NOT (-not [String]::IsNullOrEmpty($this._sourceObject.Name))
+            {
+                return [String]::Empty
+            }
+        }
     }
 }
 
 class NetAppObject : DataObject
 {
-    NetAppObject([System.Object] $sourceObject, [DateTime] $whenCollected) : base($sourceObject, $whenCollected)
+    NetAppObject([System.Object] $sourceObject) : base($sourceObject)
     {
-    }
+        if ($null -eq $sourceObject.NcController)
+        {
+            throw "Null NcController property in NetAppObject ctor."
+        } `
+        else # NOT ($null -eq $sourceObject.NcController)
+        {
+            # Nothing.
+        }
 
-    [System.Guid] UUID()
-    {
-        return [System.Guid]::Empty
-    }
-
-    [String] Name()
-    {
-        return [String]::Empty
+        # .ControllerName psuedo property
+        $this | Add-Member -Name ControllerName -MemberType ScriptProperty -Value {
+            if (-not [String]::IsNullOrEmpty($this._sourceObject.NcController.Name))
+            {
+                return ($this._sourceObject.NCController.Name -split '\.')[0].ToUpper()
+            } `
+            else # NOT (-not [String]::IsNullOrEmpty($this._sourceObject.NcController.Name))
+            {
+                return [String]::Empty;
+            }
+        }
     }
 }
 
 
 class NetAppCluster : NetAppObject
 {
-    [System.String] $location
-    [System.String] $serialNumber
-    [System.String] $contact
-
-    NetAppCluster([DataONTAP.C.Types.Cluster.ClusterIdentityInfo] $clusterInfo, [DateTime] $whenCollected) : base($clusterInfo, $whenCollected)
+    NetAppCluster([DataONTAP.C.Types.Cluster.ClusterIdentityInfo] $clusterInfo) : base($clusterInfo)
     {
-        if($null -ne $clusterInfo)
-        {
-            try
-            {
-                $this.location = $clusterInfo.ClusterLocation
-                $this.serialNumber = $clusterInfo.ClusterSerialNumber
-                $this.contact = $clusterInfo.ClusterContact
-            }
-            catch
-            {
-                throw
-            }
+        # .UUID psuedo property
+        $this | Add-Member -Name UUID -MemberType ScriptProperty -Value {
+            return $this._sourceObject.ClusterUuid
         }
-        else
-        {
-            # Missing cluster
+
+        # .Location psuedo property
+        $this | Add-Member -Name Location -MemberType ScriptProperty -Value {
+            return $this._sourceObject.ClusterLocation
         }
-    }
 
-    [System.Guid] UUID()
-    {
-        return [System.Guid]::Parse(([DataONTAP.C.Types.Cluster.ClusterIdentityInfo] $this.sourceObject).ClusterUuid)
-    }
+        # .SerialNumber psuedo property
+        $this | Add-Member -Name SerialNumber -MemberType ScriptProperty -Value {
+            return $this._sourceObject.ClusterSerialNumber
+        }
 
-    [String] Name()
-    {
-        return ([DataONTAP.C.Types.Cluster.ClusterIdentityInfo] $this.sourceObject).ClusterName
-    }
+        # .Contact psuedo property
+        $this | Add-Member -Name Contact -MemberType ScriptProperty -Value {
+            return $this._sourceObject.ClusterContact
+        }
 
-
-    [String] Location()
-    {
-        return ([DataONTAP.C.Types.Cluster.ClusterIdentityInfo] $this.sourceObject).ClusterName
+        # .Name psuedo property
+        $this | Add-Member -Force -Name Name -MemberType ScriptProperty -Value {
+            return $this.ControllerName
+        }
     }
 }
 
 class NetAppClusterObject : NetAppObject
 {
-    [NetAppCluster] $cluster
+    [NetAppCluster] $_cluster
 
-    NetAppClusterObject([NetAppCluster] $cluster, [DateTime] $whenCollected) : base($whenCollected)
+    NetAppClusterObject([NetAppObject] $srcObject, [NetAppCluster] $cluster) : base($srcObject)
     {
-        if($null -ne $cluster)
-        {
-            $this.cluster = $cluster
+        # .Cluster psuedo property
+        $this | Add-Member -Name Cluster -MemberType ScriptProperty -Value {
+            return $this._cluster
+        } -SecondValue {
+            param($value)
+
+            if ($null -ne $value)
+            {
+                $this._cluster = $value
+            } `
+            else # NOT ($null -ne $value)
+            {
+                throw "Missing cluster in NetAppClusterObject ctor."
+            }
         }
-        else
-        {
-            # Missing cluster
-            throw "Missing cluster in NetAppClusterObject"
-        }
+
+        $this.Cluster = $cluster
     }
 }
 
 class NetAppVServer : NetAppClusterObject
 {
-    [System.String] $type
-
-    NetAppVServer([NetAppCluster] $cluster, [DataONTAP.C.Types.Vserver.VserverInfo] $vServer, [DateTime] $whenCollected) : base($cluster, $whenCollected)
+    NetAppVServer([NetAppCluster] $cluster, [DataONTAP.C.Types.Vserver.VserverInfo] $vServer) : base($vServer, $cluster)
     {
-        if($null -ne $vServer)
-        {
-            if($cluster.Name -eq $vServer.NcController.Name)
-            {
-                $this.uuid = [System.Guid]::new($vServer.Uuid)
-                $this.name = $vServer.VserverName
-                $this.type = $vServer.VserverType
-            }
-            else
-            {
-                # $cluster.Name -ne $vServer.NcController.Name
-                throw ("Cluster name mismatch in NetAppVServer.  cluster name: {0}, vserver controller name: {1}" -f @($cluster.Name, $vServer.NcController.Name))
-            }
+        # .Type psuedo property
+        $this | Add-Member -Force -Name Type -MemberType ScriptProperty -Value {
+            return $this._sourceObject.VserverType
         }
-        else
+
+        if ($cluster.ControllerName -ne $this.ControllerName)
         {
-            # Missing vServer
-            throw "Missing vServer in NetAppVServer"
+            throw ("Cluster Object mismatch in NetAppVServer ctor.  Cluster controller name: {0}, VServer controller name: {1}" -f @($cluster.ControllerName, $this.ControllerName))
+        } `
+        else # NOT ($cluster.ControllerName -ne $this.ControllerName)
+        {
+            # Nothing.
         }
     }
 }
@@ -124,7 +149,7 @@ class NetAppAggregate : NetAppClusterObject
     [Int64] $used
     [Int64] $available
 
-    NetAppAggregate([NetAppCluster] $cluster, [DataONTAP.C.Types.Aggr.AggrAttributes] $aggregate, [DateTime] $whenCollected) : base($cluster, $whenCollected)
+    NetAppAggregate([NetAppCluster] $cluster, [DataONTAP.C.Types.Aggr.AggrAttributes] $aggregate) : base($cluster)
     {
         if($null -ne $aggregate)
         {
@@ -153,8 +178,19 @@ class NetAppVolume : NetAppObject
     NEED TO ADD SNAPLOCKED...
 #>
 
-    NetAppVolume([NetAppVServer] $vServer, [NetAppAggregate] $aggregate, [DataONTAP.C.Types.Volume.VolumeAttributes] $volume, [DateTime] $whenCollected) : base($whenCollected)
+    NetAppVolume([NetAppVServer] $vServer, [NetAppAggregate] $aggregate, [DataONTAP.C.Types.Volume.VolumeAttributes] $volume) : base($volume)
     {
+        $this | Add-Member -Name UUID -MemberType ScriptProperty -Value {
+            if (($null -ne $this._sourceObject) -and ($null -ne $this._sourceObject.VolumeIdAttributes))
+            {
+                return $this._sourceObject.VolumeIdAttributes.UUID
+            } `
+            else # NOT ($null -ne $this._sourceObject)
+            {
+                return [String]::Empty
+            }
+        }
+
         if($null -ne $vServer)
         {
             if($null -ne $aggregate)
@@ -186,7 +222,7 @@ class NetAppSnapmirror : DataObject
     [NetAppVolume] $source
     [NetAppVolume] $destination
 
-    NetAppSnapmirror([NetAppVolume] $source, [NetAppVolume] $destination, [DateTime] $whenCollected) : base($whenCollected)
+    NetAppSnapmirror([NetAppVolume] $source, [NetAppVolume] $destination) : base()
     {
         if($null -ne $source)
         {
@@ -220,7 +256,7 @@ class NetAppSnapshot : DataObject
     [Int64] $cumulativeTotal
     [Int64] $total
 
-    NetAppSnapshot([NetAppVolume] $volume, [DataONTAP.C.Types.Snapshot.SnapshotInfo] $snapshot, [DateTime] $whenCollected) : base($whenCollected)
+    NetAppSnapshot([NetAppVolume] $volume, [DataONTAP.C.Types.Snapshot.SnapshotInfo] $snapshot) : base()
     {
         if($null -ne $volume)
         {
@@ -271,7 +307,7 @@ class NetAppShare : DataObject
     [String] $path = [String]::Empty
     [String] $name = [String]::Empty
 
-    NetAppShare([NetAppVolume] $volume, [DataONTAP.C.Types.Cifs.CifsShare] $share, [DateTime] $whenCollected) : base($whenCollected)
+    NetAppShare([NetAppVolume] $volume, [DataONTAP.C.Types.Cifs.CifsShare] $share) : base()
     {
         if($null -ne $volume)
         {
@@ -299,7 +335,7 @@ class VMWareDatastore : DataObject
     [String] $path = [String]::Empty
     [String] $name = [String]::Empty
 
-    VMWareDatastore([NetAppVolume] $volume, [VMware.VimAutomation.ViCore.Impl.V1.DatastoreManagement.NasDatastoreImpl] $datastore, [DateTime] $whenCollected) : base($whenCollected)
+    VMWareDatastore([NetAppVolume] $volume, [VMware.VimAutomation.ViCore.Impl.V1.DatastoreManagement.NasDatastoreImpl] $datastore) : base()
     {
         if($null -ne $volume)
         {

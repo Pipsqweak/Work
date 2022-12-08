@@ -1,7 +1,7 @@
 USE [StorageInformation]
 GO
 
-/****** Object:  Table [dbo].[DataCollectionRuns]    Script Date: 6/7/2021 2:23:34 PM ******/
+/****** Object:  Table [dbo].[DataCollectionRuns]    Script Date: 11/1/2022 1:34:55 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -9,7 +9,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 CREATE TABLE [dbo].[DataCollectionRuns](
-	[ID] [int] IDENTITY(1,1) NOT NULL,
+	[ID] [int] NOT NULL,
 	[CollectionDT] [datetime] NULL,
  CONSTRAINT [PK_DataCollectionRuns] PRIMARY KEY CLUSTERED 
 (

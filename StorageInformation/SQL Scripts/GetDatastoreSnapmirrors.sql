@@ -1,49 +1,41 @@
 /****** Script for SelectTopNRows command from SSMS  ******/
 SELECT
-	  SnapmirrorData.RunID
-	, SourceClusters.Name AS SourceCluster
+	  SourceClusters.Name AS SourceCluster
 	, SourceVServers.Name AS SourceVServer
 	, SourceVolumes.Name AS SourceVolume
-	, SourceVolumeData.Size AS SourceVolumeSize
-	, SourceVolumeData.Used AS SourceVolumeUsed
-	, SourceVolumeData.Available AS SourceVolumeAvailable
-	, SourceVolumeData.IsSnaplockProtected AS SourceVolumeIsSnaplockProtected
+	, svd.Size AS SourceVolumeSize
+	, svd.Used AS SourceVolumeUsed
+	, svd.Available AS SourceVolumeAvailable
+	, svd.IsSnaplockProtected AS SourceVolumeIsSnaplockProtected
 	, SourceDatastores.Name AS SourceDatastore
 	, DestinationClusters.Name AS DestinationCluster
 	, DestinationVServers.Name AS DestinationVServer
 	, DestinationVolumes.Name AS DestinationVolume
-	, DestinationVolumeData.Size AS DestinationVolumeSize
-	, DestinationVolumeData.Used AS DestinationVolumeUsed
-	, DestinationVolumeData.Available AS DestinationVolumeAvailable
-	, DestinationVolumeData.IsSnaplockProtected AS DestinationVolumeIsSnaplockProtected
+	, dvd.Size AS DestinationVolumeSize
+	, dvd.Used AS DestinationVolumeUsed
+	, dvd.Available AS DestinationVolumeAvailable
+	, dvd.IsSnaplockProtected AS DestinationVolumeIsSnaplockProtected
 	, DestinationDatastores.Name AS DestinationDatastore
 FROM
-	Volumes AS SourceVolumes
-		INNER JOIN SnapmirrorData ON SourceVolumes.UUID = SnapmirrorData.SourceVolumeUUID
-		INNER JOIN VServers AS SourceVServers ON SourceVolumes.VServerUUID = SourceVServers.UUID
-		INNER JOIN Clusters AS SourceClusters ON SourceVServers.ClusterUUID = SourceClusters.UUID
-		INNER JOIN VolumeData AS SourceVolumeData ON (SnapmirrorData.RunID = SourceVolumeData.RunID) AND (SourceVolumes.UUID = SourceVolumeData.VolumeUUID)
-		INNER JOIN Volumes AS DestinationVolumes ON DestinationVolumes.UUID = SnapmirrorData.DestinationVolumeUUID
-		INNER JOIN VServers AS DestinationVServers ON DestinationVolumes.VServerUUID = DestinationVServers.UUID
-		INNER JOIN Clusters AS DestinationClusters ON DestinationVServers.ClusterUUID = DestinationClusters.UUID
-		INNER JOIN VolumeData AS DestinationVolumeData ON (SnapmirrorData.RunID = DestinationVolumeData.RunID) AND (DestinationVolumes.UUID = DestinationVolumeData.VolumeUUID)
-		LEFT  JOIN DatastoreData AS SourceDatastoreData ON (SnapmirrorData.RunID = SourceDatastoreData.RunID) AND (SourceVolumeUUID = SourceDatastoreData.VolumeUUID)
-		INNER JOIN Datastores AS SourceDatastores ON SourceDatastoreData.DatastoreID = SourceDatastores.ID
-		LEFT  JOIN DatastoreData AS DestinationDatastoreData ON (SnapmirrorData.RunID = DestinationDatastoreData.RunID) AND (DestinationVolumeUUID = DestinationDatastoreData.VolumeUUID)
-		LEFT  JOIN Datastores AS DestinationDatastores ON DestinationDatastoreData.DatastoreID = DestinationDatastores.ID
+	SnapMirrorData smd
+		INNER JOIN VolumeData svd ON (smd.SourceVolumeUUID = svd.VolumeUUID) AND (smd.RunID = svd.RunID)
+		INNER JOIN VolumeData dvd ON (smd.DestinationVolumeUUID = dvd.VolumeUUID) AND (smd.RunID = dvd.RunID)
+		INNER JOIN Volumes SourceVolumes ON svd.VolumeUUID = SourceVolumes.UUID
+		INNER JOIN Volumes DestinationVolumes ON dvd.VolumeUUID = DestinationVolumes.UUID
+		INNER JOIN VServers SourceVServers ON svd.vServerUUID = SourceVServers.UUID
+		INNER JOIN VServers DestinationVServers ON dvd.vServerUUID = DestinationVServers.UUID
+		INNER JOIN Clusters SourceClusters ON SourceVServers.ClusterUUID = SourceClusters.UUID
+		INNER JOIN Clusters DestinationClusters ON DestinationVServers.ClusterUUID = DestinationClusters.UUID
+		INNER JOIN DatastoreData SourceDatastoreData ON (smd.RunID = SourceDatastoreData.RunID) AND (smd.SourceVolumeUUID = SourceDatastoreData.VolumeUUID)
+		LEFT  JOIN DatastoreData DestinationDatastoreData ON (smd.RunID = DestinationDatastoreData.RunID) AND (smd.DestinationVolumeUUID = DestinationDatastoreData.VolumeUUID)
+		INNER JOIN Datastores SourceDatastores ON SourceDatastoreData.DatastoreID = SourceDatastores.ID
+		LEFT  JOIN Datastores DestinationDatastores ON DestinationDatastoreData.DatastoreID = DestinationDatastores.ID
 WHERE
---    (SnapmirrorData.RunID = 15)
-	(SnapmirrorData.RunID = (
-		SELECT 
-			TOP 1 ID AS MaxRunID
-		FROM
-			DataCollectionRuns
-		ORDER BY ID DESC
-	))
+	smd.RunID = (SELECT MAX(ID) as RunID FROM DataCollectionRuns as MaxRunID)
 	-- AND
 	-- (SourceDatastoreData.DatastoreID IS NOT NULL)	
 ORDER BY
-	  SnapmirrorData.RunID
+	  SourceDatastore
     , SourceCluster
 	, SourceVServer
 	, SourceVolume

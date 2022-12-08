@@ -1,6 +1,10 @@
 {
-    "LogPath":  "E:\\Scripts\\SnaplockReporter\\Logs",
+    "LogPath":  "E:\\Scripts\\StorageReporter\\Logs",
     "LogsToKeep":  14,
+    "Database": {
+        "Server": "CDC-NTAPMGMT01\\SQLExpress",
+        "Name": "StorageInformation"
+    },
     "Filers":  {
                    "CDOT":  {
                                 "UserName":  "POWERENG\\SRVC-AllStorage-RO",
