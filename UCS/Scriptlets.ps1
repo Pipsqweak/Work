@@ -29,11 +29,37 @@ Complete-UcsTransaction
 
 $ucsManagers = @($labUCS, $cdcUCS, $ddcUCS)
 $basePath = "E:\UCS Backups\"
+$ucsManagerKeys = @($ucsManagers.Keys)
 $a = 0
-while($a -lt $ucsManagers.Length)
+while($a -lt $ucsManagerKeys.Length)
 {
-    $mo = Backup-Ucs -Type config-all -PathPattern ($basePath + '${ucs}\${yyyy}${MM}${dd}-${HH}${mm}-config-all.xml') -Ucs $ucsManagers[$a] -Xml
-    $mo = Backup-Ucs -Type full-state -PathPattern ($basePath + '${ucs}\${yyyy}${MM}${dd}-${HH}${mm}-full-state.bak') -Ucs $ucsManagers[$a]
+    $ucs = $ucsManagers[$ucsManagerKeys[$a]]
+    Write-Host ("Backing up UCS: {0}..." -f @($ucs.Ucs))
+    foreach($b in @("config-all", "full-state"))
+    {
+        if ($b -eq "config-all")
+        {
+            $ext = "xml"
+            $isXML = $true
+        } `
+        else # NOT ($b -eq "config-all")
+        {
+            $ext = "bak"
+            $isXML = $false
+        }
+        $pathPattern = "{0}`${{ucs}}\`${{yyyy}}`${{MM}}`${{dd}}-`${{HH}}`${{mm}}-{1}.{2}" -f @($basePath, $b, $ext)
+        Write-Host -NoNewline ("`t{0}..." -f @($b))
+        try
+        {
+            $mo = Backup-Ucs -Type $b -PathPattern $pathPattern -Ucs $ucs -Xml:$isXML | Out-Null
+            Write-Host -ForegroundColor Gray "complete"
+        }
+        catch
+        {
+            Write-Host -ForegroundColor Red "failed"
+        }
+    }
+    # $mo = Backup-Ucs -Type full-state -PathPattern ($basePath + '${ucs}\${yyyy}${MM}${dd}-${HH}${mm}-full-state.bak') -Ucs $ucsManagers[$a]
 
     $a++
 }
@@ -82,6 +108,25 @@ $primarySwitch = Add-UcsVnicTemplate -Ucs $ucs -Descr $primarySwitchDescr -Ident
 $secondarySwitch = Add-UcsVnicTemplate -Ucs $ucs -Descr $secondarySwitchDescr -IdentPoolName $macPoolName -Name $secondarySwitchName -NwCtrlPolicyName $netCtrlPolicy -PeerRedundancyTemplName $primarySwitchName -RedundancyPairType "secondary" -SwitchId $secondarySwitchID -TemplType "updating-template" -Target "adaptor" -CdnSource "vnic-name" -Mtu $mtu
 #Complete-UcsTransaction -Ucs $ucs
 
+# Add VLAN Group to vNIC Template
+
+Start-UcsTransaction
+$mo = Get-UcsOrg -Level root  | Add-UcsVnicTemplate -ModifyPresent  -Name "TestPrim"
+$mo_1 = Get-UcsOrg -Level root | Get-UcsVnicTemplate -Name "TestPrim" -LimitScope | Get-UcsFabricNetGroupRef -Name "DMZ-GUEST" | Set-UcsManagedObject -PropertyMap @{}
+Complete-UcsTransaction
+
+
+# From Powershell 7.3.2 w/Cisco Module:
+
+
+
+$rootOrg = Get-UcsOrg -Ucs $ucs -Level root
+$vNICTemplate = Get-UcsVnicTemplate -Org $rootOrg -Name "TestPrim" -LimitScope
+$vlGrp = Get-UcsFabricNetGroup -Ucs $ucs -Name "DMZ-GUEST"
+Set-UcsManagedObject -PropertyMap @{}
+Get-UcsFabricNetGroupRef -Name "DMZ-GUEST" | Set-UcsManagedObject -PropertyMap @{}
+Get-UcsFabricNetGroupRef -Name "DMZ-GUEST"
+Set-UcsManagedObject -Ucs $ucs -
 
 
 # Remove vNIC template
@@ -326,12 +371,12 @@ Start-UcsTransaction
 $rootOrg = Get-UcsOrg -Level root
 $serviceTemplate = $rootOrg | Add-UcsServiceProfile -BiosProfileName "PEI-BIOS-Policy" -BootPolicyName "M.2-Boot" -HostFwPolicyName "Latest" -IdentPoolName "CDC-UCSPE-UUID" -MaintPolicyName "USERACK" -Name "VMWare.Int.M2" -PowerPolicyName "NOCAP" -ScrubPolicyName "NOSCRUB" -SolPolicyName "SERIALOVERLAN" -Type "updating-template"
 $mo_1 = $serviceTemplate | Add-UcsLogicalStorageProfileBinding -StorageProfileName "M.2-RAID1"
-$mo_2 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName "" -Mtu 1500 -Name "INT.VMNMGT.BA" -NwCtrlPolicyName "" -NwTemplName "INT.VMNMGT.BA" -Order "2" -PinToGroupName "" -QosPolicyName "" -StatsPolicyName "default" -SwitchId "A"
-$mo_3 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "VMWare" -Name "INT.MGTVMN.AB" -NwTemplName "INT.MGTVMN.AB" -Order "1" -SwitchId "A-B"
-$mo_4 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName "" -Mtu 1500 -Name "INT.STG.BX" -NwCtrlPolicyName "" -NwTemplName "INT.STG.BX" -Order "4" -PinToGroupName "" -QosPolicyName "" -StatsPolicyName "default" -SwitchId "A"
-$mo_5 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "VMWare" -Name "INT.STG.AX" -NwTemplName "INT.STG.AX" -Order "3"
-$mo_6 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName "" -Mtu 1500 -Name "INT.GST.BX" -NwCtrlPolicyName "" -NwTemplName "INT.GST.BX" -Order "6" -PinToGroupName "" -QosPolicyName "" -StatsPolicyName "default" -SwitchId "A"
-$mo_7 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "VMWare" -Name "INT.GST.AX" -NwTemplName "INT.GST.AX" -Order "5"
+$mo_2 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName "" -Mtu 1500 -Name "VMNMGT.INT.BA" -NwCtrlPolicyName "" -NwTemplName "VMNMGT.INT.BA" -Order "2" -PinToGroupName "" -QosPolicyName "" -StatsPolicyName "default" -SwitchId "A"
+$mo_3 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "VMWare" -Name "MGTVMN.INT.AB" -NwTemplName "MGTVMN.INT.AB" -Order "1" -SwitchId "A-B"
+$mo_4 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName "" -Mtu 1500 -Name "STG.INT.BX" -NwCtrlPolicyName "" -NwTemplName "STG.INT.BX" -Order "4" -PinToGroupName "" -QosPolicyName "" -StatsPolicyName "default" -SwitchId "A"
+$mo_5 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "VMWare" -Name "STG.INT.AX" -NwTemplName "STG.INT.AX" -Order "3"
+$mo_6 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "" -Addr "derived" -AdminCdnName "" -AdminHostPort "ANY" -AdminVcon "any" -CdnPropInSync "yes" -CdnSource "vnic-name" -IdentPoolName "" -Mtu 1500 -Name "GST.INT.BX" -NwCtrlPolicyName "" -NwTemplName "GST.INT.BX" -Order "6" -PinToGroupName "" -QosPolicyName "" -StatsPolicyName "default" -SwitchId "A"
+$mo_7 = $serviceTemplate | Add-UcsVnic -AdaptorProfileName "VMWare" -Name "GST.INT.AX" -NwTemplName "GST.INT.AX" -Order "5"
 $mo_8 = $serviceTemplate | Add-UcsVnicFcNode -ModifyPresent -Addr "pool-derived" -IdentPoolName "node-default"
 $mo_9 = $serviceTemplate | Add-UcsVnicDefBeh -ModifyPresent -Action "none" -Descr "" -Name "" -NwTemplName "" -PolicyOwner "local" -Type "vhba"
 $mo_10 = $serviceTemplate | Add-UcsFabricVCon -ModifyPresent -Fabric "NONE" -Id "1" -InstType "auto" -Placement "physical" -Select "all" -Share "shared" -Transport "ethernet","fc"
@@ -354,7 +399,7 @@ $trash = Send-UcsFirmware -Ucs $ch3UCS -LiteralPath $fileName | Watch-Ucs -Prope
 
 
 # Change HTTPS to TLSv1.2
-Add-UcsManagedObject -ModifyPresent  -ClassId CommHttps -PropertyMap @{Dn="sys/svc-ext/https-svc"; AllowedSSLProtocols="tlsv1_2"; }
+Add-UcsManagedObject -Ucs $ny7UCS -ModifyPresent  -ClassId CommHttps -PropertyMap @{Dn="sys/svc-ext/https-svc"; AllowedSSLProtocols="tlsv1_2"; }
 
 # Create LDAP Provider...
 Start-UcsTransaction
@@ -394,6 +439,18 @@ Start-UcsTransaction
 $mo = Add-UcsAuthDomain -Name "powereng.com"
 $mo_1 = $mo | Set-UcsAuthDomainDefaultAuth -Descr "" -Name "" -ProviderGroup "POWERENG DCs" -Realm "ldap" -Use2Factor "no"
 Complete-UcsTransaction
+
+# Set syslog...
+
+Start-UcsTransaction
+Get-UcsSvcEp | Get-UcsSyslog | Add-UcsManagedObject -ModifyPresent  -ClassId CommSyslogClient -PropertyMap @{Hostname="statseeker.powereng.com"; AdminState="enabled"; Name="primary"; ForwardingFacility="local0"; Severity="warnings"; }
+Get-UcsSvcEp | Get-UcsSyslog | Add-UcsManagedObject -ModifyPresent  -ClassId CommSyslogClient -PropertyMap @{Hostname="exabmcol.powereng.com"; AdminState="enabled"; Name="secondary"; ForwardingFacility="local6"; Severity="warnings"; }
+Complete-UcsTransaction
+
+
+# Create Service Profiles from service profile template.
+Get-UcsOrg -Level root | Get-UcsServiceProfile -Name "VMWare.DMZ.M2" -LimitScope | Add-UcsServiceProfileFromTemplate -NewName @("DA11Z-ESX-C1-B1","DA11Z-ESX-C1-B2") -DestinationOrg "org-root"
+
 
 
 $volData = @($vols | Select-Object @{N="Cluster";E={@($_.NcController.Name -split '\.')[0].ToUpper()}}, Vserver, Name, Aggregate, TotalSize, @{N="Used";E={$_.TotalSize - $_.Available}}, Available, Encrypt, @{N="UUID"; E={$_.VolumeIdAttributes.Uuid}})
@@ -618,3 +675,85 @@ $spec.Scheduler.Hour = (Get-Date -Hour 5).ToUniversalTime().Hour
 $spec.Scheduler.Interval = "1"
 $spec.Action = New-Object VMware.Vim.MethodAction
 $spec.Action.Name = "RebootGuest"
+
+
+# Create new volume... (VMware datastore)
+$userSpace = 1200GB
+$ssReservePercent = 30
+# Parameters to create a new volume:
+$newVolumeParams = @{
+    Controller = $cdcCDOT
+    VserverContext = "CDC-SVMA01"
+    JunctionPath = "/VMware/cdc_VCTR_DR_SATA_01"
+    Name = "vol_DR_vmware_VCTR_SATA_01"
+    Size = ($userSpace / (100.0 - $ssReservePercent))
+    Aggregate = "aggr_SNAPLOCK_CDC_NASA02_SATA_01"
+    ExportPolicy = "exp_vmware_internal_nfs_01"
+    JunctionActive = $true
+    SecurityStyle = "unix"
+    SnapshotPolicy = "clst_snp_Daily_12AM_7_Retained"
+    SpaceReserve = "none"
+    Type = "rw"
+    SnapshotReserve = $ssReservePercent
+    Language = "en_US.UTF-8"
+}
+
+$newVol = New-NcVol @newVolumeParams
+
+
+function Shutdown-VM
+{
+    [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
+    [VMware.VimAutomation.ViCore.Impl.V1.VIServerImpl] $viServer,
+
+    [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=2)]
+    [String] $vmCluster,
+
+    [Parameter(Mandatory=$false, ValueFromPipeline=$false, Position=3)]
+    [Switch] $takeAction
+
+    try
+    {
+        $cluster = Get-Cluster -Server $viServer -Name $vmCluster -ErrorAction Stop
+
+        $clusterVMs = @()
+
+        try
+        {
+            $vm = Get-VM -Server $viServer -Name $vmData[$a].VMName -ErrorAction Stop
+            if($null -ne $vm)
+            {
+                if($vm.PowerState -ne "PoweredOff")
+                {
+                    Write-Host -ForegroundColor Yellow ("Shutting down VM: {0}..." -f @($vmData[$a].VMName))
+                    if(-not $takeAction)
+                    {
+                        Write-Host -ForegroundColor Yellow "`tSimulated"
+                    }
+                    else
+                    {
+                        try
+                        {
+                            Stop-VMGuest -VM $vm -Server $viServer -Confirm:$false -ErrorAction Stop | Out-Null
+                        }
+                        catch
+                        {
+                            Write-Host -ForegroundColor Red ("Failed to shutdown VM: {0}" -f @($vm.Name))
+                        }
+                    }
+                }
+                else
+                {
+                    Write-Host -ForegroundColor Green ("VM: {0} is already powered off." -f @($vm.Name))
+                }
+            }
+            else
+            {
+                Write-Host -ForegroundColor Red ("Could not locate VM: {0}." -f @($vmData[$a].VMName))
+            }
+    }
+    catch
+    {
+        Write-Host -ForegroundColor Red ("Could not locate VM: {0}." -f @($vmData[$a].VMName))
+    }
+}

@@ -1,5 +1,14 @@
-$aRecords = Get-DnsServerResourceRecord -ComputerName "CDC-DC01" -ZoneName "powereng.com" -RRType A
-$ptrRecords = Get-DnsServerResourceRecord -ComputerName "CDC-DC01" -ZoneName "10.in-addr.arpa" -RRType Ptr
+<#
+    This is the script I use to sync Dan's IPAM changes to DNS...  Start at line 50!
+        Just update line: 152: $myRows = $ipamDT.Rows | Where-Object { $_.address.StartsWith("10.236.") -or $_.address.StartsWith("151.122.192.") -or $_.address.StartsWith("151.122.193.")}
+#>
+
+
+$dnsServer = "cdc-dc01.powereng.com"
+
+$aRecords = Get-DnsServerResourceRecord -ComputerName $dnsServer -ZoneName "powereng.com" -RRType A
+$ptrRecords = Get-DnsServerResourceRecord -ComputerName $dnsServer -ZoneName "10.in-addr.arpa" -RRType Ptr
+
 $ipamRecords = Import-CSV -Delimiter "," -LiteralPath "C:\Users\kbriney-adm\Tmp\ipamrecords.csv"
 
 $ttl = [TimeSpan]::new(1,0,0)
@@ -38,9 +47,13 @@ while($a -lt $ipamRecords.Length)
     $a++
 }
 
-$dnsServer = "CDC-DC01"
+$dnsServer = "cdc-dc01.powereng.com"
 
-. .\Log.ps1   # Once the [Log] class is loaded
+
+# To load powereng-dev.local, rerun loading the A and PTR records with after:  Note, have to be authenticated to powereng-dev.local first...
+# $dnsServer = "DDCD-DC01"
+
+. .\Log.ps1
 
 $logPath = "{0}\SyncIPAMDNS.log" -f @($env:TEMP)
 [Log]::Init($logPath, "SyncIPAMDNS", 14, 1, [LogLevel]::INFO)
@@ -60,7 +73,9 @@ $dbConnectionString = "Server={0};Port={1};Database={2};Uid={3};Pwd={4};Default 
 #  Make a connection to the database
 $ipamDB = [MySQLDBConnection]::new($dbConnectionString)
 
+Write-Host "Loading IPAM data..."
 $ipamDT = $ipamDB.GetDataTable("select h.hostname, INET_NTOA(h.ip) as address, cnce2.entry as aZone, cnce3.entry as ptrZone from host h inner join net n on h.red_num = n.red_num left join custom_net_column_entries cnce2 on (n.red_num = cnce2.net_id) and (cnce2.cc_id = 2) left join custom_net_column_entries cnce3 on (n.red_num = cnce3.net_id) and (cnce3.cc_id = 3) where h.hostname <> '' order by h.ip;")
+Write-Host ("Loaded {0} IPAM records." -f @($ipamDT.Rows.Count))
 
 $aRecordZoneNames = @($ipamDT | Select-Object -Unique -ExpandProperty aZone | Where-Object { -not [String]::IsNullOrEmpty($_) })
 $ptrZoneNames = @($ipamDT | Select-Object -Unique -ExpandProperty ptrZone | Where-Object { -not [String]::IsNullOrEmpty($_) })
@@ -133,44 +148,63 @@ while($a -lt $ptrZoneNames.Length)
 
 
     #>
+$badRecs = @()
+$allData = @()
+$myRows = $ipamDT.Rows | Where-Object { $_.address.StartsWith("10.232.") -or $_.address.StartsWith("151.122.160.") -or $_.address.StartsWith("151.122.161.")}
 $a = 0
-while($a -lt $ipamDT.Rows.Count)
+while($a -lt $myRows.Length)
 {
-    $d = "" | Select-Object HostName, Address, HaveAZone, ARecsByName, ARecsByIP, ARecsByNameIncorrectIPs, HavePTRZone, PTRRecsByName, PTRRecsByIP, PTRRecsByNameIncorrectIPs
-    if (-not [String]::IsNullOrEmpty($ipamDT.Rows[$a].hostname))
+    $row = $myRows[$a]
+    $d = "" | Select-Object HostName, Address, AZone, PTRZone, HaveAZone, ARecsByName, ARecsByIP, ARecsByNameIncorrectIPs, HavePTRZone, PTRRecsByName, PTRRecsByIP, PTRRecsByNameIncorrectIPs, ARecsByIPIncorrectNames, PTRRecsByIPIncorrectNames
+    if (-not [String]::IsNullOrEmpty($row.hostname))
     {
-        $d.HostName = $ipamDT.Rows[$a].hostname.ToLower()
+        $d.HostName = $row.hostname.ToLower()
     } `
-    else # NOT (-not [String]::IsNullOrEmpty($ipamDT.Rows[$a].hostname))
+    else # NOT (-not [String]::IsNullOrEmpty($row.hostname))
     {
         # Nothing.
     }
 
-    if (-not [String]::IsNullOrEmpty($ipamDT.Rows[$a].address))
+    if (-not [String]::IsNullOrEmpty($row.address))
     {
-        $d.Address = $ipamDT.Rows[$a].address
+        $d.Address = $row.address
     } `
-    else # NOT (-not [String]::IsNullOrEmpty($ipamDT.Rows[$a].address))
+    else # NOT (-not [String]::IsNullOrEmpty($row.address))
     {
         # Nothing.
     }
-    $d.HaveAZone = -not [String]::IsNullOrEmpty($ipamDT.Rows[$a].aZone)
+    $d.AZone = $row.aZone
+    $d.PTRZone = $row.ptrZone
+    $d.HaveAZone = (-not [String]::IsNullOrEmpty($d.AZone)) -and (@($aRecordCollections.Keys) -contains $d.AZone) -and ($aRecordCollections[$d.AZone].Count -gt 0)
     $d.ARecsByName = @()
     $d.ARecsByIP = @()
-    $d.HavePTRZone = -not [String]::IsNullOrEmpty($ipamDT.Rows[$a].ptrZone)
+    $d.HavePTRZone = (-not [String]::IsNullOrEmpty($d.PTRZone)) -and (@($ptrRecordCollections.Keys) -contains $d.PTRZone) -and ($ptrRecordCollections[$d.PTRZone].Count -gt 0)
     $d.PTRRecsByName = @()
     $d.PTRRecsByIP = @()
+    $d.ARecsByIPIncorrectNames = @()
     $d.ARecsByNameIncorrectIPs = @()
+    $d.PTRRecsByIPIncorrectNames = @()
     $d.PTRRecsByNameIncorrectIPs = @()
 
     if (-not [String]::IsNullOrEmpty($d.HostName))
     {
         if ($d.HaveAZone)
         {
-            $d.ARecsByName = @($aRecordCollections[$ipamDT.Rows[$a].aZone] | Where-Object { $_.HostName -eq $d.HostName })
+            $aRecs = @($aRecordCollections[$d.AZone] | Where-Object { $_.HostName -eq $d.HostName })
 
-            # Check for A records where the record's address does not match IPAM
-            $d.ARecsByNameIncorrectIPs = @($d.ARecsByName | Select-Object -ExpandProperty RecordData | Select-Object -ExpandProperty IPv4Address | Select-Object -ExpandProperty IPAddressToString)
+            $b = 0
+            while($b -lt $aRecs.Length)
+            {
+                if($aRecs[$b].RecordData.IPv4Address.IPAddressToString -eq $d.Address)
+                {
+                    $d.ARecsByName += $aRecs[$b]
+                } `
+                else
+                {
+                    $d.ARecsByNameIncorrectIPs += $aRecs[$b]
+                }
+                $b++
+            }
         } `
         else # NOT ($d.HaveAZone)
         {
@@ -180,34 +214,32 @@ while($a -lt $ipamDT.Rows.Count)
         if ($d.HavePTRZone)
         {
             # working on splitting the PTR zone to get the IP address for the PTR record...Might be another way...
-            $netAddrStart = @($ipamDT.Rows[$a].ptrZone.Replace(".in-addr.arpa","").Split('.'))
+            $netAddrStart = @($d.PTRZone.Replace(".in-addr.arpa","").Split('.'))
             [Array]::Reverse($netAddrStart)
 
-            $ptrDomainName = "{0}.{1}." -f @($d.HostName, $ipamDT.Rows[$a].aZone.ToLower())
-            $d.PTRRecsByName = @($ptrRecordCollections[$ipamDT.Rows[$a].ptrZone] | Where-Object { $_.RecordData.PtrDomainName -eq $ptrDomainName })
+            $ptrDomainName = "{0}.{1}." -f @($d.HostName, $d.AZone.ToLower())
+            $ptrRecs = @($ptrRecordCollections[$d.PTRZone] | Where-Object { $_.RecordData.PtrDomainName -eq $ptrDomainName })
 
             # Check for PTR records where the record's address does not match IPAM
-            $r = 0
-            while($r -lt $d.PTRRecsByName.Length)
+            $b = 0
+            while($b -lt $ptrRecs.Length)
             {
-                $hostAddrOctets = $d.PTRRecsByName[$r].HostName -split '\.'
+                $hostAddrOctets = $ptrRecs[$b].HostName -split '\.'
                 $netAddrStart | Foreach-Object { $hostAddrOctets += $_ }
                 [Array]::Reverse($hostAddrOctets)
                 $ptrRecIPAddress = $hostAddrOctets -join "."
 
-                if ($ipamDT.Rows[$a].address -ne $ptrRecIPAddress)
+                if ($d.Address -eq $ptrRecIPAddress)
                 {
-                    $d.PTRRecsByNameIncorrectIPs += $ptrRecIPAddress
+                    $d.PTRRecsByName += $ptrRecs[$b]
                 } `
-                else # NOT ($ipamDT.Rows[$a].address -ne $ptrRecIPAddress)
+                else
                 {
-                    # Nothing -- Addresses match.
+                    $d.PTRRecsByNameIncorrectIPs += $ptrRecs[$b]
                 }
 
-                $r++
+                $b++
             }
-
-            $d.PTRRecsByNameIncorrectIPs = @($d.PTRRecsByName | Select-Object -ExpandProperty RecordData | Select-Object -ExpandProperty IPv4Address | Select-Object -ExpandProperty IPAddressToString)
         } `
         else # NOT ($d.HavePTRZone)
         {
@@ -223,7 +255,22 @@ while($a -lt $ipamDT.Rows.Count)
     {
         if ($d.HaveAZone)
         {
-            $d.ARecsByIP = @($aRecordCollections[$ipamDT.Rows[$a].aZone] | Where-Object { $_.RecordData.IPv4Address -eq $d.Address })
+            $aRecs = @($aRecordCollections[$d.AZone] | Where-Object { $_.RecordData.IPv4Address -eq $d.Address })
+
+            $b = 0
+            while($b -lt $aRecs.Length)
+            {
+                if($aRecs[$b].HostName -eq $d.HostName)
+                {
+                    $d.ARecsByIP += $aRecs[$b]
+                } `
+                else
+                {
+                    $d.ARecsByIPIncorrectNames += $aRecs[$b]
+                }
+                $b++
+            }
+
         } `
         else # NOT ($d.HaveAZone)
         {
@@ -234,7 +281,21 @@ while($a -lt $ipamDT.Rows.Count)
         {
             $octets = $d.Address -split "\."
             $ptrHostName = "{0}.{1}.{2}" -f @($octets[3], $octets[2], $octets[1])
-            $d.PTRRecsByIP = @($ptrRecordCollections[$ipamDT.Rows[$a].ptrZone] | Where-Object { $_.HostName -eq $ptrHostName })
+            $ptrRecs =  @($ptrRecordCollections[$d.PTRZone] | Where-Object { $_.HostName -eq $ptrHostName })
+            $fqdn = "{0}.{1}." -f @($d.HostName, $d.AZone)
+            $b = 0
+            while($b -lt $ptrRecs.Length)
+            {
+                if($fqdn -eq $ptrRecs[$b].RecordData.PtrDomainName)
+                {
+                    $d.PTRRecsByIP += $ptrRecs[$b]
+                } `
+                else
+                {
+                    $d.PTRRecsByIPIncorrectNames += $ptrRecs[$b]
+                }
+                $b++
+            }
         } `
         else # NOT ($d.HavePTRZone)
         {
@@ -246,7 +307,191 @@ while($a -lt $ipamDT.Rows.Count)
         # Nothing.
     }
 
-    $d
+    if(($d.ARecsByNameIncorrectIPs.Length -ne 0) -or
+        ($d.ARecsByIPIncorrectNames.Length -ne 0) -or
+        (($d.HavePTRZone) -and ($d.PTRRecsByNameIncorrectIPs.Length -ne 0)) -or
+        (($d.HavePTRZone) -and ($d.PTRRecsByIPIncorrectNames.Length -ne 0)) -or
+        ($d.ARecsByName.Length -eq 0) -or
+        ($d.ARecsByIP.Length -eq 0) -or
+        (($d.HavePTRZone) -and ($d.PTRRecsByIP.Length -eq 0)) -or
+        (($d.HavePTRZone) -and ($d.PTRRecsByName.Length -eq 0)))
+    {
+        $badRecs += $d
+    }
+
+    $allData += $d
+    Write-Host ("H: {0}, A:{1}, AZ:{2}, PZ:{3}, ABN:{4} ({5}), ABI:{6} ({7}), PBN:{8} ({9}), PBI:{10} ({11})" -f @(
+        $d.HostName,
+        $d.Address,
+        $d.AZone,
+        $d.PTRZone,
+        $d.ARecsByName.Length,
+        $d.ARecsByNameIncorrectIPs.Length,
+        $d.ARecsByIP.Length,
+        $d.ARecsByIPIncorrectNames.Length,
+        $d.PTRRecsByName.Length,
+        $d.PTRRecsByNameIncorrectIPs.Length,
+        $d.PTRRecsByIP.Length,
+        $d.PTRRecsByIPIncorrectNames.Length))
 
     $a++
 }
+
+$sbCommand = [System.Text.StringBuilder]::new()
+$doAdditions = $true
+$doRemovals = $false
+$a = 0
+while($a -lt $badRecs.Length)
+{
+    $d = $badRecs[$a]
+
+    $z = "" | Select-Object NeedARec, NeedPTRRec
+    $z.NeedARec = $false
+    $z.NeedPTRRec = $false
+
+    $b = 0
+    while($b -lt $d.ARecsByIPIncorrectName.Length)
+    {
+        # Need to remove bad A Record...
+
+        Write-Host ("{4}: Removing A Record (by IP w/Incorrect Name): zone: {0}, IPAM Hostname: {1}, IPAM Address: {2}, A Record IP: {3}" -f @($d.AZone, $d.HostName, $d.Address, $d.ARecsByIPIncorrectName[$b].RecordData.IPv4Address.IPAddressToString, $doRemovals))
+        if($doRemovals)
+        {
+            try
+            {
+                # $d.ARecsByIPIncorrectName[$a] | Remove-DnsServerResourceRecord -ComputerName $dnsServer -ZoneName $d.AZone -Force -ErrorAction Stop
+            }
+            catch { }
+        }
+
+        $b++
+    }
+
+    $b = 0
+    while($b -lt $d.ARecsByNameIncorrectIPs.Length)
+    {
+        # Need to remove bad A Record...
+
+        Write-Host ("{4}: Removing A Record (by IP w/Incorrect Name): zone: {0}, IPAM Hostname: {1}, IPAM Address: {2}, A Record IP: {3}" -f @($d.AZone, $d.HostName, $d.Address, $d.ARecsByNameIncorrectIPs[$b].RecordData.IPv4Address.IPAddressToString, $doRemovals))
+        if($doRemovals)
+        {
+            try
+            {
+                # $d.ARecsByNameIncorrectIP[$a] | Remove-DnsServerResourceRecord -ComputerName $dnsServer -ZoneName $d.AZone -Force -ErrorAction Stop
+            }
+            catch { }
+        }
+        $b++
+    }
+
+    if($d.HavePTRZone)
+    {
+        $b = 0
+        while($b -lt $d.PTRRecsByIPIncorrectName.Length)
+        {
+            # Need to remove bad PTR Record...
+
+            Write-Host ("{4}: Removing PTR Record (by IP w/Incorrect Name): zone: {0}, IPAM Hostname: {1}, IPAM Address: {2}, PTR Record Hostname: {3}" -f @($d.PTRZone, $d.Address, $d.PTRRecsByIPIncorrectName[$b].RecordData.PtrDomainName, $doRemovals))
+            if($doRemovals)
+            {
+                try
+                {
+                    # $d.PTRRecsByIPIncorrectName[$a] | Remove-DnsServerResourceRecord -ComputerName $dnsServer -ZoneName $d.PTRZone -Force
+                }
+                catch { }
+            }
+
+            $b++
+        }
+
+        $b = 0
+        while($b -lt $d.PTRRecsByNameIncorrectIP.Length)
+        {
+            # Need to remove bad PTR Record...
+
+            Write-Host ("{4}: Removing PTR Record (by Name w/Incorrect IP): zone: {0}, IPAM Hostname: {1}, IPAM Address: {2}, PTR Record Hostname: {3}" -f @($d.PTRZone, $d.Address, $d.PTRRecsByNameIncorrectIP[$b].RecordData.PtrDomainName, $doRemovals))
+            if($doRemovals)
+            {
+                try
+                {
+                    # $d.PTRRecsByNameIncorrectIP[$a] | Remove-DnsServerResourceRecord -ComputerName $dnsServer -ZoneName $d.PTRZone -Force -ErrorAction Stop
+                }
+                catch { }
+            }
+
+            $b++
+        }
+    }
+    if(($d.HaveAZone) -and ($d.ARecsByName.Length -eq 0))
+    {
+        # Need to create an A Record
+        $z.NeedARec = $true
+    }
+
+    if(($d.HavePTRZone) -and ($d.PTRRecsByIP.Length -eq 0))
+    {
+        # Need PTR Record
+        $z.NeedPTRRec = $true
+    }
+
+    if($z.NeedARec)
+    {
+        Write-Host -NoNewline ("{2}: Creating A Record for: {0}:{1}" -f @($d.HostName, $d.Address, $doAdditions))
+        if(($d.HavePTRZone) -and ($z.NeedPTRRec))
+        {
+            Write-Host -NoNewline " with PTR record"
+        }
+        Write-Host
+
+        if($doAdditions)
+        {
+            try
+            {
+                # Add-DnsServerResourceRecordA -ComputerName $dnsServer -ZoneName $d.AZone -Name $d.HostName -IPv4Address ([IPAddress]::Parse($d.Address)) -TimeToLive ([TimeSpan]::new(0,10,0)) -AgeRecord -CreatePtr:($d.HavePTRZone -and $z.NeedPTRRec) -ErrorAction Stop
+                [void] $sbCommand.AppendLine( ("Add-DnsServerResourceRecordA -ComputerName `"{0}`" -ZoneName `"{1}`" -Name `"{2}`" -IPv4Address `"{3}`" -TimeToLive {4} -AgeRecord -CreatePtr:`${5} -ErrorAction Stop" -f @($dnsServer, $d.AZone, $d.HostName, ([IPAddress]::Parse($d.Address)), ([TimeSpan]::new(0,10,0)), ($d.HavePTRZone -and $z.NeedPTRRec))) )
+                $z.NeedARec = $false
+                $z.NeedPTRRec = $false  # Created the PTR record when the A record was created, so we no longer need a PTR record (if we did to start with)
+            }
+            catch
+            {
+                Write-Host -ForegroundColor Red ("Failed to created A record for: {0}:{1}" -f @($d.HostName, $d.Address))
+            }
+        }
+    }
+
+    if($d.HavePTRZone)
+    {
+        if($z.NeedPTRRec)
+        {
+            $octets = $d.Address -split "\."
+            $netName = $d.PTRZone.Replace(".in-addr.arpa","")
+            $netNameOctets = $netName -split "\."
+
+            $ptrHostNameSB = [System.Text.StringBuilder]::new()
+            for($o = 3; $o -ge $netNameOctets.Length; $o--)
+            {
+                [void] $ptrHostNameSB.Append(("{0}." -f $($octets[$o])))
+            }
+            $ptrHostName = $ptrHostNameSB.ToString().TrimEnd(@('.'))
+
+            $ptrDomainName = "{0}.{1}." -f @($d.HostName, $d.AZone.ToLower())
+            Write-Host ("{4}: Creating PTR Record for: {0}:{1} [{2}:{3}]" -f @($d.HostName, $d.Address, $ptrHostName, $ptrDomainName, $doAdditions))
+            if($doAdditions)
+            {
+                try
+                {
+                    # Add-DnsServerResourceRecordPtr -ComputerName $dnsServer -ZoneName $d.PTRZone -Name $ptrHostName -PtrDomainName $ptrDomainName -TimeToLive ([TimeSpan]::new(0,10,0)) -AgeRecord -ErrorAction Stop
+                    [void] $sbCommand.AppendLine(("Add-DnsServerResourceRecordPtr -ComputerName `"{0}`" -ZoneName `"{1}`" -Name `"{2}`" -PtrDomainName `"{3}`" -TimeToLive `"{4}`" -AgeRecord -ErrorAction Stop" -f @($dnsServer, $d.PTRZone, $ptrHostName, $ptrDomainName, ([TimeSpan]::new(0,10,0)))))
+                }
+                catch
+                {
+                    Write-Host -ForegroundColor Red ("Failed to created PTR record for: {0}:{1} [{2}:{3}]" -f @($d.HostName, $d.Address, $ptrHostName, $ptrDomainName))
+                }
+            }
+        }
+    }
+
+    $a++
+}
+
+$sbCommand.ToString() | Set-Clipboard

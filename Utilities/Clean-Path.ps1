@@ -78,6 +78,11 @@ Configuration file: E:\Scripts\TempTest\Clean-Path-DoesNotExist.json does not ex
 Author: Briney, Ken
 Date: 30 Oct 2020
 Version: 1.0
+
+Changes:
+    16 Mar 2022 KLB
+
+    Updated code to convert \\server\share listed in folder exclusions to \\?\UNC\server\share.
 #>
 
 [CmdLetBinding(SupportsShouldProcess)]
@@ -100,60 +105,84 @@ function Log
     Param(
         # Message to log
         [Parameter(
-            Mandatory=$true,
+            Mandatory=$false,
             Position=0)]
         [String] $logMessage,
 
         [Parameter(
             Mandatory=$false,
             Position=1)]
-        [String] $msgLevel = [String]::Empty
+        [String] $msgLevel = [String]::Empty,
+
+        [Parameter(
+            Mandatory=$false,
+            Position=2)]
+        [Switch] $Flush
     )
 
-    $Error.Clear()
-
-    # Create a formatted string to log .. and replace any \\?\UNC\ with \\
-    if(-not [String]::IsNullOrEmpty($msgLevel))
+    if($null -eq $Global:sbLogBuffer)
     {
-        $fmtMessage = "{0}: {1}: {2}" -f @([DateTime]::Now.ToString("yyyyMMdd HHmmss.fff"), $msgLevel, $logMessage.Replace("\\?\UNC\","\\"))
-    }
-    else
-    {
-        $fmtMessage = "{0}: {1}" -f @([DateTime]::Now.ToString("yyyyMMdd HHmmss.fff"), $logMessage.Replace("\\?\UNC\","\\"))
+        $Global:sbLogBuffer = [System.Text.StringBuilder]::new()
     }
 
-    $retries = 0
-    do
-    {
-        $fmtMessage | Out-File -FilePath $Global:logFile -Append -Encoding ascii -WhatIf:$false -ErrorAction SilentlyContinue
+    # $Error.Clear()
 
-        # If an error occurred while trying to append to the log, pause for 50ms, and retry until the retry attempts are exceeded.
-        if(-not $?)
+    if(-not [String]::IsNullOrEmpty($logMessage))
+    {
+        # Create a formatted string to log .. and replace any \\?\UNC\ with \\
+
+        #   If an error is being logged, add "ERROR" to the message...
+        if(-not [String]::IsNullOrEmpty($msgLevel))
         {
-            Start-Sleep -Milliseconds 50
+            $fmtMessage = "{0}: {1}: {2}" -f @([DateTime]::Now.ToString("yyyyMMdd HHmmss.fff"), $msgLevel, $logMessage.Replace("\\?\UNC\","\\"))
+
+            # Is this an error?  If so, save the message so it can be emailed to concerned citizens.
+            if($msglevel -eq "ERROR")
+            {
+                # Has the global alert data stringbuilder been created?
+                if($null -eq $Global:sbAlertData)
+                {
+                    # Nope, create it.
+                    $Global:sbAlertData = [System.Text.StringBuilder]::new()
+                }
+                else
+                {
+                    # Nothing, the alert data stringbuilder has already been created.
+                }
+
+                # Append the error message to the alert stringbuilder
+                [void] $Global:sbAlertData.AppendLine($fmtMessage)
+            }
         }
         else
         {
-            # Nothing, the message was successfully appended to the log.
+            $fmtMessage = "{0}: {1}" -f @([DateTime]::Now.ToString("yyyyMMdd HHmmss.fff"), $logMessage.Replace("\\?\UNC\","\\"))
         }
-    } while((-not $?) -and ($retries -lt 10))
 
-    # Is this an error?  If so, save the message so it can be emailed to concerned citizens.
-    if($msglevel -eq "ERROR")
+        [void] $Global:sbLogBuffer.AppendLine($fmtMessage)
+    }
+
+    # Flush the log buffer to disk if requested to do so, or the buffer has grown enough...
+    if(($Flush -and ($Global:sbLogBuffer.Length -gt 0)) -or ($Global:sbLogBuffer.Length -ge 2048))
     {
-        # Has the global alert data stringbuilder been created?
-        if($null -eq $Global:sbAlertData)
+        $retries = 0
+        $outStr = $Global:sbLogBuffer.ToString().Trim()
+        do
         {
-            # Nope, create it.
-            $Global:sbAlertData = [System.Text.StringBuilder]::new()
-        }
-        else
-        {
-            # Nothing, the alert data stringbuilder has already been created.
-        }
+            $retries++
+            try
+            {
+                $outStr | Out-File -FilePath $Global:logFile -Append -Encoding ascii -ErrorAction Stop
 
-        # Append the error message to the alert stringbuilder
-        [void] $Global:sbAlertData.AppendLine($fmtMessage)
+                # Reset the buffer...
+                [void] $Global:sbLogBuffer.Clear()
+            }
+            catch
+            {
+                # If an error occurred while trying to append to the log, pause for 50ms, and retry until the retry attempts are exceeded.
+                Start-Sleep -Milliseconds 50
+            }
+        } until (($Global:sbLogBuffer.Length -eq 0) -or ($retries -eq 10))
     }
 }
 
@@ -475,21 +504,25 @@ function BuildExclusions
             {
                 $exclusion = $exclusion.Replace("{{PATHROOT}}", $uncPathToClean)
             }
+            elseif($exclusion -match '\\\\([^\\\?]+)\\(.+)$')   # is $exclusion a \\server\share?  Just making sure it isn't already \\?\\UNC\server\share
+            {
+                $exclusion = "\\?\UNC\{0}\{1}" -f @($Matches[1], $Matches[2])
+            }
 
             $fixedExclusions.Add($exclusion)
         }
     }
     else
     {
-        Log "Null/empty path to clean passed to BuildExclusions."
+        Log -logMessage "Null/empty path to clean passed to BuildExclusions."
         throw "Null/empty path to clean passed to BuildExclusions."
     }
 
-    Log ("`t{0} exclusions:" -f @($label))
+    Log -logMessage ("`t{0} exclusions:" -f @($label))
 
     for($a = 0; $a -lt $fixedExclusions.Count; $a++)
     {
-        Log ("`t`t  {0}" -f @($fixedExclusions[$a]))
+        Log -logMessage ("`t`t  {0}" -f @($fixedExclusions[$a]))
     }
 
     return @( ,$fixedExclusions)
@@ -505,7 +538,7 @@ function GetFoldersAndFiles
         [String] $uncPathToClean
     )
 
-    Log "`tGetting files and folders..."
+    Log -logMessage "`tGetting files and folders..." -Flush
 
     $files = [System.Collections.Generic.List[System.IO.FileInfo]]::new()
     $folders = [System.Collections.Generic.List[System.IO.FileInfo]]::new()
@@ -541,12 +574,12 @@ function GetFoldersAndFiles
     }
     else
     {
-        Log "Null/empty path to clean passed to GetFoldersAndFiles."
+        Log -logMessage "Null/empty path to clean passed to GetFoldersAndFiles."
         throw "Null/empty path to clean passed to GetFoldersAndFiles."
     }
 
-    Log ("`tFolders: {0}" -f @($folders.Count))
-    Log ("`t  Files: {0}" -f @($files.Count))
+    Log -logMessage ("`tFolders: {0}" -f @($folders.Count))
+    Log -logMessage ("`t  Files: {0}" -f @($files.Count))
 
     return @($folders, $files)
 }
@@ -593,13 +626,13 @@ function DeleteOldFiles
             if(($file.LastAccessTime -lt $oldDateTime) -or ($file.CreationTime -lt $oldDateTime))
             {
                 # Do we need to update $deletedFileCount and $deletedFilesByFolder?
-                $captureDeletedFile = $true
+                $captureDeletedFile = $false
 
                 # To avoid problems trying to remove a file that may have been removed since the list of files and folders was obtained, let's make sure the
                 #   file still exists.
                 if([System.IO.File]::Exists($file.FullName))
                 {
-                    Log ("Deleting file: Created: {1} (-{2,4}), Last Written: {3} (-{4,4}), Last Accessed: {5} (-{6,4}) [{0}]" -f @(
+                    Log -logMessage ("Deleting file: Created: {1} (-{2,4}), Last Written: {3} (-{4,4}), Last Accessed: {5} (-{6,4}) [{0}]" -f @(
                         $file.FullName,
                         $file.CreationTime.ToString("yyyyMMdd hh:mm:ss"),
                         ([DateTime]::Now - $file.CreationTime).Days,
@@ -613,12 +646,22 @@ function DeleteOldFiles
                         try
                         {
                             $Error.Clear()
-                            # $file.Delete()
+
+                            # NOTE: If a file is read-only, .Delete() fails, so first clear the read-only flag if it's set...
+                            if(($file.Attributes -band [System.IO.FileAttributes]::ReadOnly) -eq [System.IO.FileAttributes]::ReadOnly)
+                            {
+                                Log ("Removing Read-Only flag from {0}" -f @($file.FullName))
+                                # .Attributes is a get/set property, so just changing the value will be reflected to the FS.
+                                $file.Attributes = $file.Attributes -band (-bnot [System.IO.FileAttributes]::ReadOnly)
+                            }
+
+                            $file.Delete()
+                            $captureDeletedFile = $true
                         }
                         catch
                         {
-                            Log ("Failed to delete file: {0}" -f @($file.FullName)) "ERROR"
-                            Log ($Error[0].ToString()) "ERROR"
+                            Log -logMessage ("Failed to delete file: {0}" -f @($file.FullName)) -msgLevel "ERROR"
+                            Log -logMessage ($Error[0].ToString()) -msgLevel "ERROR"
                             $captureDeletedFile = $false
                         }
                     }
@@ -634,15 +677,18 @@ function DeleteOldFiles
                     # Still need to add the file to the list of files that were deleted since it no longer exists, so leave $captureDeletedFile set to $true
                 }
 
+                # If the file was successfully deleted, track it.
                 if($captureDeletedFile)
                 {
                     $deletedFileCount++
+                    # Deleted files are grouped by directory, so if there is no directory "key", create a new list for the directory
                     if(-not $deletedFilesByFolder.ContainsKey($file.DirectoryName))
                     {
                         $newFileNameList = [System.Collections.Generic.List[String]]::new()
                         $deletedFilesByFolder.Add($file.DirectoryName, $newFileNameList)
                     }
 
+                    # Add the file to the directories list of deleted files
                     $i = $deletedFilesByFolder[$file.DirectoryName].BinarySearch($file.FullName)
                     if($i -lt 0)
                     {
@@ -657,7 +703,7 @@ function DeleteOldFiles
         }
         else
         {
-            Log ("Excluding file: {0}" -f @($file.FullName))
+            # Log -logMessage ("Excluding file: {0}" -f @($file.FullName))
         }
         $f++
     }
@@ -694,15 +740,15 @@ function RemoveEmptySubFolders
     $removedFoldersCount = 0
 
     <#
-        It might be considered to use the list of files and folder obtained above to determine if a given folder is empty after files are cleaned.
+        It might be considered to use the list of files and folders obtained above to determine if a given folder is empty after files are cleaned.
         However, I feel this is a bad design since a file or subfolder could have been added to the folder after the initial list was created.  So, I've
         decided, even though this will be a bit slower, it's safer
     #>
 
-    # Sorted Dictionary of removed subfolder, used to determine if subfolder remaining in a folder "should" have been deleted.
+    # Sorted dictionary of removed subfolder -- used to determine if subfolders remaining in a folder "should" have been deleted.
     $deletedFoldersByFolder = [System.Collections.Generic.SortedDictionary[String, [System.Collections.Generic.List[String]]]]::new()
 
-    Log "Scanning for empty folders..."
+    Log -logMessage "Scanning for empty folders..."
     $f = 0
     while($f -lt $folders.Count)
     {
@@ -800,22 +846,38 @@ function RemoveEmptySubFolders
                     if([System.IO.Directory]::Exists($folder.FullName))
                     {
                         # Do we need to update $deletedFileCount and $deletedFilesByFolder?
-                        $captureDeletedFolder = $true
+                        $captureDeletedFolder = $false
 
-                        Log ("Removing folder: {0}" -f @($folder.FullName))
+                        Log -logMessage ("Removing folder: {0}" -f @($folder.FullName))
 
                         if($PSCmdlet.ShouldProcess($folder.FullName, "Remove folder"))
                         {
                             try
                             {
                                 $Error.Clear()
-                                # $folder.Delete()
+
+                                # $folder, at this point is a [System.IO.FileInfo] object, and we cannot delete a folder using a FileInfo object.
+                                #   So create a [System.IO.DirectoryInfo] object from $folder.FullName, then call .Delete() for it.
+
+                                $di = [System.IO.DirectoryInfo]::new($folder.FullName)
+
+                                # NOTE: If a folder is read-only, .Delete() fails, so first clear the read-only flag if it's set...
+                                if(($di.Attributes -band [System.IO.FileAttributes]::ReadOnly) -eq [System.IO.FileAttributes]::ReadOnly)
+                                {
+                                    Log ("Removing Read-Only flag from {0}" -f @($di.FullName))
+
+                                    # .Attributes is a get/set property, so just changing the value will be reflected to the FS.
+                                    $di.Attributes = $di.Attributes -band (-bnot [System.IO.FileAttributes]::ReadOnly)
+                                }
+
+                                $di.Delete()
+                                $captureDeletedFolder = $true
                             }
                             catch
                             {
                                 Log ("Failed to remove subfolder: {0}" -f @($folder.FullName)) "ERROR"
-                                Log ($Error[0].ToString()) "ERROR"
-                                $captureDeletedFolder = $false
+                                $eStr = $Error | Out-String
+                                Log $eStr "ERROR"
                             }
                         }
                         else
@@ -848,7 +910,7 @@ function RemoveEmptySubFolders
         }
         else
         {
-            Log ("Excluding folder: {0}" -f @($folder.FullName))
+            # Log -logMessage ("Excluding folder: {0}" -f @($folder.FullName))
         }
 
         $f++
@@ -902,121 +964,175 @@ function SendAlertReport
     }
     catch
     {
-        Log "Failed to send alert email."
+        Log -logMessage "Failed to send alert email."
         Write-Error "Failed to send alert email."
         throw
     }
 }
 
+# Suppress the Test-NetConnection progress bar...
+$Global:ProgressPreference = 'SilentlyContinue'
 # Just some performance stuff...
 $scriptStartTime = [DateTime]::Now
 $sw = [System.Diagnostics.Stopwatch]::new()
 $elapsedTimes = @()
 
+# Start with a default log file just in case the script fails to parse the config file.
+# Create a log file name -- using a global scoped variable so each call to "Log" does not have to include the log file name.
+$logFileTimestamp = [DateTime]::Now.ToString("yyyyMMdd-HHmm")
+$Global:logFile = "E:\Scripts\Logs\Clean-Path\{0}-{1}.log" -f @(($MyInvocation.MyCommand.Name -replace ".ps1",""), $logFileTimestamp)
+
+# Create some default variables...
+$smtpServer = "smtp.powereng.com"
+$alertSubject = "Files and Folders cleaner error report."
+$senderAddress = "Path Cleaner <pathcleaner@powereng.com>"
+$alertRecipients = @(
+    "IT Storage <itstorage@powereng.com>"
+)
+
 if(-not [System.IO.File]::Exists($configFile))
 {
-    Write-Error ("Configuration file: {0} does not exist, or access is denied." -f @($configFile))
-    break
+    Log -logMessage ("Configuration file: {0} does not exist, or access is denied." -f @($configFile)) -msgLevel "ERROR"
 }
-
-# Load configuration data and sanity check it.
-$configData = ParseConfigFile $configFile
-if($null -eq $configData)
+else
 {
-    break
+    # Load configuration data and sanity check it.
+    $configData = ParseConfigFile $configFile
+    if($null -eq $configData)
+    {
+        Log -logMessage ("Failed to parse config file: {0}" -f @($configFile)) -msgLevel "ERROR"
+        Log -logMessage ($Error[0].ToString()) -msgLevel "ERROR"
+    }
+    else
+    {
+        # Create a log file name -- using a global scoped variable so each call to "Log" does not have to include the log file name.
+        $tempLogFile = "{0}\{1}-{2}.log" -f @($configData.PathToLogs, ($MyInvocation.MyCommand.Name -replace ".ps1",""), $logFileTimestamp)
+        if($tempLogFile -ne $Global:logFile)
+        {
+            Move-Item -Path $Global:logFile -Destination $tempLogFile -Force -Confirm:$false
+        }
+        $Global:logFile = $tempLogFile
+
+        Log -logMessage ("{0} -configFile `"{1}`"" -f @($MyInvocation.MyCommand.Name, $configFile))
+
+        # Update default variables...
+        $smtpServer = $configData.SMTPServer
+        $alertSubject = $configData.AlertSubject
+        $senderAddress = $configData.SenderAddress
+        $alertRecipients = $configData.AlertRecipients
+
+        # How old do files/folders need to be to be removed?
+        $oldDateTime = [DateTime]::Now.AddDays(-1 * $configData.MaxAge)
+
+        # Now, clean each path ...
+        $p = 0
+        while($p -lt $configData.PathsToClean.Length)
+        {
+            # Restart the stopwatch
+            [void] $sw.Restart()
+
+            $pathToClean = $configData.PathsToClean[$p].ToUpper()
+
+            # Strip off any ending [System.IO.Path]::DirectorySeparatorChar
+            while($pathToClean.EndsWith([System.IO.Path]::DirectorySeparatorChar))
+            {
+                $pathToClean = $pathToClean.Substring(0, $pathToClean.Length - 1)
+            }
+
+            # If there are riverbeds between where the script is running and the path being checked, we have to try at least twice...
+            $retries = 0
+            $pathExists = $false
+            do
+            {
+                $retries++
+
+                try
+                {
+                    # Makes sure $pathToClean exists and the script has access to it
+                    $pathExists = [System.IO.Directory]::Exists($pathToClean)
+                    if(-not $pathExists)
+                    {
+                        Start-Sleep -Milliseconds 50
+                    }
+                }
+                catch
+                {
+                    Start-Sleep -Milliseconds 100
+                }
+            } until (($retries -eq 3) -or $pathExists)
+
+            if(-not $pathExists)
+            {
+                Log -logMessage ("Path does not exist, or access is denied: {0}.  Skipped" -f @($pathToClean)) -msgLevel "ERROR"
+            }
+            else
+            {
+                Log -logMessage ("Processing {0}..." -f @($pathToClean))
+
+                # Change $pathToClean so unicode API calls are used, which are long path safe
+                $uncPathToClean = $pathToClean -replace '^(\\\\([^\\]+))','\\?\UNC\$2'
+
+                # List of files and folders to exclude from cleansing.
+                #   Before a file or folder is removed, the appropriate list checked.  To be a successful match,
+                #   the FULLNAME of the file or folder must contain (not case sensitive) any string in the list.
+                #      Example: If the string ange\ScanFi is added to the folder exclusions list, then any folder whose FULLNAME
+                #               contains "ange\ScanFi" anywhere in it will match, and thus be skipped.
+                #
+                # Note: I started with a single exclusions list, then realized, files and folder might be handled differently, yeah, like "Scanfiles"...
+                #       I need to clean old files from ScanFiles, but do not delete any subfolders from it.
+                #
+                #       So, for files AND folder to be excluded, you'll need to add the string to BOTH exclusion lists.
+                $folderExclusions = BuildExclusions $configData.FolderExclusions $uncPathToClean "Folder"
+                $fileExclusions = BuildExclusions $configData.FileExclusions $uncPathToClean "File"
+
+                # Get a list of all files and folder in $uncPathToClean
+                $folders, $files = GetFoldersAndFiles $uncPathToClean
+
+                # Delete old files.  Return the count of deleted files and a sorted dictionary of files deleted by folder.
+                #   The dictionary of deleted files is needed by RemoveEmptySubFolders to determine if files "should" have been
+                #   deleted, but were not due to the use of -WhatIf
+                $deletedFileCount, $deletedFilesByFolder = DeleteOldFiles $files $oldDateTime $fileExclusions
+
+                <#
+                    Reminder: $folders needs to be sorted in descending order by full name so the directory tree is walked backward.  In other words, check all child folders before the parent.
+                #>
+
+                # Remove empty subfolders and return the count of removed subfolders
+                $removedFoldersCount = RemoveEmptySubFolders $folders $oldDateTime $folderExclusions $deletedFilesByFolder
+
+                # Just more performance stuff
+                $sw.Stop()
+                $elapsedData = "" | Select-Object Path, Elapsed, RemovedFiles, RemovedFolders
+                $elapsedData.Path = $uncPathToClean.Replace("\\?\UNC","\")
+                $elapsedData.Elapsed = $sw.Elapsed.ToString()
+                $elapsedData.RemovedFiles = $deletedFileCount
+                $elapsedData.RemovedFolders = $removedFoldersCount
+                $elapsedTimes += $elapsedData
+
+                Log -logMessage ("Removed files: {0}" -f @($elapsedData.RemovedFiles))
+                Log -logMessage ("Removed folders: {0}" -f @($elapsedData.RemovedFolders))
+                Log -logMessage ("Elapsed: {0}" -f @($elapsedData.Elapsed))
+            }
+            $p++
+        }
+
+        $elapsedTimes = $elapsedTimes | Sort-Object Elapsed | ForEach-Object { Log -logMessage ("Path: {0}`tElapsed: {1}`tRemoved Folders: {2}`tRemoved Files: {3}" -f $($_.Path, $_.Elapsed, $_.RemovedFolders, $_.RemovedFiles)) }
+
+        # Just some performance info..
+        $scriptEndTime = [DateTime]::Now
+        $elapsed = $scriptEndTime - $scriptStartTime
+        Log -logMessage ("Overall Elapsed: {0}" -f @($elapsed.ToString()))
+    }
 }
 
-# Create a log file name -- using a global scoped variable so each call to "Log" does not have to include the log file name.
-$Global:logFile = "{0}\{1}-{2}.log" -f @($configData.PathToLogs, ($MyInvocation.MyCommand.Name -replace ".ps1",""), [DateTime]::Now.ToString("yyyyMMdd-HHmm"))
-
-Log ("{0} -configFile `"{1}`"" -f @($MyInvocation.MyCommand.Name, $configFile))
-
-# How old do files/folders need to be to be removed?
-$oldDateTime = [DateTime]::Now.AddDays(-1 * $configData.MaxAge)
-
-# Now, clean each path ...
-$p = 0
-while($p -lt $configData.PathsToClean.Length)
-{
-    # Restart the stopwatch
-    [void] $sw.Restart()
-
-    $pathToClean = $configData.PathsToClean[$p].ToUpper()
-
-    # Strip off any ending [System.IO.Path]::DirectorySeparatorChar
-    while($pathToClean.EndsWith([System.IO.Path]::DirectorySeparatorChar))
-    {
-        $pathToClean = $pathToClean.Substring(0, $pathToClean.Length - 1)
-    }
-
-    # Makes sure $pathToClean exists and the script has access to it
-    if(-not [System.IO.Directory]::Exists($pathToClean))
-    {
-        Log ("Path does not exist, or access is denied: {0}.  Skipped" -f @($pathToClean)) "ERROR"
-        continue    # To the next path to clean
-    }
-
-    Log ("Processing {0}..." -f @($pathToClean))
-
-    # Change $pathToClean so unicode API calls are used, which are long path safe
-    $uncPathToClean = $pathToClean -replace '^(\\\\([^\\]+))','\\?\UNC\$2'
-
-    # List of files and folders to exclude from cleansing.
-    #   Before a file or folder is removed, the appropriate list checked.  To be a successful match,
-    #   the FULLNAME of the file or folder must contain (not case sensitive) any string in the list.
-    #      Example: If the string ange\ScanFi is added to the folder exclusions list, then any folder whose FULLNAME
-    #               contains "ange\ScanFi" anywhere in it will match, and thus be skipped.
-    #
-    # Note: I started with a single exclusions list, then realized, files and folder might be handled differently, yeah, like "Scanfiles"...
-    #       I need to clean old files from ScanFiles, but do not delete any subfolders from it.
-    #
-    #       So, for files AND folder to be excluded, you'll need to add the string to BOTH exclusion lists.
-    $folderExclusions = BuildExclusions $configData.FolderExclusions $uncPathToClean "Folder"
-    $fileExclusions = BuildExclusions $configData.FileExclusions $uncPathToClean "File"
-
-    # Get a list of all files and folder in $uncPathToClean
-    $folders, $files = GetFoldersAndFiles $uncPathToClean
-
-    # Delete old files.  Return the count of deleted files and a sorted dictionary of files deleted by folder.
-    #   The dictionary of deleted files is needed by RemoveEmptySubFolders to determine if files "should" have been
-    #   deleted, but were not due to the use of -WhatIf
-    $deletedFileCount, $deletedFilesByFolder = DeleteOldFiles $files $oldDateTime $fileExclusions
-
-    <#
-        Reminder: $folders needs to be sorted in descending order by full name so the directory tree is walked backward.  In other words, check all child folders before the parent.
-    #>
-
-    # Remove empty subfolders and return the count of removed subfolders
-    $removedFoldersCount = RemoveEmptySubFolders $folders $oldDateTime $folderExclusions $deletedFilesByFolder
-
-    # Just more performance stuff
-    $sw.Stop()
-    $elapsedData = "" | Select-Object Path, Elapsed, RemovedFiles, RemovedFolders
-    $elapsedData.Path = $uncPathToClean.Replace("\\?\UNC","\")
-    $elapsedData.Elapsed = $sw.Elapsed.ToString()
-    $elapsedData.RemovedFiles = $deletedFileCount
-    $elapsedData.RemovedFolders = $removedFoldersCount
-    $elapsedTimes += $elapsedData
-
-    Log ("Removed files: {0}" -f @($elapsedData.RemovedFiles))
-    Log ("Removed folders: {0}" -f @($elapsedData.RemovedFolders))
-    Log ("Elapsed: {0}" -f @($elapsedData.Elapsed))
-
-    $p++
-}
-
-$elapsedTimes = $elapsedTimes | Sort-Object Elapsed | ForEach-Object { Log ("Path: {0}`tElapsed: {1}`tRemoved Folders: {2}`tRemoved Files: {3}" -f $($_.Path, $_.Elapsed, $_.RemovedFolders, $_.RemovedFiles)) }
-
-# Just some performance info..
-$scriptEndTime = [DateTime]::Now
-$elapsed = $scriptEndTime - $scriptStartTime
-Log ("Overall Elapsed: {0}" -f @($elapsed.ToString()))
+# Make sure the log output is flushed to disk...
+Log -Flush
 
 # Are there any alert messages to send?
 if($null -ne $Global:sbAlertData)
 {
     # Ah, yep...
-    SendAlertReport $configData.SMTPServer $configData.AlertSubject $configData.SenderAddress $configData.AlertRecipients $Global:sbAlertData.ToString()
+    SendAlertReport $smtpServer $alertSubject $senderAddress $alertRecipients $Global:sbAlertData.ToString()
 }
 else
 {

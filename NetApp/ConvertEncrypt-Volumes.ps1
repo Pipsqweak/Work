@@ -1,4 +1,4 @@
-if(($null -ne $cdot) -and (-not ($cdot.ContainsKey('CDC-CDOTCLST01'))))
+if(($null -eq $cdot) -or (($null -ne $cdot) -and (-not ($cdot.ContainsKey('CDC-CDOTCLST01')))))
 {
     Write-Verbose ("Connecting to CDC CDOT...")
     ConnectTo cdc,cdot,prod
@@ -126,8 +126,8 @@ function GetVolumeData
 }
 
 # Start with good volume data...
-$encryptableVolumesByController = [System.Collections.Generic.SortedDictionary[[System.String],[System.Object]]]::new()
-$unencryptedEncryptableVolumesByController = [System.Collections.Generic.SortedDictionary[[System.String],[System.Object]]]::new()
+$Global:encryptableVolumesByController = [System.Collections.Generic.SortedDictionary[[System.String],[System.Object]]]::new()
+$Global:unencryptedEncryptableVolumesByController = [System.Collections.Generic.SortedDictionary[[System.String],[System.Object]]]::new()
 
 Write-Verbose ("Refreshing volume data...")
 $controllers | Foreach-Object { Write-Verbose ("`t{0}..." -f @($_.Name)); [void] (GetVolumeData $_) }
@@ -162,7 +162,7 @@ do
     # If there are any unencrypted volumes left...
     if ($totalUnencryptedEncryptableVolumes -gt 0)
     {
-        $controllerEncryptionProgress["OVERALL"].Status = "{0}% Complete ({1} of {2} Volumes encrypted or being converted)" -f @($controllerEncryptionProgress["OVERALL"].PercentComplete, ($totalEncryptableVolumes - $totalUnencryptedEncryptableVolumes), $totalEncryptableVolumes)
+        $controllerEncryptionProgress["OVERALL"].Status = "{0}% Complete ({1} of {2} Encryptable volumes encrypted or being converted)" -f @($controllerEncryptionProgress["OVERALL"].PercentComplete, ($totalEncryptableVolumes - $totalUnencryptedEncryptableVolumes), $totalEncryptableVolumes)
 #        Write-Progress -ParentId $controllerEncryptionProgress["OVERALL"].ParentId -Id $controllerEncryptionProgress["OVERALL"].Id -Activity $controllerEncryptionProgress["OVERALL"].Activity -Status $controllerEncryptionProgress["OVERALL"].Status -PercentComplete $controllerEncryptionProgress["OVERALL"].PercentComplete
 
         $a = 0
@@ -343,7 +343,15 @@ do
 
                     try
                     {
-                        $etcTS = [TimeSpan]::new(0,0,0,0,($elapsedPerMS * 100))
+                        if(($elapsedPerMS * 100) -gt [System.Int32]::MaxValue)
+                        {
+                            # Less accurate, but should not throw an exception...
+                            $etcTS = [TimeSpan]::new(0,0,0,($elapsedPerMS / 10), 0)
+                        }
+                        else
+                        {
+                            $etcTS = [TimeSpan]::new(0,0,0,0,($elapsedPerMS * 100))
+                        }
 
                         $etc = $progress.StartTime + $etcTS
                         $progress.ETC = $etc.ToString("yyyy-MM-dd HH\:mm\:ss")
@@ -364,7 +372,7 @@ do
                 } `
                 else # NOT ($null -ne $progress.StartTime)
                 {
-                    $progress.Status = "{0}% Complete ({1} of {2} Volumes encrypted or being converted)" -f @($progress.PercentComplete, ($totalEncryptableVolumes - $totalUnencryptedEncryptableVolumes), $totalEncryptableVolumes)
+                    $progress.Status = "{0}% Complete ({1} of {2} Encryptable volumes encrypted or being converted)" -f @($progress.PercentComplete, ($totalEncryptableVolumes - $totalUnencryptedEncryptableVolumes), $totalEncryptableVolumes)
                 }
     #Write-Host ("Write-Progress -ParentId {0} -Id {1} -Activity {2} -Status {3} -PercentComplete {4}" -f @($progress.ParentId, $progress.Id , $progress.Activity, $progress.Status, $progress.PercentComplete))
                 Write-Progress -ParentId $progress.ParentId -Id $progress.Id -Activity $progress.Activity -Status $progress.Status -PercentComplete $progress.PercentComplete

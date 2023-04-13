@@ -1,0 +1,158 @@
+[------------- Sending Request to Server ------------
+
+<configResolveDns
+cookie="1677532084/8f4487eb-cf0e-4127-b88e-aa80bf7e852f"
+inHierarchical="false">
+    <inDns>
+<dn value="org-root/nwctrl-STANDARD"/>
+<dn value="org-root/thr-policy-default"/>
+    </inDns>
+</configResolveDns>
+
+<configResolveChildren
+cookie="1677532084/8f4487eb-cf0e-4127-b88e-aa80bf7e852f"
+classId="macpoolPool"
+inDn="org-root"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1677532084/8f4487eb-cf0e-4127-b88e-aa80bf7e852f"
+classId="epqosDefinition"
+inDn="org-root"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1677532084/8f4487eb-cf0e-4127-b88e-aa80bf7e852f"
+classId="nwctrlDefinition"
+inDn="org-root"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveClass
+cookie="1677532084/8f4487eb-cf0e-4127-b88e-aa80bf7e852f"
+classId="fabricLanPinGroup"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveClass>
+
+<configResolveChildren
+cookie="1677532084/8f4487eb-cf0e-4127-b88e-aa80bf7e852f"
+classId="statsThresholdPolicy"
+inDn="org-root"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1677532084/8f4487eb-cf0e-4127-b88e-aa80bf7e852f"
+classId="vnicDynamicConPolicyRef"
+inDn="org-root/lan-conn-templ-TestPrim"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1677532084/8f4487eb-cf0e-4127-b88e-aa80bf7e852f"
+classId="vnicUsnicConPolicyRef"
+inDn="org-root/lan-conn-templ-TestPrim"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1677532084/8f4487eb-cf0e-4127-b88e-aa80bf7e852f"
+classId="vnicVmqConPolicyRef"
+inDn="org-root/lan-conn-templ-TestPrim"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1677532084/8f4487eb-cf0e-4127-b88e-aa80bf7e852f"
+classId="vnicDynamicConPolicy"
+inDn="org-root"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveClass
+cookie="1677532084/8f4487eb-cf0e-4127-b88e-aa80bf7e852f"
+classId="fabricNetGroup"
+inHierarchical="false">
+    <inFilter>
+<eq class="fabricNetGroup" property="type" value="mgmt"/>
+    </inFilter>
+</configResolveClass>
+
+<configResolveChildren
+cookie="1677532084/8f4487eb-cf0e-4127-b88e-aa80bf7e852f"
+classId="fabricNetGroupRef"
+inDn="org-root/lan-conn-templ-TestPrim"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configEstimateImpact
+cookie="1677532084/8f4487eb-cf0e-4127-b88e-aa80bf7e852f">
+    <inConfigs>
+<pair key="org-root/lan-conn-templ-TestPrim">
+    <vnicLanConnTempl
+    name="TestPrim"
+    dn="org-root/lan-conn-templ-TestPrim"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+        <fabricNetGroupRef
+        name="DMZ-GUEST"
+        
+        rn="net-group-ref-DMZ-GUEST"
+        
+        
+        sacl="addchild,del,mod">
+        </fabricNetGroupRef>
+    </vnicLanConnTempl>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1677532084/8f4487eb-cf0e-4127-b88e-aa80bf7e852f"
+inHierarchical="false">
+    <inConfigs>
+<pair key="org-root/lan-conn-templ-TestPrim">
+    <vnicLanConnTempl
+    name="TestPrim"
+    dn="org-root/lan-conn-templ-TestPrim"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+        <fabricNetGroupRef
+        name="DMZ-GUEST"
+        
+        rn="net-group-ref-DMZ-GUEST"
+        
+        
+        sacl="addchild,del,mod">
+        </fabricNetGroupRef>
+    </vnicLanConnTempl>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]

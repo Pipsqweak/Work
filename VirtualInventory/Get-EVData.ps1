@@ -1,3 +1,9 @@
+<#
+    20221222 - Updated Collect-IntersightData
+        Changed the way the firmware version was extracted from Intersight for physical compute node.  Instead of just using the "Firmware" property returned from Intersight, for a given compute node,
+        I instead pull a list of all running firmware (only once) then search the list for the boot-loader component with type blade-bios associated with the compute node to determine the firmware package version.
+#>
+
 [CmdLetBinding()]
 Param(
     [Parameter(Mandatory=$true,Position=0)]
@@ -180,6 +186,7 @@ function Collect-IntersightData
         $invCfg
     )
 
+    $packageBundleSuffixes = @('A','B','C')
     [Log]::Info("Collecting Cisco Intersight data...")
 
     # Create an object to collect the data we need.
@@ -207,7 +214,11 @@ function Collect-IntersightData
     #>
 
     $intersightData = @()
-    $ucsManagers = @()
+    $intersightUCSManagers = @()
+
+    # Get a list of all running firmware...
+    $runningFirmware = Query-Intersight $invCfg "Invoke-FirmwareRunningFirmwareApiFirmwareRunningFirmwaresGet"
+
 
     # Get a list of all the device registrations.
     $allDeviceRegistrations = Query-Intersight $invCfg "Invoke-AssetDeviceRegistrationApiAssetDeviceRegistrationsGet"
@@ -230,7 +241,7 @@ function Collect-IntersightData
                 $ucsDataPoint = [EVDataPoint]::new($device)
                 [Log]::Info("`t+UCS Manager: {0}, {1}, {2}, {3}" -f @($ucsDataPoint.Name, $ucsDataPoint.Manufacturer, $ucsDataPoint.Model, $ucsDataPoint.SerialNumber))
                 #$intersightData += $ucsDataPoint
-                $ucsManagers += $ucsDataPoint
+                $intersightUCSManagers += $ucsDataPoint
             }
             else # NOT ($device.PlatformType -eq "UCSFI")
             {
@@ -255,6 +266,21 @@ function Collect-IntersightData
         while((-not $Global:isError) -and ($d -lt $allComputePhysicalSummaries.Count))
         {
             $ucsDataPoint = [EVDataPoint]::new($allComputePhysicalSummaries[$d])
+            $computePhysicalSummaryRunningFirmwarePackageVersion = @($runningFirmware | Where-Object {
+                ($_.Ancestors.Moid -eq $allComputePhysicalSummaries[$d].Moid) -and
+                (-not [String]::IsNullOrEmpty($_.PackageVersion)) -and
+                ($_.Component -eq "boot-loader") -and
+                ($_.Type -eq "blade-bios")
+            }) | Sort-Object PackageVersion | Select-Object -First 1 -Unique -ExpandProperty PackageVersion
+            if (-not [String]::IsNullOrEmpty($computePhysicalSummaryRunningFirmwarePackageVersion))
+            {
+                $computePhysicalSummaryRunningFirmwarePackageVersion = $computePhysicalSummaryRunningFirmwarePackageVersion.TrimEnd($packageBundleSuffixes)
+                $ucsDataPoint.SetCurrentVersion($computePhysicalSummaryRunningFirmwarePackageVersion)
+            } `
+            else # NOT (-not [String]::IsNullOrEmpty($computePhysicalSummaryRunningFirmwarePackageVersion))
+            {
+                # Nothing.
+            }
             [Log]::Info("`t+Server: {0}, {1}, {2}, {3}" -f @($ucsDataPoint.Name, $ucsDataPoint.Manufacturer, $ucsDataPoint.Model, $ucsDataPoint.SerialNumber))
             $intersightData += $ucsDataPoint
             $d++
@@ -275,7 +301,7 @@ function Collect-IntersightData
         while((-not $Global:isError) -and ($d -lt $allChassisSummaries.Count))
         {
             $ucsDataPoint = [EVDataPoint]::new($allChassisSummaries[$d])
-            $manager = $ucsManagers | Where-Object { $ucsDataPoint.Name.StartsWith($_.Name) }
+            $manager = $intersightUCSManagers | Where-Object { $ucsDataPoint.Name.StartsWith($_.Name) }
             if ($null -ne $manager)
             {
                 $ucsDataPoint.SetLocation($manager.Location)
@@ -596,6 +622,31 @@ function Collect-vCenterData
                     [Log]::Warning("Script ended up where is should not be.  {0} is not a registered Cisco or Lenovo server, nor was a EVDataPoint created for it." -f @($vmH.Name))
                 }
 
+                $hostVMS = @(Get-VM -Server $vc -Location $vmh -ErrorAction Stop | Where-Object { ($_.Name -notmatch "^vCLS") -and ($_.GuestId -notmatch "windows" ) -and ($_.PowerState -eq [VMware.VimAutomation.ViCore.Types.V1.Inventory.PowerState]::PoweredOn) })
+                $b = 0
+                while($b -lt $hostVMS.Length)
+                {
+                    # Skip my test VMs :P
+                    if(-not (($hostVMS[$b].Name -match "KLB") -or ($hostVMS[$b].Name -match "UCSPE")))
+                    {
+                        try
+                        {
+                            $vmDP = [EVDatapoint]::new($hostVMS[$b])
+                            # [Log]::Info((@("`t",$vmDP.Name,$vmDP.IP,$vmDP.SerialNumber,$vmDP.CurrentVersion,$vmDP.OperatingSystem,$vmDP.Manufacturer,$vmDP.Model,$vmDP.Location) -join ","))
+
+                            if(($null -ne $server) -and ([String]::IsNullOrEmpty($vmDP.Location)))
+                            {
+                                $vmDP.SetLocation($server.Location)
+                            }
+                            $vCenterData += $vmDP
+                        }
+                        catch
+                        {
+                            [Log]::Warning("Unable to construct [EVDatapoint] from {0}." -f @($hostVMS[$b].Name))
+                        }
+                    }
+                    $b++
+                }
                 $a++
             }
         }
@@ -1179,6 +1230,20 @@ if (-not $haveRequiredModules)
 
     return
 }
+
+# Add "BIOSNumber" to the VirtualMachine Object...
+#  This is to stay intune with the way Tim Ford did this for VM inventory...
+
+New-VIProperty -Name "BIOSNumber" -ObjectType VirtualMachine -Value {
+    [CmdletBinding()]
+    param($vm)
+
+    $uuid = $vm.ExtensionData.Config.Uuid.Replace("-","")
+    $uuid = @(@(0..(($uuid.Length -shr 1) - 1)) | ForEach-Object { $uuid.Substring(($_ * 2), 2) }) -join " "
+    $uuid = @("VMware", $uuid.Substring(0, ($uuid.Length -shr 1)), $uuid.Substring((($uuid.Length -shr 1) + 1))) -join "-"
+
+    return $uuid
+} -BasedOnExtensionProperty @("Config.Uuid") -Force | Out-Null
 
 [Log]::Trace("Loading MySQL.Data assembly.")
 <#

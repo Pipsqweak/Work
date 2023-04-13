@@ -1,0 +1,226 @@
+[------------- Sending Request to Server ------------
+
+<configResolveDn
+dn="sys"
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+inHierarchical="false">
+</configResolveDn>
+
+<configEstimateImpact
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42">
+    <inConfigs>
+<pair key="org-root/ls-DA11-ESC-C1-B3">
+    <lsServer
+    name="DA11-ESC-C1-B3"
+    dn="org-root/ls-DA11-ESC-C1-B3"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+        <lsBinding
+        adminAction="unspecified"
+        adminActionTrigger="idle"
+        pnDn="sys/chassis-1/blade-3"
+        restrictMigration="no"
+        
+        rn="pn"
+        
+        
+        sacl="addchild,del,mod">
+        </lsBinding>
+    </lsServer>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+inHierarchical="false">
+    <inConfigs>
+<pair key="org-root/ls-DA11-ESC-C1-B3">
+    <lsServer
+    name="DA11-ESC-C1-B3"
+    dn="org-root/ls-DA11-ESC-C1-B3"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+        <lsBinding
+        adminAction="unspecified"
+        adminActionTrigger="idle"
+        pnDn="sys/chassis-1/blade-3"
+        restrictMigration="no"
+        
+        rn="pn"
+        
+        
+        sacl="addchild,del,mod">
+        </lsBinding>
+    </lsServer>
+</pair>
+    </inConfigs>
+</configConfMos>
+
+<configResolveChildren
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+classId="lsPower"
+inDn="org-root/ls-DA11-ESC-C1-B3"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+classId="lsPower"
+inDn="org-root/ls-DA11-ESC-C1-B3"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+classId="lsbootLan"
+inDn="sys/chassis-1/blade-3/boot-policy"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+classId="lsbootVirtualMedia"
+inDn="sys/chassis-1/blade-3/boot-policy"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+classId="lsbootSan"
+inDn="sys/chassis-1/blade-3/boot-policy"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configResolveChildren
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+classId="lsbootEFIShell"
+inDn="sys/chassis-1/blade-3/boot-policy"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+
+<configScope
+dn="sys/chassis-1/blade-3/boot-policy"
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+inClass="lsbootIScsi"
+inHierarchical="false"
+inRecursive="false">
+    <inFilter>
+    </inFilter>
+</configScope>
+
+<configScope
+dn="sys/chassis-1/blade-3/boot-policy"
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+inClass="lsbootDefaultLocalImage"
+inHierarchical="false"
+inRecursive="false">
+    <inFilter>
+    </inFilter>
+</configScope>
+
+<configScope
+dn="sys/chassis-1/blade-3/boot-policy"
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+inClass="lsbootUsbFlashStorageImage"
+inHierarchical="false"
+inRecursive="false">
+    <inFilter>
+    </inFilter>
+</configScope>
+
+<configScope
+dn="sys/chassis-1/blade-3/boot-policy"
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+inClass="lsbootLocalHddImage"
+inHierarchical="false"
+inRecursive="false">
+    <inFilter>
+    </inFilter>
+</configScope>
+
+<configScope
+dn="sys/chassis-1/blade-3/boot-policy"
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+inClass="lsbootUsbInternalImage"
+inHierarchical="false"
+inRecursive="false">
+    <inFilter>
+    </inFilter>
+</configScope>
+
+<configScope
+dn="sys/chassis-1/blade-3/boot-policy"
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+inClass="lsbootUsbExternalImage"
+inHierarchical="false"
+inRecursive="false">
+    <inFilter>
+    </inFilter>
+</configScope>
+
+<configScope
+dn="sys/chassis-1/blade-3/boot-policy"
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+inClass="lsbootLocalDiskImage"
+inHierarchical="false"
+inRecursive="false">
+    <inFilter>
+    </inFilter>
+</configScope>
+
+<configScope
+dn="sys/chassis-1/blade-3/boot-policy"
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+inClass="lsbootEmbeddedLocalDiskImage"
+inHierarchical="false"
+inRecursive="false">
+    <inFilter>
+    </inFilter>
+</configScope>
+
+<configScope
+dn="sys/chassis-1/blade-3/boot-policy"
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+inClass="lsbootEmbeddedLocalLunImage"
+inHierarchical="false"
+inRecursive="false">
+    <inFilter>
+    </inFilter>
+</configScope>
+
+<configScope
+dn="sys/chassis-1/blade-3/boot-policy"
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+inClass="lsbootNvme"
+inHierarchical="false"
+inRecursive="false">
+    <inFilter>
+    </inFilter>
+</configScope>
+
+<configResolveChildren
+cookie="1677710832/6bd6c341-e2d3-4ecc-b0a9-a0316ac28f42"
+classId="lsbootUEFIBootParam"
+inDn="sys/chassis-1/blade-3/boot-policy/storage/local-storage/embedded-local-lun"
+inHierarchical="false">
+    <inFilter>
+    </inFilter>
+</configResolveChildren>
+-----------------------------------------------------]

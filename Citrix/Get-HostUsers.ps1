@@ -459,7 +459,7 @@ while($a -lt $vmData.Length)
 }
 
 
-$affectedHosts = @("CDC-ESXVCAD01","CDC-ESXVCAD02","DDC-ESXVCAD01","DDC-ESXVCAD02","DDC-ESXVCAD03","DDC-ESXVCAD04","DDC-ESXVCAD05","DDC-ESX-C1-B4")
+$affectedHosts = @("CDC-ESXVCAD01") # ,"CDC-ESXVCAD02","DDC-ESXVCAD01","DDC-ESXVCAD02","DDC-ESXVCAD03","DDC-ESXVCAD04","DDC-ESXVCAD05","DDC-ESX-C1-B4")
 $vdiUsers,$vdiVMs = GetVDIAffectedUsersAndVMs -citrixHost "cdc-ctx-dc01.powereng.com" -vmHostNames $affectedHosts
 
 $vdiUsers -join "; " | Set-Clipboard

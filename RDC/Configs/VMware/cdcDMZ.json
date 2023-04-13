@@ -1,0 +1,166 @@
+[
+    {
+        "switchName": "CDC DMZ vDS 01",
+        "containerName": "CDC",
+        "mtu": 9000,
+        "version": "7.0.3",
+        "uplinkMappings": [
+            {
+                "uplinkName": "MGMTVMOTION",
+                "vNICName": "MGTVMN.DMZ.AB"
+            },
+            {
+                "uplinkName": "VMOTIONMGMT",
+                "vNICName": "VMNMGT.DMZ.BA"
+            },
+            {
+                "uplinkName": "STORAGE A",
+                "vNICName": "STG.DMZ.AX"
+            },
+            {
+                "uplinkName": "STORAGE B",
+                "vNICName": "STG.DMZ.BX"
+            },
+            {
+                "uplinkName": "GUEST A",
+                "vNICName": "GST.DMZ.AX"
+            },
+            {
+                "uplinkName": "GUEST B",
+                "vNICName": "GST.DMZ.BX"
+            }
+        ],
+        "portGroups": [
+            {
+                "vlanID": 69,
+                "name": "DMZ Management VLAN 69",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "MGMTVMOTION"
+                ],
+                "standbyUplinkNames": [
+                    "VMOTIONMGMT"
+                ]
+            },
+            {
+                "vlanID": 68,
+                "name": "DMZ vMotion VLAN 68",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "VMOTIONMGMT"
+                ],
+                "standbyUplinkNames": [
+                    "MGMTVMOTION"
+                ]
+            },
+            {
+                "vlanID": 68,
+                "name": "DMZ Storage VLAN 68",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "STORAGE A",
+                    "STORAGE B"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 60,
+                "name": "DMZ External VLAN 60",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "GUEST A",
+                    "GUEST B"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 61,
+                "name": "DMZ Internal VLAN 61",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "GUEST A",
+                    "GUEST B"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 63,
+                "name": "DMZ WSVPN VLAN 63",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "GUEST A",
+                    "GUEST B"
+                ],
+                "standbyUplinkNames": []
+            }
+        ],
+        "connectedHosts": [
+            {
+                "serial": "FCH255378GT",
+                "vmHostName": "cdcz-esx-c1-b5.powereng.com",
+                "vmks": [
+                    {
+                        "vmkName": "vmk0",
+                        "mtu": 1500,
+                        "portGroupName": "DMZ Management VLAN 69",
+                        "ipAddress": "10.245.69.17",
+                        "subnetMask": "255.255.255.0",
+                        "mgmtEnabled": true,
+                        "vMotionEnabled": false
+                    },
+                    {
+                        "vmkName": "vmk1",
+                        "mtu": 9000,
+                        "portGroupName": "DMZ Storage VLAN 68",
+                        "ipAddress": "10.245.68.17",
+                        "subnetMask": "255.255.255.0",
+                        "mgmtEnabled": false,
+                        "vMotionEnabled": false
+                    },
+                    {
+                        "vmkName": "vmk2",
+                        "mtu": 9000,
+                        "portGroupName": "DMZ vMotion VLAN 68",
+                        "ipAddress": "10.245.68.117",
+                        "subnetMask": "255.255.255.0",
+                        "mgmtEnabled": false,
+                        "vMotionEnabled": true
+                    }
+                ]
+            },
+            {
+                "serial": "FCH255378KB",
+                "vmHostName": "cdcz-esx-c1-b6.powereng.com",
+                "vmks": [
+                    {
+                        "vmkName": "vmk0",
+                        "mtu": 1500,
+                        "portGroupName": "DMZ Management VLAN 69",
+                        "ipAddress": "10.245.69.18",
+                        "subnetMask": "255.255.255.0",
+                        "mgmtEnabled": true,
+                        "vMotionEnabled": false
+                    },
+                    {
+                        "vmkName": "vmk1",
+                        "mtu": 9000,
+                        "portGroupName": "DMZ Storage VLAN 68",
+                        "ipAddress": "10.245.68.18",
+                        "subnetMask": "255.255.255.0",
+                        "mgmtEnabled": false,
+                        "vMotionEnabled": false
+                    },
+                    {
+                        "vmkName": "vmk2",
+                        "mtu": 9000,
+                        "portGroupName": "DMZ vMotion VLAN 68",
+                        "ipAddress": "10.245.68.118",
+                        "subnetMask": "255.255.255.0",
+                        "mgmtEnabled": false,
+                        "vMotionEnabled": true
+                    }
+                ]
+            }
+        ]
+    }
+]

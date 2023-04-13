@@ -1,0 +1,83 @@
+[------------- Sending Request to Server ------------
+
+<aaaTokenRefresh
+cookie="1677190705/9a84ad78-ad83-4a76-920a-a138302a68cd"
+inName="ucs-powereng.com\kbriney-adm"
+inCookie="1677190705/9a84ad78-ad83-4a76-920a-a138302a68cd">
+</aaaTokenRefresh>
+
+<configResolveDn
+dn="sys"
+cookie="1677191314/65a11e8f-b9b0-48c8-9934-17037431f66b"
+inHierarchical="false">
+</configResolveDn>
+
+<configEstimateImpact
+cookie="1677191314/65a11e8f-b9b0-48c8-9934-17037431f66b">
+    <inConfigs>
+<pair key="sys/svc-ext/syslog/client-primary">
+    <commSyslogClient
+    adminState="enabled"
+    forwardingFacility="local0"
+    hostname="statseeker.powereng.com"
+    name="primary"
+    severity="warnings"
+    dn="sys/svc-ext/syslog/client-primary"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </commSyslogClient>
+</pair>
+<pair key="sys/svc-ext/syslog/client-secondary">
+    <commSyslogClient
+    adminState="enabled"
+    forwardingFacility="local6"
+    hostname="exabmcol.powereng.com"
+    name="secondary"
+    severity="warnings"
+    dn="sys/svc-ext/syslog/client-secondary"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </commSyslogClient>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1677191314/65a11e8f-b9b0-48c8-9934-17037431f66b"
+inHierarchical="false">
+    <inConfigs>
+<pair key="sys/svc-ext/syslog/client-primary">
+    <commSyslogClient
+    adminState="enabled"
+    forwardingFacility="local0"
+    hostname="statseeker.powereng.com"
+    name="primary"
+    severity="warnings"
+    dn="sys/svc-ext/syslog/client-primary"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </commSyslogClient>
+</pair>
+<pair key="sys/svc-ext/syslog/client-secondary">
+    <commSyslogClient
+    adminState="enabled"
+    forwardingFacility="local6"
+    hostname="exabmcol.powereng.com"
+    name="secondary"
+    severity="warnings"
+    dn="sys/svc-ext/syslog/client-secondary"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </commSyslogClient>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]

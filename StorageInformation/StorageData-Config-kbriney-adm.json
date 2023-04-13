@@ -1,5 +1,5 @@
 {
-    "LogPath":  "E:\\Scripts\\StorageReporter\\Logs",
+    "LogPath":  "C:\\Users\\kbriney-adm\\PSScripts\\Repos\\PEI-IT-OPS\\StorageInformation\\Logs",
     "LogsToKeep":  14,
     "Database": {
         "Server": "CDC-NTAPMGMT01\\SQLExpress",

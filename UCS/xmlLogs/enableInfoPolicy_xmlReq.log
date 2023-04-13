@@ -1,0 +1,35 @@
+[------------- Sending Request to Server ------------
+
+<configEstimateImpact
+cookie="1677788542/47f63f16-af7c-473d-b5ab-670dfa549183">
+    <inConfigs>
+<pair key="sys/info-policy">
+    <topInfoPolicy
+    state="enabled"
+    dn="sys/info-policy"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </topInfoPolicy>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1677788542/47f63f16-af7c-473d-b5ab-670dfa549183"
+inHierarchical="false">
+    <inConfigs>
+<pair key="sys/info-policy">
+    <topInfoPolicy
+    state="enabled"
+    dn="sys/info-policy"
+    
+    status="created,modified"
+    
+    sacl="addchild,del,mod">
+    </topInfoPolicy>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]

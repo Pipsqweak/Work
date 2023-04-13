@@ -1,26 +1,22 @@
-function Write-log {
+enum LogLevel
+{
+    INFO = 1
+    WARNING = 2
+    ERROR = 3
+}
+
+function Write-Log {
 
     [CmdletBinding()]
     Param(
-          [parameter(Mandatory=$false)]
-          [String]$Path,
+        [parameter(Mandatory=$true)]
+        [String]$Message,
 
-          [parameter(Mandatory=$true)]
-          [String]$Message,
-
-          [Parameter(Mandatory=$true)]
-          [ValidateSet("Info", "Warning", "Error")]
-          [String]$Type
+        [Parameter(Mandatory=$true)]
+        [LogLevel]$Level
     )
 
-    switch ($Type) {
-        "Info" { [int]$Type = 1 }
-        "Warning" { [int]$Type = 2 }
-        "Error" {
-            [int]$Type = 3
-            $Global:ErrorLogged = $true
-        }
-    }
+    $Global:ErrorLogged = $Global:ErrorLogged -or ($Level -eq [LogLevel]::ERROR)
 
     $myComponent = [String]::Empty
     $myFile = ""
@@ -43,15 +39,14 @@ function Write-log {
     $logTime = [DateTime]::Now
 
     $content = "<![LOG[{0}]LOG]!><time=`"{1}`" date=`"{2}`" component=`"{3}`" context=`"{4}`" type=`"{5}`" thread=`"{6}`" file=`"{7}`">" -f @(
-        $Message, $logTime.ToString("HH:mm:ss.ffffff"), $logTime.ToString("M-d-yyyy"), $myComponent, [System.Security.Principal.WindowsIdentity]::GetCurrent().Name, $Type, [Threading.Thread]::CurrentThread.ManagedThreadId, $myFile)
+        $Message, $logTime.ToString("HH:mm:ss.ffffff"), $logTime.ToString("M-d-yyyy"), $myComponent, [System.Security.Principal.WindowsIdentity]::GetCurrent().Name, $Level.value__, [Threading.Thread]::CurrentThread.ManagedThreadId, $myFile)
 
     # If the log file folder does not exist, then write the message out via Write-Verbose
-    if(-not [String]::IsNullOrEmpty($Path))
+    if(-not [String]::IsNullOrEmpty($Global:LogPath))
     {
-        $logPath = $Path | Split-Path
-        if([System.IO.Directory]::Exists($logPath))
+        if([System.IO.Directory]::Exists(($Global:LogPath | Split-Path)))
         {
-            $content | Out-File -FilePath $Path -Append -Encoding "utf8"
+            $content | Out-File -FilePath $Global:LogPath -Append -Encoding "utf8"
         }
         else
         {
@@ -62,39 +57,49 @@ function Write-log {
     {
         Write-Verbose $content
     }
+
+    if (($Level -eq [LogLevel]::ERROR) -and ($Global:TerminateOnError -eq $true) -and (-not [String]::IsNullOrEmpty($PSScriptRoot)))
+    {
+        # Only exit if an error was logged, we've been told to terminate on error, and we are NOT running in an interactive session
+        exit
+    } `
+    else # NOT (($Level -eq [LogType]::ERROR) -and ($Global:TerminateOnError -eq $true) -and (-not [String]::IsNullOrEmpty($PSScriptRoot))))
+    {
+        # Nothing.
+    }
 }
 
 function LogInfo {
 
     [CmdletBinding()]
     Param(
-          [parameter(Mandatory=$true)]
-          [String]$Message
+        [parameter(Mandatory=$true)]
+        [String]$Message
     )
 
-    Write-log $Global:LogPath $Message "Info"
+    Write-Log -Message $Message -Level INFO
 }
 
 function LogWarning {
 
     [CmdletBinding()]
     Param(
-          [parameter(Mandatory=$true)]
-          [String]$Message
+        [parameter(Mandatory=$true)]
+        [String]$Message
     )
 
-    Write-log $Global:LogPath $Message "Warning"
+    Write-Log -Message $Message -Level WARNING
 }
 
 function LogError {
 
     [CmdletBinding()]
     Param(
-          [parameter(Mandatory=$true)]
-          [String]$Message
+        [parameter(Mandatory=$true)]
+        [String]$Message
     )
 
-    Write-log $Global:LogPath $Message "Error"
+    Write-Log -Message $Message -Level ERROR
 }
 
 if(-not $Global:CMLoggingAvailable)

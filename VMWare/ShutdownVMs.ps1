@@ -106,6 +106,287 @@ function ShutdownVM
     return $shutdownInitiatedSuccessfully
 }
 
+function CollectVMState
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
+        [ValidateNotNull()]
+        [VMware.VimAutomation.ViCore.Impl.V1.VIServerImpl] $vCtr,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=1)]
+        [ValidateNotNullOrEmpty()]
+        [String] $CitrixHost,
+
+        [Parameter(Mandatory=$false, ValueFromPipeline=$false, Position=2)]
+        [String[]] $VMLocations,
+
+        [Parameter(Mandatory=$false, ValueFromPipeline=$false, Position=3)]
+        [String[]] $VMExceptions,
+
+        [Parameter(Mandatory=$false, ValueFromPipeline=$false, Position=4)]
+        [Switch] $saveVMState
+    )
+
+    if(-not (Test-Connection -ComputerName $CitrixHost -Quiet))
+    {
+        Write-Error ("Citrix host: {0} does not respond." -f @($CitrixHost))
+        return @($false, $null)
+    }
+
+    if($null -eq $VMExceptions)
+    {
+        $VMExceptions = @()
+    }
+    else
+    {
+        if($VMExceptions -isnot [Array])
+        {
+            $VMExceptions = @($VMExceptions)
+        }
+    }
+
+    Write-Verbose ("VM Exceptions (case matters): {0}" -f @(($VMExceptions -join ", ")))
+    if(($null -ne $VMLocations) -and ($VMLocations.Length -gt 1))
+    {
+        $VMLocations = @(($VMLocations | Foreach-Object { $_.ToUpper() }) | Select-Object -Unique)
+
+        try
+        {
+            $locations = @(Get-Inventory -Server $vCtr -Name $VMLocations -ErrorAction Stop)
+            if($locations.Length -ne $VMLocations.Length)
+            {
+                Write-Error ("Unable to get VI Inventory object(s) for one or more of: {0}." -f @(($VMLocations -join ", ")))
+                return @($false, $null)
+            }
+        }
+        catch
+        {
+            Write-Error ("Unable to get VI Inventory object(s) for one or more of: {0}." -f @(($VMLocations -join ", ")))
+            return @($false, $null)
+        }
+    }
+    else
+    {
+        Write-Error "Missing VM location."
+        return @($false, $null)
+    }
+
+    Write-Verbose ("Collecting VM state from: {0}" -f @(($locations | Select-Object -ExpandProperty Name) -join ", "))
+    try
+    {
+        $allVMs = @(Get-VM -Server $vCtr -Location $locations -ErrorAction Stop | Where-Object { $_.Name -notmatch "^vCLS" })
+    }
+    catch
+    {
+        Write-Error "Failed to retrieve VMs."
+        return @($false, $null)
+    }
+
+    Write-Verbose ("{0} VMs located." -f @($allVMs.Length))
+    $allVDIs = @()
+    try
+    {
+        Write-Verbose ("Collecting VDI information from: {0}." -f @($citrixHost))
+        $allVDIs = @(Get-BrokerMachine -AdminAddress $citrixHost -MaxRecordCount 10000 -ErrorAction Stop)
+        Write-Verbose ("`tLocated {0} VDIs." -f @($allVDIs.Length))
+    }
+    catch
+    {
+        Write-Error "Failed to collect VDI data."
+        return @($false, $null)
+    }
+
+    Write-Verbose "Building VM state array..."
+    # Create an array of relevent information...
+    #   NOTE: Some of the properties listed here are used in the ShutdownVMsFromStateFile & StartVMsFromStateFile functions.
+    #     As such, they need to be added to the object here and written to the save file so they will
+    #     be available later.
+    #
+    $vmPowerData = @($allVMs | ForEach-Object {
+        $d = "" | Select-Object Id,Name,PowerState,VMHostId,VMHost,Excluded,ShutdownInitiated,StartupInitiated,StartupTask,IsVDI,CTXMaintenanceMode,VM,VDI
+        $d.Id = $_.Id
+        $d.Name = $_.Name
+        $d.PowerState = $_.PowerState.ToString()
+
+        $d.VMHostId = $_.VMHostId
+        $d.VMHost = $_.VMHost.Name
+
+        $d.Excluded = $VMExceptions -ccontains $_.Name
+        $d.ShutdownInitiated = $false
+        $d.StartupInitiated = $false
+        $d.StartUpTask = $null
+        $d.IsVDI = $false
+        $d.CTXMaintenanceMode = $false
+        $d.VM = $null
+        $d.VDI = $null
+        $d.IsVDI = $null
+        $d.CTXMaintenanceMode = $null
+        if($collectCitrixState)
+        {
+            $vdi = $allVDIs | Where-Object { $_.MachineName -eq ("POWERENG\{0}" -f @($d.Name)) }   # Used to track the actual [Citrix.Broker.Admin.SDK.Machine] as returned from Citrix (if the VM is a VDI at all)
+            if ($null -ne $vdi)
+            {
+                $d.IsVDI = $true
+                $d.CTXMaintenanceMode = $vdi.InMaintenanceMode
+            }
+        }
+
+        $d
+    })
+
+    if($saveVMState)
+    {
+        $powerstateSavePath = "{0}\{1}-vmPowerState.json" -f @($env:TEMP, [DateTime]::Now.ToString("yyyyMMdd_HHmmss"))
+        Write-Host ("Saving VM state to: {0}" -f @($powerstateSavePath))
+        $vmPowerData | Sort-Object VMHost,Name | ConvertTo-Json | Set-Content -LiteralPath $powerstateSavePath
+    }
+
+    return @($true, $vmPowerData)
+}
+
+$success, $vmStateData = CollectVMState -vCtr $vCenter -CitrixHost "cdc-ctx-dc01.powereng.com" -VMLocations @("CDC-INT-CLUSTER-01","CDC-PRD-VCAD-01") -VMExceptions @("CDC-DC01","CDC-DC02","CDC-NTAPMGMT01") -saveVMState
+
+function ShutdownVMsFromSaveFile
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
+        [ValidateNotNull()]
+        [VMware.VimAutomation.ViCore.Impl.V1.VIServerImpl] $vCtr,
+
+        [Parameter(Mandatory=$false, ValueFromPipeline=$false, Position=1)]
+        [ValidateNotNullOrEmpty()]
+        [String] $CitrixHost,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=2)]
+        [String] $StateSaveFile,
+
+        [Parameter(Mandatory=$false, ValueFromPipeline=$false, Position=3)]
+        [Switch]
+        $Simulated
+    )
+
+    try
+    {
+        $vmStateData = Get-Content -LiteralPath $StateSaveFile -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+
+        # Drop any vSphere Cluster Services VMs that might have made there way into the save file.  (Shouldn't happen, but...)
+        #   Also drop any excluded VMs...
+        $vmStateData = @($vmStateData | Where-Object { ($_.Name -notmatch "^vCLS") -and (-not $_.Excluded) })
+    }
+    catch
+    {
+        Write-Error ("Failed to read VM state data from: {0}." -f @($StateSaveFile))
+        return $false
+    }
+
+    Write-Verbose ("Retrieving VMs from: {0}" -f @($vCtr.Name))
+    try
+    {
+        $allVMs = @(Get-VM -Server $vCtr -Name @($vmStateData | Select-Object -ExpandProperty Name) -ErrorAction Stop)
+    }
+    catch
+    {
+        Write-Error "Failed to retrieve VMs."
+        return $false
+    }
+
+    $allVDIs = @()
+    if(-not (Test-Connection -ComputerName $CitrixHost -Quiet))
+    {
+        Write-Error ("Citrix host: {0} does not respond." -f @($CitrixHost))
+        return $false
+    }
+
+    try
+    {
+        Write-Verbose ("Collecting VDI information from: {0}." -f @($CitrixHost))
+        $allVDIs = @(Get-BrokerMachine -AdminAddress $CitrixHost -MaxRecordCount 10000 -ErrorAction Stop)
+        Write-Verbose ("`tLocated {0} VDIs." -f @($allVDIs.Length))
+    }
+    catch
+    {
+        Write-Error "Failed to collect VDI data."
+        return $false
+    }
+
+    $a = 0
+    while($a -lt $vmStateData.Length)
+    {
+        # Populate .VM property for all VMs
+        $vm = $allVMs | Where-Object { $_.Name -eq $vmStateData[$a].Name }
+        if($null -ne $vm)
+        {
+            $vmStateData[$a].VM = $vm
+        }
+        else
+        {
+            Write-Error ("Missing VM object for: {0}." -f @($vmStateData[$a].Name))
+        }
+
+        $vdi = $allVDIs | Where-Object { $_.MachineName -eq ("POWERENG\{0}" -f @($vmStateData[$a].Name)) }
+        if($null -ne $vdi)
+        {
+            $vmStateData[$a].VDI = $vdi
+            $vmStateData[$a].IsVDI = $true
+        }
+        else
+        {
+            if($vmStateData[$a].IsVDI)
+            {
+                Write-Error ("Missing VDI instance for {0}." -f @($allVMs[$a].Name))
+            }
+        }
+
+        $a++
+    }
+
+    # Make sure we have a VM object for all entries...
+    if(@($vmStateData | Where-Object { $null -eq $_.VM }).Length -ne 0)
+    {
+        return $false
+    }
+
+    # Make sure we have a VDI object for all VDIs...
+    if(@($vmStateData | Where-Object { $_.IsVDI }).Length -ne @($vmStateData | Where-Object { $null -ne $_.VDI }).Length)
+    {
+        return $false
+    }
+
+    # If we made it here, then we have all the information we need to start shutting down VMs
+    #   and potentially putting VDIs into maintenance mode.
+
+    do
+    {
+        $vmToProcess = $vmStateData | Where-Object { `
+            ($_.VM.VMHost.Name -eq $uniqueVMHosts[$nextHostToHaveVMShutdown]) `
+            -and `
+            ( `
+                ( `
+                    ($null -ne $_.VM) `
+                    -and ($_.VM.PowerState -eq "PoweredOn") `
+                    -and (-not $_.ShutdownInitiated)
+                ) `
+                -or `
+                ( `
+                    ($null -ne $_.VDI) `
+                    -and (-not $_.VDI.InMaintenanceMode) `
+                    -and (-not $_.CTXMaintenanceMode)
+                )
+            ) `
+        } | Select-Object -First 1
+
+        if($vmsLeftToShutdown.Length -gt 0)
+        {
+
+        }
+
+    } until (condition)
+
+
+}
+
 function ShutdownVMs
 {
     [CmdletBinding()]
@@ -129,6 +410,7 @@ function ShutdownVMs
         $Simulated
     )
 
+    $vmLocations = @(($vmLocations | Foreach-Object { $_.ToUpper() }) | Select-Object -Unique)
     $simulatedStr = " (simulated)"
     if(-not $Simulated)
     {
@@ -1237,9 +1519,9 @@ function StartVMs
 }
 
 # ConnectTo -keywords prod,vcenter
-# ShutdownVMs -vCtr $vCenter -citrixHost "cdc-ctx-dc01.powereng.com" -vmLocations @("DDC","DDC-VDI") -vmExceptions @("BDC-DC01","BDC-DC02") -Simulated
+ShutdownVMs -vCtr $vCenter -citrixHost "cdc-ctx-dc01.powereng.com" -vmLocations @("CDC-INT-CLUSTER-01","CDC-PRD-VCAD-01") -vmExceptions @("CDC-DC01","CDC-DC02","CDC-NTAPMGMT01") -Simulated
 
-# StartVMs -vCtr $vCenter -powerstateSavePath "C:\Users\kbriney-adm\AppData\Local\Temp\2\20221105_132603-vmPowerState.json" -citrixHost "cdc-ctx-dc01.powereng.com" -Simulated
+StartVMs -vCtr $vCenter -powerstateSavePath C:\Users\KBRINE~1\AppData\Local\Temp\2\20230114_060912-vmPowerState.json -citrixHost "cdc-ctx-dc01.powereng.com" -Simulated
 
 
 # REMEMBER TO UNCOMMENT THE ACTION LINES IN STARTVMS...
