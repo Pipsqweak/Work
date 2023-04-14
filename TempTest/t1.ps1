@@ -220,3 +220,7 @@ catch
 {
 
 }
+
+
+$cert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert
+Set-AuthenticodeSignature -Certificate $cert -FilePath "..\PEI-IT-OPS\RDC\Metrics\SpeedTest.ps1"

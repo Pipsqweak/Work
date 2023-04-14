@@ -56,7 +56,7 @@ function Get-StandardDeviation { #Begin function Get-StandardDeviation
         [decimal]$newNumbers  = $Null
 
         #Get the average and count via Measure-Object
-        $avgCount             = $value | Measure-Object -Average | Select Average, Count
+        $avgCount = $value | Measure-Object -Average | Select-Object Average, Count
 
         #Iterate through each of the numbers and get part of the variance via some PowerShell math.
         ForEach($number in $value) {
@@ -329,7 +329,6 @@ function TestDatacenter
                             $fcMetric.BytesRead = $bytesRead
                             $fcMetric.ReadTimeMS = $sw.Elapsed.TotalMilliseconds
                             $fcMetric.MBPS = (($fcMetric.BytesRead / $fcMetric.ReadTimeMS) * 1000) / 1MB
-                            $ts = [TimeSpan]::new(0,0,0,0,$fcMetric.ReadTimeMS).ToString().TrimEnd("0")
                             Write-Host -ForegroundColor Green ("`tRead time: {0,12:N2}ms ({1:D2}:{2:D2}.{3:D3}) @ {4,5:N2}MB/s -- {5}" -f @($fcMetric.ReadTimeMS, [int]($sw.Elapsed.TotalMinutes), $sw.Elapsed.Seconds, $sw.Elapsed.Milliseconds, $fcMetric.MBPS, [DateTime]::now.ToString("HH:mm:ss.fff")))
                             $testResults.FileCopy.Add($fcMetric)
 
@@ -355,11 +354,11 @@ function TestDatacenter
                 }
 
                 $testResults.FileTestSummary.Small = SummarizeTestResults -fileResults $testResults.FileCopy -SmallFiles
-                Write-Host ("Small file read time average: {0:N2}, standard deviation: {1:N2}, Variance: {2:N2}%" -f @($testResults.FileTestSummary.Small.AverageMS, $testResults.FileTestSummary.Small.MSStdDev, (($testResults.FileTestSummary.Small.MSStdDev / $testResults.FileTestSummary.Small.AverageMS) * 100.0)))
+                Write-Host ("`r`nSmall file read time average: {0:N2}, standard deviation: {1:N2}, Variance: {2:N2}%" -f @($testResults.FileTestSummary.Small.AverageMS, $testResults.FileTestSummary.Small.MSStdDev, (($testResults.FileTestSummary.Small.MSStdDev / $testResults.FileTestSummary.Small.AverageMS) * 100.0)))
                 $testResults.FileTestSummary.Medium = SummarizeTestResults -fileResults $testResults.FileCopy -MediumFiles
                 Write-Host ("Medium file read time average: {0:N2}, standard deviation: {1:N2}, Variance: {2:N2}%" -f @($testResults.FileTestSummary.Medium.AverageMS, $testResults.FileTestSummary.Medium.MSStdDev, (($testResults.FileTestSummary.Medium.MSStdDev / $testResults.FileTestSummary.Medium.AverageMS) * 100.0)))
                 $testResults.FileTestSummary.Large = SummarizeTestResults -fileResults $testResults.FileCopy -LargeFiles
-                Write-Host ("Large file read time average: {0:N2}, standard deviation: {1:N2}, Variance: {2:N2}%" -f @($testResults.FileTestSummary.Large.AverageMS, $testResults.FileTestSummary.Large.MSStdDev, (($testResults.FileTestSummary.Large.MSStdDev / $testResults.FileTestSummary.Large.AverageMS) * 100.0)))
+                Write-Host ("Large file read time average: {0:N2}, standard deviation: {1:N2}, Variance: {2:N2}%`r`n" -f @($testResults.FileTestSummary.Large.AverageMS, $testResults.FileTestSummary.Large.MSStdDev, (($testResults.FileTestSummary.Large.MSStdDev / $testResults.FileTestSummary.Large.AverageMS) * 100.0)))
             }
         }
         else
@@ -520,7 +519,7 @@ function SendResultsSummary
         [String]
         $officeName,
 
-        [Parameter(Mandatory=$true, Position=2)]
+        [Parameter(Mandatory=$false, Position=2)]
         [String]
         $description
     )
@@ -591,8 +590,6 @@ $ipv4s = $null
 $hostOffice = $null
 $hostRDC = $null
 $allTestResults = [System.Collections.Generic.List[Object]]::new()
-
-
 
 if([String]::IsNullOrEmpty($configFileName))
 {
@@ -792,7 +789,7 @@ if($null -ne $hostOffice)
 
                 Write-Host -ForegroundColor Green ("Test Results saved to: {0}." -f @($resultFileName))
 
-                SendResultsSummary -allTestResults $allTestResults -officeName $hostOffice.Name
+                SendResultsSummary -allTestResults $allTestResults -officeName $hostOffice.Name -description $Description
             } `
             else
             {
@@ -817,8 +814,8 @@ else
 # SIG # Begin signature block
 # MIIPMgYJKoZIhvcNAQcCoIIPIzCCDx8CAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUxhPJspfQkXgBI6JEH85Ucvj7
-# 2kGgggyXMIIF3zCCBMegAwIBAgITFQAAAALU9Lz04Hi9mwAAAAAAAjANBgkqhkiG
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU1YBLkHyqFa7LZTJfKFKG2wSc
+# GICgggyXMIIF3zCCBMegAwIBAgITFQAAAALU9Lz04Hi9mwAAAAAAAjANBgkqhkiG
 # 9w0BAQ0FADBGMRMwEQYKCZImiZPyLGQBGRYDY29tMRgwFgYKCZImiZPyLGQBGRYI
 # cG93ZXJlbmcxFTATBgNVBAMTDFBFSSBSb290IENBMjAeFw0xNTA4MTIyMDQ2MDVa
 # Fw0zNTA4MTIyMDA4MDVaME0xEzARBgoJkiaJk/IsZAEZFgNjb20xGDAWBgoJkiaJ
@@ -889,12 +886,12 @@ else
 # bTEYMBYGCgmSJomT8ixkARkWCHBvd2VyZW5nMRwwGgYDVQQDExNQRUkgU3Vib3Jk
 # aW5hdGUgQ0EyAhNmAAAS2npYfu3c3SZWAAAAABLaMAkGBSsOAwIaBQCgeDAYBgor
 # BgEEAYI3AgEMMQowCKACgAChAoAAMBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEE
-# MBwGCisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBSI
-# tcmrsX+HcBoe3tGzOBfuFqXAqjANBgkqhkiG9w0BAQEFAASCAQBoBHTp2q9SmA4O
-# +SZhUUjFgivYOeox5YHIrq5ugNQHc3gF6txHxJWR/j9qMoAeee43OyXS8JvEIW3n
-# /9WhXlRtnEcZ8edPe1vk9ByrB9Vk8rXyzufLZMqDfsZqTrN0y2rQGn1gvc97g0F/
-# YK5QjUSuMxvvG5WYJKl7jOZlStUThHTxnF2gst8PiQB+/Z4oIHfmMkF/C9PhNac9
-# ckIl1ZC/fyVsYVO0m3oD4VTBTBt2i0F/tgkZN+kbXdmyDqof8SsKYYOEmQQmKPO8
-# i1cKJ4OQsbsvbJRxJys0lQDuhZSUGPXXkMMVW32FEy1UpqGKHJyIoC5s7s8uvBnf
-# Qy2AP2uD
+# MBwGCisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBQF
+# jIYKzef1yVZpmShRjx9wPCaBdTANBgkqhkiG9w0BAQEFAASCAQCy5c0ohcUB7g+L
+# b7CoKc6uAilUDT+udE0vwMws1Dsd9L3Ukqs0LUkhHn9yW2jhkahjY+M2NcOmIqkh
+# mp78iUsfCj2Ly8Wj+av7fn28P78NCo6PuBmy0wdziKlClOhgQdy6gVZRs+I6brKe
+# I1ggxFJoRsW3JWh+KSf51T1PSc+z1Zas2XYZcsuY34J/i7JLyeceR/1seumfuHJP
+# YyZOKVwG4DNFHwFxRRVAcHmHLhlNQCyLAnStMPmyf2o+pkMT5Kg75n1nRmtJ3G0Z
+# SBhUZjJOHrvK+ewwIlHasTv+QLSX6lQHIC/R6YwvKMO76fGcWpuPppa1/IDg0qn9
+# NUtsI6PQ
 # SIG # End signature block

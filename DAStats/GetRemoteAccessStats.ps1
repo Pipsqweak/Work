@@ -108,7 +108,6 @@ class LocationStat
     {
         $this.ServerName = $serverName
         $this.Location = $location
-        $this.Total_Mbps = $this.Mbps_In + $this.Mbps_Out
         $this.DateTime = $dt.ToString("yyyy-MM-dd HH:mm")
     }
 
@@ -378,47 +377,7 @@ function LoadQueuedData($qFolder, $stdStatsFile, $bwStatsFile, $mergedFile)
     return @($aStats, $bStats, $sc)
 }
 
-function UpdateSiteUserList($stats, $siteUserListFileName)
-{
-    <#
-        Since site active connections statistics are retrieved for 1 remote access server at a time, I had to employ a method to combine statistics from multiple remote access servers per site.
-        After the file is reset in GetSiteRemoteAccessStats, the first call to this function will write out the users connected to the first remote access server in the site.  On subsequent calls
-        to this function, I will need to merge the the users in $stats with the previous servers' active connections.
-
-        1. OUTSIDE THIS FUNCTION: Reset site user list In GetSiteRemoteAccessStats, the single site user list file is reset to an empty file (or created) prior to collecting statistics from the individual servers (GetServerRemoteAccessStats).
-        2. Import any existing user list data.
-        3. Merge active user data from the current server.
-        4. Write out the unique records to the user list file.
-    #>
-
-    $userStats = @()
-    try
-    {
-        # Step 2:  Import any existing user list data.
-        #   NOTE: Step 1 in part of the function: GetSiteRemoteAccessStats below
-        Import-CSV -Delimiter "`t" -LiteralPath $siteUserListFileName -Encoding ASCII -ErrorAction Stop | ForEach-Object { $userStats += $_ }
-    }
-    catch
-    {
-        # Nothing
-    }
-
-    # Step 3: Merge active user data from the current server.
-    $stats | Select-Object @{N="UserNames"; E={ $_.UserName -join "," }},ClientIPAddress,ConnectionStartTime,ConnectionDuration | Where-Object { -not [String]::IsNullOrEmpty($_.UserNames) } | Foreach-Object { $userStats += $_ }
-
-    # Step 4: Write out the unique records to the user list file.
-    try
-    {
-        # NOTE: Due to the peculiar way powershell handles dates & sorting, I had to treat ConnectionStartTime time as a string.
-        @($userStats | Select-Object -Unique UserNames,ClientIPAddress,@{N="ConnectionStartTime"; E={ $_.ConnectionStartTime.ToString() }},ConnectionDuration) | Sort-Object UserNames,ClientIPAddress,ConnectionStartTime,ConnectionDuration | Export-CSV -Encoding ASCII -LiteralPath $siteUserListFileName -Delimiter "`t" -NoTypeInformation
-    }
-    catch
-    {
-        Log ("[ERROR  ] Failed to write user list to: " -f @($siteUserListFileName))
-    }
-}
-
-function GetServerRemoteAccessStats($serverName, $location, $siteUserListFileName, $startTime, $endTime)
+function GetServerRemoteAccessStats($serverName, $location, $startTime, $endTime)
 {
     $activeConnections = 0
     $totalBytesIn = 0
@@ -464,9 +423,6 @@ function GetServerRemoteAccessStats($serverName, $location, $siteUserListFileNam
     # If the script was able to get active connection stats...
     if($successful)
     {
-        # UpdateSiteUserList was added to log the currently active users connected per site for Kevin Betts
-        UpdateSiteUserList $stats $siteUserListFileName
-
         Log ("[INFO   ] `tProcessing {0} active connection statistic(s)..." -f @($stats.Length))
         $activeConnections = $stats.Length
         $totalBytesIn = ($stats | Measure-Object -Sum -Property TotalBytesIn).Sum
@@ -556,33 +512,17 @@ function GetServerRemoteAccessStats($serverName, $location, $siteUserListFileNam
     return $newStat
 }
 
-function GetSiteRemoteAccessStats($location, $siteCode, $userListFolder, $servers, $startTime, $endTime)
+function GetSiteRemoteAccessStats($location, $siteCode, $servers, $startTime, $endTime)
 {
     $site_TotalBytesPerSecond_In = 0
     $site_TotalBytesPerSecond_Out = 0
     if($null -ne $servers)
     {
-
-<#
-    Step 1: Reset site user list file here.  Only once for each site.
-        NOTE: Steps 2 - 4 are part of the function: UpdateSiteUserList above
-        Site user list files are used by Kevin Betts to assist in Teams call quality auditing.
-#>
-        $siteUserListFileName = [System.IO.Path]::Combine($userListFolder, ("{0}-AoVPN-Users.csv" -f @($siteCode)))
-        try
-        {
-            $null | Out-File -FilePath $siteUserListFileName -ErrorAction Stop
-        }
-        catch
-        {
-            Log("[INFO   ] Unable to reset user list file: {0}" -f @($siteUserListFileName))
-        }
-
         $a = 0
         while($a -lt $servers.Length)
         {
             $serverName = $servers[$a]
-            $siteStats = GetServerRemoteAccessStats $serverName $location $siteUserListFileName $startTime $endTime
+            $siteStats = GetServerRemoteAccessStats $serverName $location $startTime $endTime
             if($null -ne $siteStats)
             {
                 $Global:allStats += $siteStats
@@ -702,33 +642,6 @@ if(-not [String]::IsNullOrEmpty($JSONArgsFile))
                     Log ("[ERROR  ] Missing value for queueFolder.")
                     Log ("[ERROR  ] `tExample: `"queueFolder`": `"E:\\DAStatsWork\\QueuedData`"")
                     Log ("[ERROR  ] `t`t'\' characters in .json files need to be escaped to '\\'")
-
-                    $haveAllRequirements = $false
-                }
-
-                # Make sure there is a value for $Global:config.userListFolder
-                if(-not [String]::IsNullOrEmpty($Global:config.userListFolder))
-                {
-                    # Test to see if the userListFolder is viable.
-                    if(-not (Test-Path -Path $Global:config.userListFolder))
-                    {
-                        Log ("[ERROR  ] userListFolder ({0}) is not a viable folder to save user lists.", @($Global:config.userListFolder))
-
-                        # Clear $Global:config.userListFolder to signifiy we have no viable user list save location.
-                        $Global:config.userListFolder = [String]::Empty
-
-                        $haveAllRequirements = $false
-                    }
-                    else
-                    {
-                        # Nothing, $Global:config.userListFolder is a viable folder to save user lists to.
-                    }
-                }
-                else
-                {
-                    Log ("[ERROR  ] Missing value for userListFolder.")
-                    Log ("[ERROR  ]`tExample: `"userListFolder`": `"E:\\DAStatsWork\\UserListFolder`"")
-                    Log ("[ERROR  ]`t`t'\' characters in .json files need to be escaped to '\\'")
 
                     $haveAllRequirements = $false
                 }
@@ -950,7 +863,7 @@ if($haveAllRequirements)
     $a = 0
     while($a -lt $Global:config.Sites.Length)
     {
-        GetSiteRemoteAccessStats $Global:config.Sites[$a].Name $Global:config.Sites[$a].SiteCode $Global:config.userListFolder $Global:config.Sites[$a].VPNServers $startTime $endTime
+        GetSiteRemoteAccessStats $Global:config.Sites[$a].Name $Global:config.Sites[$a].SiteCode $Global:config.Sites[$a].VPNServers $startTime $endTime
 
         # If the site has any NetScalers, add them to the array of NetScalers...
         if(($null -ne $Global:config.Sites[$a].NetScaler) -and ($null -ne $Global:config.Sites[$a].NetScaler.Devices) -and ($null -ne $Global:config.Sites[$a].NetScaler.Gateways))
