@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 Param(
     [Parameter(Mandatory=$false)]
     [AllowNull()]
@@ -148,7 +148,7 @@ function SummarizeTestResults
         $LargeFiles
     )
 
-    $d = "" | Select-Object TotalBytes, TotalMS, AverageMS, AverageMbps, OverallMbps, MSStdDev, Variance
+    $d = "" | Select-Object TotalBytes, TotalMS, AverageMS, AverageMBPS, OverallMBPS, MSStdDev, Variance
 
     if($SmallFiles)
     {
@@ -165,18 +165,18 @@ function SummarizeTestResults
 
     $bytesRead = $fileCopyStats | Measure-Object -Average -Sum -Property BytesRead
     $readTimeMS = $fileCopyStats | Measure-Object -Average -Sum -Property ReadTimeMS
-    $Mbps = $fileCopyStats | Measure-Object -Average -Sum -Property Mbps
+    $MBPS = $fileCopyStats | Measure-Object -Average -Sum -Property MBPS
 
     $d.TotalBytes = $bytesRead.Sum
     $d.TotalMS = $readTimeMS.Sum
     $d.AverageMS = $readTimeMS.Average
-    $d.AverageMbps = $Mbps.Average
-    $d.OverallMbps = [Double]::NaN
+    $d.AverageMBPS = $MBPS.Average
+    $d.OverallMBPS = [Double]::NaN
     $d.Variance = [Double]::NaN
     $d.MSStdDev = [Double]::NaN
     if($readTimeMS.Sum -gt 0)
     {
-        $d.OverallMbps = $bytesRead.Sum / $readTimeMS.Sum / 125
+        $d.OverallMBPS = (($bytesRead.Sum / $readTimeMS.Sum) * 1000) / 1MB
         $d.MSStdDev = Get-StandardDeviation @($fileCopyStats | Select-Object -ExpandProperty ReadTimeMS)
         if($d.AverageMS -ne 0)
         {
@@ -344,11 +344,11 @@ function TestDatacenter
 
                         if($bytesRead -ge $testFiles[$b].Length)
                         {
-                            $fcMetric = "" | Select-Object BytesRead,ReadTimeMS,Mbps
+                            $fcMetric = "" | Select-Object BytesRead,ReadTimeMS,MBPS
                             $fcMetric.BytesRead = $bytesRead
                             $fcMetric.ReadTimeMS = $sw.Elapsed.TotalMilliseconds
-                            $fcMetric.Mbps = $fcMetric.BytesRead / $fcMetric.ReadTimeMS / 125
-                            Write-Host -ForegroundColor Green ("`tRead time: {0,12:N2}ms ({1:D2}:{2:D2}.{3:D3}) @ {4,5:N2}Mb/s -- {5}" -f @($fcMetric.ReadTimeMS, [int]($sw.Elapsed.TotalMinutes), $sw.Elapsed.Seconds, $sw.Elapsed.Milliseconds, $fcMetric.Mbps, [DateTime]::now.ToString("HH:mm:ss.fff")))
+                            $fcMetric.MBPS = (($fcMetric.BytesRead / $fcMetric.ReadTimeMS) * 1000) / 1MB
+                            Write-Host -ForegroundColor Green ("`tRead time: {0,12:N2}ms ({1:D2}:{2:D2}.{3:D3}) @ {4,5:N2}MB/s -- {5}" -f @($fcMetric.ReadTimeMS, [int]($sw.Elapsed.TotalMinutes), $sw.Elapsed.Seconds, $sw.Elapsed.Milliseconds, $fcMetric.MBPS, [DateTime]::now.ToString("HH:mm:ss.fff")))
                             $testResults.FileCopy.Add($fcMetric)
 
                             if((-not $LimitLargeFiles) -and ($fcMetric.ReadTimeMS -gt 60000))
@@ -433,31 +433,85 @@ function TestLatency
 
 function Set-AlternatingRows
 {
+    <#
+    .SYNOPSIS
+        Simple function to alternate the row colors in an HTML table
+    .DESCRIPTION
+        This function accepts pipeline input from ConvertTo-HTML or any
+        string with HTML in it.  It will then search for <tr> and replace
+        it with <tr class=(something)>.  With the combination of CSS it
+        can set alternating colors on table rows.
+
+        CSS requirements:
+        .odd  { background-color:#ffffff; }
+        .even { background-color:#dddddd; }
+
+        Classnames can be anything and are configurable when executing the
+        function.  Colors can, of course, be set to your preference.
+
+        This function does not add CSS to your report, so you must provide
+        the style sheet, typically part of the ConvertTo-HTML cmdlet using
+        the -Head parameter.
+    .PARAMETER Line
+        String containing the HTML line, typically piped in through the
+        pipeline.
+    .PARAMETER CSSEvenClass
+        Define which CSS class is your "even" row and color.
+    .PARAMETER CSSOddClass
+        Define which CSS class is your "odd" row and color.
+    .EXAMPLE $Report | ConvertTo-HTML -Head $Header | Set-AlternateRows -CSSEvenClass even -CSSOddClass odd | Out-File HTMLReport.html
+
+        $Header can be defined with a here-string as:
+        $Header = @"
+        <style>
+        TABLE {border-width: 1px;border-style: solid;border-color: black;border-collapse: collapse;}
+        TH {border-width: 1px;padding: 3px;border-style: solid;border-color: black;background-color: #6495ED;}
+        TD {border-width: 1px;padding: 3px;border-style: solid;border-color: black;}
+        .odd  { background-color:#ffffff; }
+        .even { background-color:#dddddd; }
+        </style>
+        "@
+
+        This will produce a table with alternating white and grey rows.  Custom CSS
+        is defined in the $Header string and included with the table thanks to the -Head
+        parameter in ConvertTo-HTML.
+    .NOTES
+        Author:         Martin Pugh
+        Twitter:        @thesurlyadm1n
+        Spiceworks:     Martin9700
+        Blog:           www.thesurlyadmin.com
+
+        Changelog:
+            1.1         Modified replace to include the <td> tag, as it was changing the class
+                        for the TH row as well.
+            1.0         Initial function release
+    .LINK
+        http://community.spiceworks.com/scripts/show/1745-set-alternatingrows-function-modify-your-html-table-to-have-alternating-row-colors
+    .LINK
+        http://thesurlyadmin.com/2013/01/21/how-to-create-html-reports/
+    #>
     [CmdletBinding()]
-    Param(
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
-        [string]
-        $str,
+        Param(
+            [Parameter(Mandatory,ValueFromPipeline)]
+            [string]$Line,
 
-        [Parameter(Mandatory=$true)]
-        [string]
-        $CSSEvenClass,
+            [Parameter(Mandatory)]
+            [string]$CSSEvenClass,
 
-        [Parameter(Mandatory=$true)]
-        [string]
-        $CSSOddClass
-    )
+            [Parameter(Mandatory)]
+            [string]$CSSOddClass
+        )
 
-    begin
+    Begin
     {
         $ClassName = $CSSEvenClass
     }
 
-    process
+    Process
     {
-        if($str.Contains("<tr><td>"))
+        if ($Line.Contains("<tr><td>"))
         {
-            if($str.Contains("Before"))
+            if($Line.Contains("Before"))
             {
                 $ClassName = "{0}Before" -f @($ClassName)
             }
@@ -465,9 +519,7 @@ function Set-AlternatingRows
             {
                 $ClassName = "{0}After" -f @($ClassName)
             }
-
-            $str = $str.Replace("<tr>",("<tr class=`"{0}`">" -f @($ClassName)))
-
+            $Line = $Line.Replace("<tr>","<tr class=""$ClassName"">")
             if ($ClassName -match $CSSEvenClass)
             {
                 $ClassName = $CSSOddClass
@@ -477,7 +529,8 @@ function Set-AlternatingRows
                 $ClassName = $CSSEvenClass
             }
         }
-        return $str
+
+        return $Line
     }
 }
 
@@ -539,23 +592,19 @@ function SendResultsSummary
             @{N = 'Datacenter';  E = { $_.DCName }},
             @{N = 'Test host';   E = { $_.TestHost }},
             @{N = 'File server'; E = { $_.ServerName }},
-            Description, Latency,
+            Description,
 
             @{N = 'Small file average<br />read time (MS)';E={ "{0:N2}" -f ([decimal] $_.SmallFileAverageMS) }},
             @{N = 'Small file standard<br/>deviation (MS)';E={ "{0:N2}" -f ([decimal] $_.SmallFileMSStdDev) }},
             @{N = 'Small file<br />variance'; E={ if($_.SmallFileMSVariance -gt 25) { ("<div class='red'>{0:N2}%</div>" -f @([decimal]($_.SmallFileMSVariance))) } else { ("{0:N2}%" -f @([decimal]($_.SmallFileMSVariance))) }}},
-            @{N = 'Small file Xfer<br />Speed (Mbps)';E={ "{0:N2}" -f ([decimal] $_.SmallFileMbps) }},
 
             @{N = 'Medium file average<br />read time (MS)';E={ "{0:N2}" -f ([decimal] $_.MediumFileAverageMS) }},
             @{N = 'Medium file standard<br/>deviation (MS)';E={ "{0:N2}" -f ([decimal] $_.MediumFileMSStdDev) }},
             @{N = 'Medium file<br />variance'; E={ if($_.MediumFileMSVariance -gt 25) { ("<div class='red'>{0:N2}%</div>" -f @([decimal]($_.MediumFileMSVariance))) } else { ("{0:N2}%" -f @([decimal]($_.MediumFileMSVariance))) }}},
-            @{N = 'Medium file Xfer<br />Speed (Mbps)';E={ "{0:N2}" -f ([decimal] $_.MediumFileMbps) }},
 
             @{N = 'Large file average<br />read time (MS)';E={ "{0:N2}" -f ([decimal] $_.LargeFileAverageMS) }},
             @{N = 'Large file standard<br/>deviation (MS)';E={ "{0:N2}" -f ([decimal] $_.LargeFileMSStdDev) }},
-            @{N = 'Large file<br />variance'; E={ if($_.LargeFileMSVariance -gt 25) { ("<div class='red'>{0:N2}%</div>" -f @([decimal]($_.LargeFileMSVariance))) } else { ("{0:N2}%" -f @([decimal]($_.LargeFileMSVariance))) }}},
-            @{N = 'Large file Xfer<br />Speed (Mbps)';E={ "{0:N2}" -f ([decimal] $_.LargeFileMbps) }} |
-
+            @{N = 'Large file<br />variance'; E={ if($_.LargeFileMSVariance -gt 25) { ("<div class='red'>{0:N2}%</div>" -f @([decimal]($_.LargeFileMSVariance))) } else { ("{0:N2}%" -f @([decimal]($_.LargeFileMSVariance))) }}} |
 
         ConvertTo-Html -Head $htmlHeader -PreContent $htmlPre |
         Set-AlternatingRows -CSSEvenClass "even" -CSSOddClass "odd" |
@@ -564,7 +613,7 @@ function SendResultsSummary
     try
     {
         $recipients = @("OPS IT Network <itnetwork@powereng.com>", "Ken Briney <ken.briney@powereng.com>") -join ", "
-        $smtp = [System.Net.Mail.SmtpClient]::new("10.245.61.63")
+        $smtp = [System.Net.Mail.SmtpClient]::new("smtp.powereng.com")
         $subject = "{0} Performance Test Results" -f @($officeName)
         $emailMessage = [System.Net.Mail.MailMessage]::new("Performance Tester <perftest@powereng.com>", $recipients, $subject, $html)
         $emailMessage.IsBodyHtml = $true
@@ -572,41 +621,6 @@ function SendResultsSummary
 
 
         # Send-MailMessage -Body $html -BodyAsHtml -From "Performance Tester <perftest@powereng.com>" -SmtpServer "smtp.powereng.com" -To $recipients -Subject $subject -WarningAction SilentlyContinue
-    }
-    catch
-    {
-        Write-Error ("Failed to email results to: {0}." -f @($recipients -join ", "))
-    }
-}
-
-function SendRAWResults
-{
-    [CmdletBinding()]
-    Param(
-        [Parameter(Mandatory=$true, Position=0)]
-        [System.Collections.Generic.List[Object]]
-        $allTestResults,
-
-        [Parameter(Mandatory=$true, Position=1)]
-        [String]
-        $officeName,
-
-        [Parameter(Mandatory=$false, Position=2)]
-        [String]
-        $description
-    )
-
-    $rawResults = @($allTestResults | Sort-Object Office, DCName, Description | ConvertTo-Csv -NoTypeInformation -Delimiter "`t") -join "`r`n"
-    $rawResults = $rawResults.Replace("`"","")
-
-    try
-    {
-        $recipients = "Ken Briney <ken.briney@powereng.com>"
-        $smtp = [System.Net.Mail.SmtpClient]::new("10.245.61.63")
-        $subject = "{0} Performance Raw Test Results" -f @($officeName)
-        $emailMessage = [System.Net.Mail.MailMessage]::new("Performance Tester <perftest@powereng.com>", $recipients, $subject, $rawResults)
-        $emailMessage.IsBodyHtml = $false
-        $smtp.send($emailMessage)
     }
     catch
     {
@@ -791,14 +805,13 @@ if($null -ne $hostOffice)
             if($allTestResults.Count -gt 0)
             {
                 $resultFileName = "{0}\{1}-{2}-{3}.csv" -f @($off2RDCMetricsConfig.ResultsRepository, [DateTime]::Now.ToString("yyyyMMddHHmm"), $hostOffice.Name, $env:COMPUTERNAME)
-                $localFileName  = "{0}\{1}-{2}-{3}.csv" -f @($env:USERPROFILE, [DateTime]::Now.ToString("yyyyMMddHHmm"), $hostOffice.Name, $env:COMPUTERNAME)
 
                 $outputResults = $allTestResults |
                     Select-Object Office, DCName, TestHost, ServerName, DateTime, Description,
                         @{N='Latency';E={ ($_.Latency | Measure-Object -Average -Property ResponseTime).Average}},
                         @{N='SmallFileBytesRead';E={$_.FileTestSummary.Small.TotalBytes}},
                         @{N='SmallFileReadTime';E={$_.FileTestSummary.Small.TotalMS}},
-                        @{N='SmallFileMbps';E={$_.FileTestSummary.Small.OverallMbps}},
+                        @{N='SmallFileMBPS';E={$_.FileTestSummary.Small.OverallMBPS}},
 
                         @{N='SmallFileAverageMS';E={$_.FileTestSummary.Small.AverageMS}},
                         @{N='SmallFileMSStdDev';E={$_.FileTestSummary.Small.MSStdDev}},
@@ -806,7 +819,7 @@ if($null -ne $hostOffice)
 
                         @{N='MediumFileBytesRead';E={$_.FileTestSummary.Medium.TotalBytes}},
                         @{N='MediumFileReadTime';E={$_.FileTestSummary.Medium.TotalMS}},
-                        @{N='MediumFileMbps';E={$_.FileTestSummary.Medium.OverallMbps}},
+                        @{N='MediumFileMBPS';E={$_.FileTestSummary.Medium.OverallMBPS}},
 
                         @{N='MediumFileAverageMS';E={$_.FileTestSummary.Medium.AverageMS}},
                         @{N='MediumFileMSStdDev';E={$_.FileTestSummary.Medium.MSStdDev}},
@@ -814,33 +827,15 @@ if($null -ne $hostOffice)
 
                         @{N='LargeFileBytesRead';E={$_.FileTestSummary.Large.TotalBytes}},
                         @{N='LargeFileReadTime';E={$_.FileTestSummary.Large.TotalMS}},
-                        @{N='LargeFileMbps';E={$_.FileTestSummary.Large.OverallMbps}},
+                        @{N='LargeFileMBPS';E={$_.FileTestSummary.Large.OverallMBPS}},
 
                         @{N='LargeFileAverageMS';E={$_.FileTestSummary.Large.AverageMS}},
                         @{N='LargeFileMSStdDev';E={$_.FileTestSummary.Large.MSStdDev}},
                         @{N='LargeFileMSVariance';E={$_.FileTestSummary.Large.Variance}}
 
-                try
-                {
-                    $outputResults | Export-CSV -Delimiter "`t" -NoTypeInformation -Path $resultFileName -Force
-                    Write-Host -ForegroundColor Green ("Test Results saved to: {0}." -f @($resultFileName))
-                }
-                catch
-                {
-                    Write-Host -ForegroundColor Red ("Unable to save results to: {0}." -f @($resultFileName))
-                    Write-Host -ForegroundColor Yellow ("Attempting to save results to the desktop as {0}." -f @($localFileName))
-                    try
-                    {
-                        $outputResults | Export-CSV -Delimiter "`t" -NoTypeInformation -Path $localFileName -Force
-                        Write-Host -ForegroundColor Green ("Test Results saved to: {0}." -f @($localFileName))
-                        Write-Host -ForegroundColor Green ("Ensure results are manually copied to: {0}." -f @($off2RDCMetricsConfig.ResultsRepository))
-                    }
-                    catch
-                    {
-                        Write-Host -ForegroundColor Red ("Failed to save results to desktop.")
-                    }
-                }
+                $outputResults | Export-CSV -Delimiter "`t" -NoTypeInformation -Path $resultFileName -Force
 
+                Write-Host -ForegroundColor Green ("Test Results saved to: {0}." -f @($resultFileName))
 
                 $preSDWANResultsFileName = $null
                 if($Description -match "Post SDWAN conversion")
@@ -849,9 +844,6 @@ if($null -ne $hostOffice)
                 }
 
                 SendResultsSummary -allTestResults $outputResults -officeName $hostOffice.Name -description $Description -preSDWANResultsFileName $preSDWANResultsFileName
-
-                # Send the raw results to myself incase they were not properly saved.
-                SendRAWResults -allTestResults $outputResults -officeName $hostOffice.Name -description $Description
             } `
             else
             {
@@ -871,90 +863,74 @@ if($null -ne $hostOffice)
 else
 {
     # Unable to determine office location.
-    Write-Host -ForegroundColor Red ("ERROR: Unable to determine office/RDC association from IP address(es): {0}" -f @(@($ipv4s | Select-Object -Unique -ExpandProperty IPAddress) -join ", "))
 }
 
-# SIG # Begin signature block
-# MIIPMgYJKoZIhvcNAQcCoIIPIzCCDx8CAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
-# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUtI1N3r0uW5CV0c+ab8aSgNzI
-# Mh2gggyXMIIF3zCCBMegAwIBAgITFQAAAALU9Lz04Hi9mwAAAAAAAjANBgkqhkiG
-# 9w0BAQ0FADBGMRMwEQYKCZImiZPyLGQBGRYDY29tMRgwFgYKCZImiZPyLGQBGRYI
-# cG93ZXJlbmcxFTATBgNVBAMTDFBFSSBSb290IENBMjAeFw0xNTA4MTIyMDQ2MDVa
-# Fw0zNTA4MTIyMDA4MDVaME0xEzARBgoJkiaJk/IsZAEZFgNjb20xGDAWBgoJkiaJ
-# k/IsZAEZFghwb3dlcmVuZzEcMBoGA1UEAxMTUEVJIFN1Ym9yZGluYXRlIENBMjCC
-# ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKVLzra7Ww5Nmy+NM14MdRZW
-# wEhw09fhAIC6jDl90IGt1D0zvB9xrM1XTrSfEWgCNnveOnNSvXBSHjfWYd7KAs8N
-# EDLyIjWluCB66bdi/xY2fascuYJvy2ZmA6Voh005/nRS7lPGq6yfZEjc6LXfiaHS
-# Wo+kbrFw/ICoq79kEIympaHeO7TYFOcHoP7T/nfWvD0OrJZLrou9m53qQzZXduBV
-# pYwfI91CsGR1DpXKwcgC4yPqLdaP9GmWjYYddT6jQTGD/aCIfYo/29z2vXVafaHx
-# 90i8OIF7frlhOL39P3GhxIlDk7espdSKxHWF6772N0XXc7NVaq+Jdw7vtpG02yMC
-# AwEAAaOCAr0wggK5MBAGCSsGAQQBgjcVAQQDAgEAMB0GA1UdDgQWBBQFk+663K25
-# Xljs+Tik5+qrsUUojTAZBgkrBgEEAYI3FAIEDB4KAFMAdQBiAEMAQTALBgNVHQ8E
-# BAMCAYYwDwYDVR0TAQH/BAUwAwEB/zAfBgNVHSMEGDAWgBSwdElPGrGwpa46Uu+0
-# SWDcXSTY9TCCAQ8GA1UdHwSCAQYwggECMIH/oIH8oIH5hoG6bGRhcDovLy9DTj1Q
-# RUklMjBSb290JTIwQ0EyLENOPUJPSS1SQ0EwMixDTj1DRFAsQ049UHVibGljJTIw
-# S2V5JTIwU2VydmljZXMsQ049U2VydmljZXMsQ049Q29uZmlndXJhdGlvbixEQz1w
-# b3dlcmVuZyxEQz1jb20/Y2VydGlmaWNhdGVSZXZvY2F0aW9uTGlzdD9iYXNlP29i
-# amVjdENsYXNzPWNSTERpc3RyaWJ1dGlvblBvaW50hjpodHRwOi8vY2VydHMyLnBv
-# d2VyZW5nLmNvbS9DZXJ0RW5yb2xsL1BFSSUyMFJvb3QlMjBDQTIuY3JsMIIBFwYI
-# KwYBBQUHAQEEggEJMIIBBTCBsAYIKwYBBQUHMAKGgaNsZGFwOi8vL0NOPVBFSSUy
-# MFJvb3QlMjBDQTIsQ049QUlBLENOPVB1YmxpYyUyMEtleSUyMFNlcnZpY2VzLENO
-# PVNlcnZpY2VzLENOPUNvbmZpZ3VyYXRpb24sREM9cG93ZXJlbmcsREM9Y29tP2NB
-# Q2VydGlmaWNhdGU/YmFzZT9vYmplY3RDbGFzcz1jZXJ0aWZpY2F0aW9uQXV0aG9y
-# aXR5MFAGCCsGAQUFBzAChkRodHRwOi8vY2VydHMyLnBvd2VyZW5nLmNvbS9DZXJ0
-# RW5yb2xsL0JPSS1SQ0EwMl9QRUklMjBSb290JTIwQ0EyLmNydDANBgkqhkiG9w0B
-# AQ0FAAOCAQEAcpv1ZhjtPnt9puHEI7ex1y8Y5l9KFw9/H0d05h104MDMGuD07HDG
-# lQfgvSrmghZP86z2WsssNFbUisjr+aQlCtK8kTdfO/lf3agg/GJBPnzqxiJxIlb9
-# Y1v0JT4gJf9sZMsXNiiYwatYGecK8DR2UbWDFUMjcIF7MaECWNedh/aWMb4cah2i
-# sNP7FbCftZmP4LJ5VynBGTHb3P6DxYG2YzRxpSFeIlDP1aAABoFuKDGIK72izBG2
-# QyeB1W2e7/sjFRiSLbyw2GuSuzHm0o4w3PkHQ0H1yiv50jiX02Sl30J/uP4bNAQF
-# kC2U3Ov3RefYTwqj4uLKMmkNEqmpxLoySDCCBrAwggWYoAMCAQICE2YAABLaelh+
-# 7dzdJlYAAAAAEtowDQYJKoZIhvcNAQENBQAwTTETMBEGCgmSJomT8ixkARkWA2Nv
-# bTEYMBYGCgmSJomT8ixkARkWCHBvd2VyZW5nMRwwGgYDVQQDExNQRUkgU3Vib3Jk
-# aW5hdGUgQ0EyMB4XDTE2MDMyNDEzNTQzOVoXDTI2MDMyMjEzNTQzOVowgbAxCzAJ
-# BgNVBAYTAlVTMQ4wDAYDVQQIEwVJZGFobzEPMA0GA1UEBxMGSGFpbGV5MR0wGwYD
-# VQQKExRQT1dFUiBFbmdpbmVlcnMgSW5jLjEWMBQGA1UECxMNT3BlcmF0aW9ucyBJ
-# VDFJMEcGA1UEAxNAUE9XRVIgRW5naW5lZXJzIEluZm9ybWF0aW9uIFRlY2hub2xv
-# Z3kgSW5mcmFzdHJ1Y3R1cmUgRGVwYXJ0bWVudDCCASIwDQYJKoZIhvcNAQEBBQAD
-# ggEPADCCAQoCggEBANo3WBVO5y8uBMYMzLPqdqDkyMcQoJVQR7yPHPKOh/0DeNoZ
-# yVM0qXwdV6sZGaotW0+UR2DzyyMvmwxl5zqIIBEvIwjtHFLU/tAEOWamTf9vMwn+
-# LxbUVysZ/RCKkv+V56dOnhtYE3vg+NxRBfEZKViQMXHq6FbmpL1LZcDKlYq1t3RO
-# gYhbEHYjG5tEJftg11rznA379+K9yWkybUYEEVCavYNQGp/WHlroK9jMg8RtXIaQ
-# pI7O/5CLFondPga3eqEU6fjbE3uDsY2ex7Q1+YnjFhvKt7GkosZo+1yWPeykOPra
-# TGxqnig+7c8hKHO+ibV9/xfX8q/iWzlLAPQhMZUCAwEAAaOCAyMwggMfMD4GCSsG
-# AQQBgjcVBwQxMC8GJysGAQQBgjcVCIHNilODqvxmhZmNOoHT7HuB1rU5gSGC5vp+
-# hMywSwIBZAIBCjATBgNVHSUEDDAKBggrBgEFBQcDAzALBgNVHQ8EBAMCB4AwGwYJ
-# KwYBBAGCNxUKBA4wDDAKBggrBgEFBQcDAzAdBgNVHQ4EFgQUY/0hsMlcQdPeIB7Z
-# eh3nuq3RuZ8wHwYDVR0jBBgwFoAUBZPuutytuV5Y7Pk4pOfqq7FFKI0wggEjBgNV
-# HR8EggEaMIIBFjCCARKgggEOoIIBCoaBwWxkYXA6Ly8vQ049UEVJJTIwU3Vib3Jk
-# aW5hdGUlMjBDQTIsQ049Qk9JLVNDQTAyLENOPUNEUCxDTj1QdWJsaWMlMjBLZXkl
-# MjBTZXJ2aWNlcyxDTj1TZXJ2aWNlcyxDTj1Db25maWd1cmF0aW9uLERDPXBvd2Vy
-# ZW5nLERDPWNvbT9jZXJ0aWZpY2F0ZVJldm9jYXRpb25MaXN0P2Jhc2U/b2JqZWN0
-# Q2xhc3M9Y1JMRGlzdHJpYnV0aW9uUG9pbnSGRGh0dHA6Ly9CT0ktU0NBMDIucG93
-# ZXJlbmcuY29tL0NlcnRFbnJvbGwvUEVJJTIwU3Vib3JkaW5hdGUlMjBDQTIuY3Js
-# MIIBNQYIKwYBBQUHAQEEggEnMIIBIzCBtwYIKwYBBQUHMAKGgapsZGFwOi8vL0NO
-# PVBFSSUyMFN1Ym9yZGluYXRlJTIwQ0EyLENOPUFJQSxDTj1QdWJsaWMlMjBLZXkl
-# MjBTZXJ2aWNlcyxDTj1TZXJ2aWNlcyxDTj1Db25maWd1cmF0aW9uLERDPXBvd2Vy
-# ZW5nLERDPWNvbT9jQUNlcnRpZmljYXRlP2Jhc2U/b2JqZWN0Q2xhc3M9Y2VydGlm
-# aWNhdGlvbkF1dGhvcml0eTBnBggrBgEFBQcwAoZbaHR0cDovL0JPSS1TQ0EwMi5w
-# b3dlcmVuZy5jb20vQ2VydEVucm9sbC9CT0ktU0NBMDIucG93ZXJlbmcuY29tX1BF
-# SSUyMFN1Ym9yZGluYXRlJTIwQ0EyLmNydDANBgkqhkiG9w0BAQ0FAAOCAQEAcMQQ
-# HArQMPorMDdTv0PIeU80NpxlZm6ZjMLHJIWtyKWNRmuG1Oc+Ti762snW05yq5aEY
-# kwmmWtm/00ukV4z/DhYrlCuxbmKeQP4kIZoVo4/7K7HrdG0u6QN4SmG9rTJGCuXz
-# EXlKZIeHiwgD2EsNa7varVK3jX8CEik1jJh8II0VIbBzvetAMm1QGUCk9/WtllYG
-# 76CLyPasgcfFsOlMeRWoHKNw/oV4AvMab0yuQCDJ9uNG3dU+6jGoxDz+ksAKl9OO
-# u+zBNs+EOR/TWBD0JfE9hdChCzrbyG6JPIQdOsBoqo822QoIGc8emp4MTeDnCTTh
-# ojIQLkYA7bMGDxIxHjGCAgUwggIBAgEBMGQwTTETMBEGCgmSJomT8ixkARkWA2Nv
-# bTEYMBYGCgmSJomT8ixkARkWCHBvd2VyZW5nMRwwGgYDVQQDExNQRUkgU3Vib3Jk
-# aW5hdGUgQ0EyAhNmAAAS2npYfu3c3SZWAAAAABLaMAkGBSsOAwIaBQCgeDAYBgor
-# BgEEAYI3AgEMMQowCKACgAChAoAAMBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEE
-# MBwGCisGAQQBgjcCAQsxDjAMBgorBgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBTI
-# Z1LY1R84i1S0/XNtgBm/GSMMnzANBgkqhkiG9w0BAQEFAASCAQBKWLH1tDkvqfC+
-# wXJMumqPQ+zf3aqh4vnspcN4eOYw46U2gUleemLn0s/jYAhEHxi1jvp9rsuKov6O
-# +1A8wpsr/4R3QjxVhrRK+P+TRBilH2UpRiidipa9f9XXHZ3iUQo/28lpUCZrqRVV
-# Owjuu7wpHyuCHAXs2ohdrWZCgmSHDtxa/fXeRVLK/Tcro8+YK+2bMauoyF8r1Ltm
-# rCmm8ec8/O5Y72SMtBJovIwY15I0PlyC7OZJqdUM+wfdLSEpK+ERFB1XnWhPY58u
-# oxPJokF6b32GXJGuhqnfmuyiqN6eZzqnNbw70DCtXnmdkiqnFwpKTDdoMZBFr3RK
-# 5rAcgwQM
-# SIG # End signature block
+
+#
+#
+#
+#
+
+$officeName = "ORL"
+$preSDWANResultsFileName = "\\cdcfs1\Reference\PerfTest\Results\PreSDWANCombined.csv"
+$preSDWANResults = Import-CSV -Path $preSDWANResultsFileName -Delimiter "`t" | Where-Object { ($_.Office -eq $officeName) -and ($_.Description -eq "Before SDWAN conversion") }
+
+$officeResultsFile = "\\cdcfs1\Reference\PerfTest\Results\202307260730-FTL-47514L.csv"
+$officePostResults = Import-CSV -Path $officeResultsFile -Delimiter "`t"
+
+$outputResults = [System.Collections.Generic.List[System.Object]]::new()
+
+$officePostResults | ForEach-Object { $outputResults.Add($_) }
+$preSDWANResults | ForEach-Object { $outputResults.Add($_) }
+
+$htmlHeader =
+@"
+<head>
+    <title>{0} Perf Testing</title>
+    <style>
+        body {{ font-family: Consolas,monaco,monospace; font-size: 9pt; }}
+        th {{ background-color:#0083FF; padding: 2px; font-size: 10pt; }}
+        td {{ text-align: center; padding: 2px; }}
+        table, th, td {{ border: 1px solid black; border-collapse: collapse; }}
+        .notice {{ font-size: 12pt; }}
+        .red {{ color: red; }}
+        .oddBefore {{ background-color:#565656; color: #b5bbf9; }}
+        .oddAfter {{ background-color:#565656; color: #5dd75d; }}
+        .evenBefore {{ background-color:#383837; color: #b5bbf9; }}
+        .evenAfter {{ background-color:#383837; color: #5dd75d; }}
+    </style>
+</head>
+"@ -f @($officeName)
+
+$htmlPre = "<span class='notice'>Values in <span class='red'>red</span> indicate a large variance in file read times.  This may indicate an anomaly especially for medium and large files.</span><br /><br />"
+
+$html = @($outputResults | Sort-Object Office, DCName, Description |
+    Select-Object `
+        Office,
+        @{N = 'Datacenter';  E = { $_.DCName }},
+        @{N = 'Test host';   E = { $_.TestHost }},
+        @{N = 'File server'; E = { $_.ServerName }},
+        Description,
+
+        @{N = 'Small file average<br />read time (MS)';E={ "{0:N2}" -f ([decimal] $_.SmallFileAverageMS) }},
+        @{N = 'Small file standard<br/>deviation (MS)';E={ "{0:N2}" -f ([decimal] $_.SmallFileMSStdDev) }},
+        @{N = 'Small file<br />variance'; E={ if($_.SmallFileMSVariance -gt 25) { ("<div class='red'>{0:N2}%</div>" -f @([decimal]($_.SmallFileMSVariance))) } else { ("{0:N2}%" -f @([decimal]($_.SmallFileMSVariance))) }}},
+
+        @{N = 'Medium file average<br />read time (MS)';E={ "{0:N2}" -f ([decimal] $_.MediumFileAverageMS) }},
+        @{N = 'Medium file standard<br/>deviation (MS)';E={ "{0:N2}" -f ([decimal] $_.MediumFileMSStdDev) }},
+        @{N = 'Medium file<br />variance'; E={ if($_.MediumFileMSVariance -gt 25) { ("<div class='red'>{0:N2}%</div>" -f @([decimal]($_.MediumFileMSVariance))) } else { ("{0:N2}%" -f @([decimal]($_.MediumFileMSVariance))) }}},
+
+        @{N = 'Large file average<br />read time (MS)';E={ "{0:N2}" -f ([decimal] $_.LargeFileAverageMS) }},
+        @{N = 'Large file standard<br/>deviation (MS)';E={ "{0:N2}" -f ([decimal] $_.LargeFileMSStdDev) }},
+        @{N = 'Large file<br />variance'; E={ if($_.LargeFileMSVariance -gt 25) { ("<div class='red'>{0:N2}%</div>" -f @([decimal]($_.LargeFileMSVariance))) } else { ("{0:N2}%" -f @([decimal]($_.LargeFileMSVariance))) }}} |
+
+    ConvertTo-Html -Head $htmlHeader -PreContent $htmlPre |
+    Set-AlternatingRows -CSSEvenClass "even" -CSSOddClass "odd" |
+    ForEach-Object { [System.Web.HttpUtility]::HtmlDecode($_) }) -join "`r`n"
+
+    $recipients = @("OPS IT Network <itnetwork@powereng.com>", "Ken Briney <ken.briney@powereng.com>") -join ", "
+    $smtp = [System.Net.Mail.SmtpClient]::new("smtp.powereng.com")
+    $subject = "{0} Performance Test Results" -f @($officeName)
+    $emailMessage = [System.Net.Mail.MailMessage]::new("Performance Tester <perftest@powereng.com>", $recipients, $subject, $html)
+    $emailMessage.IsBodyHtml = $true
+    $smtp.send($emailMessage)

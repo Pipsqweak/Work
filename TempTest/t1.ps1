@@ -170,57 +170,268 @@ $html2 | Set-Clipboard
 
 
 
-$resultFiles = @(Get-ChildItem -Path "\\cdcfs1\Reference\PerfTest\Results" -Filter "*.csv")
+$cert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert
+Set-AuthenticodeSignature -Certificate $cert -FilePath "..\PEI-IT-OPS\RDC\Metrics\SpeedTest.ps1"
 
-$combinedResults = [System.Collections.Generic.List[System.Object]]::new()
-$combinedFiles = [System.Collections.Generic.List[System.String]]::new()
+
+$results = Import-CSV -Path \\cdcfs1\Reference\PerfTest\Results\PreSDWAN.csv
+
+
+function NextPow2()
+{
+    $d = 999
+    $c = 0
+    while($d -ge 0)
+    {
+        $s = $Global:digits[$d] + $Global:digits[$d] + $c
+        $c = 0
+        if($s -gt 9)
+        {
+            $s -= 10
+            $c = 1
+        }
+        $Global:digits[$d] = $s
+        $d--
+    }
+
+    $Global:power2++
+    $v = ($Global:digits -join "").TrimStart(@('0'))
+    if([String]::IsNullOrEmpty($v))
+    {
+        $v = "0"
+    }
+    $a = $v.Length - 1
+    $v2 = [System.Collections.Generic.Stack[System.Object]]::new()
+    while($a -ge 0)
+    {
+        $v2.Push($v[$a])
+        if(($a -gt 0) -and ((($v.Length - $a) % 3) -eq 0))
+        {
+            $v2.Push(',')
+        }
+        $a--
+    }
+    $addedCombos = [System.Collections.Generic.List[System.String]]::new()
+    $combos = @(($v2 -join "") -split ",") | Sort-Object
+    $combos | ForEach-Object {
+        if(-not $Global:comboCount.ContainsKey($_))
+        {
+            $Global:comboCount.Add($_, 0)
+            $addedCombos.Add($_)
+        }
+        $Global:comboCount[$_]++
+    }
+
+    Write-Host ("{0}" -f @(($addedCombos -join ", ")))
+    Write-Host ("2^{0,3}: Combos: {1,4} {2,200}" -f @($Global:power2, $comboCount.Count, ($v2 -join "")))
+}
+
+$comboCount = [System.Collections.Generic.SortedDictionary[[String],[Int32]]]::new()
+
+$power2 = 0
+$digits = @(0..999)
+
+@(0..($digits.Length - 1)) | ForEach-Object { $digits[$_] = 0 }
+
+$digits[999] = 1
+
+$currentCC = $comboCount.Count
+do
+{
+    NextPow2
+} until($comboCount.Count -ge 1099)
+
+
+<#
+    To facilitate retrieving AoVPN statistics in parallel (much faster), I need to create a list of objects containing:
+
+        Index of a site within $aoStatsConfig.Sites
+        Index of an AoVPNServer with $aoStatsConfig.Sites[_idx_]
+        A list object to contain the results of Get-RemoteAccessConnectionStatistics from the AoVPN Server
+
+    This is to ensure each thread created for the Foreach-Object -Parallel, has it's own uniquely addressable list to
+    store the results from Get-RemoteAccessConnectionStatistics.
+#>
+$stats = [System.Collections.Generic.List[System.Object]]::new()
 
 $a = 0
-while($a -lt $resultFiles.Length)
+while($a -lt $aoStatsConfig.Sites.Length)
 {
-    $results = Import-CSV -Path $resultFiles[$a].FullName -Delimiter "`t"
-    $included = $false
-
     $b = 0
-    while($b -lt $results.Length)
+    while($b -lt $aoStatsConfig.Sites[$a].VPNServers.Length)
     {
-        if($results[$b].Description -eq "Before SDWAN conversion")
-        {
-            $combinedResults.Add($results[$b])
-            $included = $true
-        }
+        $stat = "" | Select-Object SiteNumber,ServerNumber,CurrentStats,HourlyStats
+        $stat.SiteNumber = $a
+        $stat.ServerNumber = $b
+        $stat.CurrentStats = [System.Collections.Generic.List[System.Object]]::new()
+        $stat.HourlyStats = [System.Collections.Generic.List[System.Object]]::new()
+
+        $stats.Add($stat)
         $b++
     }
-
-    if($included)
-    {
-        Write-Host -NoNewline ("{0}" -f @($resultFiles[$a].FullName))
-        # Do not add PreSDWANCombined.csv to the list of combined files, or it will be removed just after it is recreated...
-        if($resultFiles[$a].Name -notmatch "PreSDWANCombined.csv")
-        {
-            $combinedFiles.Add($resultFiles[$a].FullName)
-            Write-Host -NoNewline (" to be deleted")
-        }
-        else
-        {
-        }
-
-        Write-Host ""
-    }
-
     $a++
 }
 
-try
-{
-    $combinedResults | Export-CSV -Path "\\cdcfs1\Reference\PerfTest\Results\PreSDWANCombined.csv" -Delimiter "`t" -NoTypeInformation -Force -Confirm:$false -ErrorAction Stop
-    $combinedFiles | Foreach-Object { Remove-Item -Path $_ -Force -Confirm:$false -ErrorAction Stop }
+$endDateTime = [DateTime]::Now.ToUniversalTime()
+$startDateTime = $endDateTime.AddHours(-4)
+
+# In parallel, get all the AoVPN stats from the various servers.
+$stats | Foreach-Object -Parallel {
+    <#
+        I tried a few variation of the following 7 lines of code, but $using makes it a little more complex.
+        What I came up with seemed to work consistently.
+    #>
+    $eDT = $using:endDateTime
+    $sDT = $using:startDateTime
+    $ao = $using:aoStatsConfig
+    $site = $ao.Sites[$_.SiteNumber]
+    $aoVPNServer = $site.VPNServers[$_.ServerNumber]
+    $currStats = $_.CurrentStats
+    $hourlyStats = $_.HourlyStats
+
+    $currStats.Clear()
+
+    try
+    {
+        Invoke-Command -ComputerName $aoVPNServer -ScriptBlock { Get-RemoteAccessConnectionStatistics } | Foreach-Object {
+            $currStats.Add($_)
+        }
+    }
+    catch
+    {
+        Write-Error ("Failed to retrieve current AoVPN stats from {0}." -f @($aoVPNServer))
+    }
+    $hourlyStats.Clear()
+    try
+    {
+        Invoke-Command -ComputerName $aoVPNServer -ScriptBlock { Get-RemoteAccessConnectionStatistics -StartDateTime ([DateTime]::Now.AddHours(-1)) -EndDateTime ([DateTime]::Now) } | Foreach-Object {
+            $hourlyStats.Add($_)
+        }
+    }
+    catch
+    {
+        Write-Error ("Failed to retrieve hourly AoVPN stats from {0}." -f @($aoVPNServer))
+    }
 }
-catch
-{
 
+$stats | ForEach-Object {
+    Write-Host ("{0}/{1}: {2}/{3}" -f @($aoStatsConfig.Sites[$_.SiteNumber].SiteCode, $aoStatsConfig.Sites[$_.SiteNumber].VPNServers[$_.ServerNumber], $_.CurrentStats.Count, $_.HourlyStats.Count))
 }
 
 
-$cert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert
-Set-AuthenticodeSignature -Certificate $cert -FilePath "..\PEI-IT-OPS\RDC\Metrics\SpeedTest.ps1"
+$licMgr = Get-View LicenseManager -Server $vCenter
+$licAssignmentMgr = Get-View -Id $licMgr.LicenseAssignmentManager -Server $vCenter
+
+$usedLicenses = $licAssignmentMgr.QueryAssignedLicenses($vCenter.InstanceUid)
+$usedLicenses | Foreach-Object {
+    $_ | Select-Object @{N='vCenter';E={$vCenter.Name}},EntityDisplayName,
+        @{N='LicenseKey';E={$_.AssignedLIcense.LicenseKey}},
+        @{N='LicenseName';E={$_.AssignedLicense.Name}},
+        @{N='ExpirationDate';E={$_.AssignedLicense.Properties.where{$_.Key -eq 'expirationDate'}.Value }}
+}
+
+
+$licenseDataManager = Get-LicenseDataManager
+$licenseDataManager.QueryEntityLicenseData()
+
+
+
+$LicenseManager = Get-view LicenseManager
+
+$LicenseAssignmentManager = Get-View $LicenseManager.LicenseAssignmentManager
+
+$LicenseAssignmentManager.GetType().GetMethod("QueryAssignedLicenses").Invoke($LicenseAssignmentManager,@($null)) |
+    Select-Object EntityDisplayName,
+        @{N='Product';E={$_.Properties | where-object {$_.Key -eq 'ProductName'} | select-Object -ExpandProperty Value}},
+        @{N='Product Version';E={$_.Properties | where-Object{$_.Key -eq 'FileVersion'} | select-Object -ExpandProperty Value}},
+        @{N='License';E={$_.AssignedLicense.LicenseKey}},
+        @{N='License Name';E={$_.AssignedLicense.Name}},
+        @{N='Used License';E={$_.Properties | where-Object{$_.Key -eq 'EntityCost'} | select-Object -ExpandProperty Value}},
+        @{N='Total';E={$_.AssignedLicense.Total}}
+
+
+
+
+
+        $DN = (Get-ADUser -Identity "jdollus" -Properties DistinguishedName).DistinguishedName
+        Get-ADGroup -LDAPFilter "(member:1.2.840.113556.1.4.1941:=CN=Ken Briney-adm,OU=Admin Accounts,OU=IT,OU=PEI,DC=powereng,DC=com)"
+
+
+
+([ADSISEARCHER]"(member:1.2.840.113556.1.4.1941:=$(([ADSISEARCHER]"samaccountname=jdollus").FindOne().Properties.distinguishedname))").FindAll().Properties.distinguishedname -replace '^CN=([^,]+).+$','$1'
+
+
+$projects = Get-ChildItem -Path "\\boifs1\shares$\Projects" | Where-Object { $_.PSIsContainer }
+$explicitPaths = [System.Collections.Generic.List[System.String]]::new()
+$p = 0
+while($p -lt $projects.Length)
+{
+    Write-Host -ForegroundColor White -NoNewline ("Checking {0} of {1}: {2}..." -f @(($p + 1), $projects.Length, $projects[$p].Name))
+    $acls = Get-Acl -Path $projects[$p].FullName
+    if($null -ne $acls)
+    {
+        if($null -ne $acls.Access)
+        {
+            $explicitAccess = @($acls.Access | Where-Object { -not $_.IsInherited })
+            if($explicitAccess.Length -gt 0)
+            {
+                $i = $explicitPaths.BinarySearch($projects[$p].Name)
+                if($i -lt 0)
+                {
+                    $explicitPaths.Insert(-bnot $i, $projects[$p].Name)
+                    Write-Host -NoNewline -ForegroundColor Green "explicit"
+                }
+            }
+        }
+    }
+    Write-Host ""
+    $p++
+}
+
+$explicitPaths -join ", " | Set-Clipboard
+
+
+$cifsData = [System.Collections.Generic.List[System.Object]]::new()
+
+$ctrlrs = @($cDOT.Values)
+$b = 0
+while($b -lt $ctrlrs.Length)
+{
+    $ctrlr = $ctrlrs[$b]
+    $cifsServers = @(Get-NCCifsServer -Controller $ctrlr)
+    $cifsSessions = @(Get-NcCifsSession -Controller $ctrlr)
+    $a = 0
+    while($a -lt $cifsServers.Length)
+    {
+        $d = "" | Select-Object Controller,VServer,SMB1Enabled,SMB2Enabled,SMB3Enabled,SMB31Enabled,SMBEncryptionRequired,SMBSigningRequired
+
+        $cifsOptions = Get-NcCifsOption -Controller $ctrlr -VserverContext $cifsServers[$a].Vserver
+
+        $d.Controller = $ctrlr.Name
+        $d.VServer = $cifsServers[$a].Vserver
+        $d.SMB1Enabled = $cifsOptions.IsSmb1Enabled -and $cifsOptions.IsSmb1EnabledSpecified
+        $d.SMB2Enabled = $cifsOptions.IsSmb2Enabled -and $cifsOptions.IsSmb2EnabledSpecified
+        $d.SMB3Enabled = $cifsOptions.IsSmb3Enabled -and $cifsOptions.IsSmb3EnabledSpecified
+        $d.SMB31Enabled = $cifsOptions.IsSmb31Enabled -and $cifsOptions.IsSmb31EnabledSpecified
+
+        $cifsSecurity = Get-NcCifsSecurity -Controller $ctrlr -VserverContext $cifsServers[$a].Vserver
+        $d.SMBEncryptionRequired = $cifsSecurity.IsSmbEncryptionRequired -and $cifsSecurity.IsSmbEncryptionRequiredSpecified
+        $d.SMBSigningRequired = $cifsSecurity.IsSigningRequired -and $cifsSecurity.IsSigningRequiredSpecified
+
+        $sessions = @($cifsSessions | Where-Object { $_.Vserver -eq $cifsServers[$a].Vserver })
+        if($sessions.Length -gt 0)
+        {
+            $sessionGroups = $cifsSessions | Group-Object -Property ProtocolVerion
+            $a = $cifsServers.Length
+            $b = $ctrlrs.Length
+        }
+
+        Write-Host ("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}" -f @($d.Controller, $d.VServer, $d.SMB1Enabled, $d.SMB2Enabled, $d.SMB3Enabled, $d.SMB31Enabled, $d.SMBEncryptionRequired, $d.SMBSigningRequired))
+        $cifsData.Add($d)
+
+        $a++
+    }
+    $b++
+}
+
+$cifsData | ConvertTo-Csv -NoTypeInformation -Delimiter "`t" | Set-Clipboard

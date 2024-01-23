@@ -40,7 +40,7 @@
             "ntp2.powereng.com"
         ]
     },
-    "ldapConfig" : {
+    "ldapConfig": {
         "baseDN": "DC=powereng,DC=com",
         "rootDN": "CN=srvcldap,OU=Service Accounts,DC=powereng,DC=com",
         "bindKey": "YeahRight",
@@ -65,7 +65,7 @@
             }
         ]
     },
-    "NO_CHANGES_PAST_HERE",
+    "NO_CHANGES_PAST_HERE": "NO MORE CHANGES",
     "uplinkPorts": [
         {
             "filancloud": "A",

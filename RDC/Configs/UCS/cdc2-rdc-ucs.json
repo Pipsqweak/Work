@@ -1,7 +1,7 @@
 {
     "ucsManager":  "cdc-ucs02.powereng.com",
     "uuidSuffixPoolStart_Comment": "uuidSuffixPoolStart should be different for each UCS Manager.  Shown here as a decimal number, but UCS displays hex.  12288 = 0x3000 see: POWER Engineers, Inc\\IT Infrastructure - Documents\\Documentation\\Infrastructure Services\\UCS\\Compute-Storage-Names and Addresses.xlsx",
-    "uuidSuffixPoolStart" : 45056    ,
+    "uuidSuffixPoolStart" : 45056,
     "ipPool_Comment": "The addresses in ext-mgmt must be on the same VLAN as the management port on for the fabric interconnects.",
     "ipPool": {
         "name": "ext-mgmt",

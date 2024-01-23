@@ -1,17 +1,20 @@
+<#
 if(($null -eq $cdot) -or (($null -ne $cdot) -and (-not ($cdot.ContainsKey('CDC-CDOTCLST01')))))
 {
     Write-Verbose ("Connecting to CDC CDOT...")
     ConnectTo cdc,cdot,prod
 }
+#>
 
-if(($null -ne $cdot) -and (-not ($cdot.ContainsKey('BDC-CDOTCLST01'))))
+if(($null -eq $cdot) -or (-not ($cdot.ContainsKey('BDC-CDOTCLST01'))))
 {
     Write-Verbose ("Connecting to DDC CDOT...")
     ConnectTo ddc,cdot,prod
 }
 
 $controllerVolumeDataRefreshed = [System.Collections.Generic.SortedDictionary[[System.String],[System.Boolean]]]::new()
-$controllers = @($cdot['CDC-CDOTCLST01'], $cdot['BDC-CDOTCLST01'])
+# $controllers = @($cdot['CDC-CDOTCLST01'], $cdot['BDC-CDOTCLST01'])
+$controllers = @($cdot['BDC-CDOTCLST01'])
 $controllerEncryptionProgress = [System.Collections.Generic.SortedDictionary[[System.String],[System.Object]]]::new()
 
 
@@ -92,8 +95,10 @@ function GetVolumeData
         $cntrlr
     )
 
+    $volsToIgnore = @("BDCDR-SVMA01:SMDV_vol_BDC_SVMA01_vol_SMB_Env_GIS_01")
+
     $cntrlrName = @($cntrlr.Name -split '\.')[0].ToUpper()
-    $encryptableVolumes = @(Get-NCVol -Controller $cntrlr | Where-Object { ($_.VolumeSnaplockAttributes.SnaplockType -eq "non_snaplock" ) -and (-not $_.VolumeStateAttributes.IsNodeRoot) -and (-not $_.VolumeStateAttributes.IsVserverRoot) })
+    $encryptableVolumes = @(Get-NCVol -Controller $cntrlr | Where-Object { ($_.VolumeSnaplockAttributes.SnaplockType -eq "non_snaplock" ) -and (-not $_.VolumeStateAttributes.IsNodeRoot) -and (-not $_.VolumeStateAttributes.IsVserverRoot) -and (("{0}:{1}" -f @($_.VServer, $_.Name)) -notin $volsToIgnore) })
 
     if ($Global:encryptableVolumesByController.ContainsKey($cntrlrName))
     {

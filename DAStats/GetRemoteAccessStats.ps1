@@ -552,6 +552,7 @@ if($Global:doDebug)
 $haveAllRequirements = $true
 
 $Global:config = $null
+$runtimeFileStamp = [DateTime]::Now.ToString("MMddyyyyHHmm")
 
 if(-not [String]::IsNullOrEmpty($JSONArgsFile))
 {
@@ -684,7 +685,8 @@ if(-not [String]::IsNullOrEmpty($JSONArgsFile))
                     {
                         if(-not [String]::IsNullOrEmpty($Global:config.standardStatsFile))
                         {
-                            $standardStatDataSaveFile = "{0}\{1}" -f @($Global:config.whereScapeFolder, $Global:config.standardStatsFile)
+                            $standardStatDataSaveFile = "{0}\{1}{2}{3}" -f @($Global:config.whereScapeFolder, [System.IO.Path]::GetFileNameWithoutExtension($Global:config.standardStatsFile), $runtimeFileStamp, [System.IO.Path]::GetExtension($Global:config.standardStatsFile))
+
                             # Make sure $standardStatDataSaveFile is valid  NOTE:  -IsValid
                             if(-not (Test-Path -Path $standardStatDataSaveFile -IsValid))
                             {
@@ -702,7 +704,7 @@ if(-not [String]::IsNullOrEmpty($JSONArgsFile))
 
                         if(-not [String]::IsNullOrEmpty($Global:config.bandwidthStatsFile))
                         {
-                            $bandwidthStatsDataSaveFile = "{0}\{1}" -f @($Global:config.whereScapeFolder, $Global:config.bandwidthStatsFile)
+                            $bandwidthStatsDataSaveFile = "{0}\{1}{2}{3}" -f @($Global:config.whereScapeFolder, [System.IO.Path]::GetFileNameWithoutExtension($Global:config.bandwidthStatsFile), $runtimeFileStamp, [System.IO.Path]::GetExtension($Global:config.bandwidthStatsFile))
                             # Make sure $bandwidthStatsDataSaveFile is valid  NOTE:  -IsValid
                             if(-not (Test-Path -Path $bandwidthStatsDataSaveFile -IsValid))
                             {
@@ -721,7 +723,7 @@ if(-not [String]::IsNullOrEmpty($JSONArgsFile))
 
                         if(-not [String]::IsNullOrEmpty($Global:config.bandwidthStatsFile))
                         {
-                            $mergedStatsDataSaveFile  = "{0}\{1}" -f @($Global:config.whereScapeFolder, $Global:config.mergedStatsFile)
+                            $mergedStatsDataSaveFile = "{0}\{1}{2}{3}" -f @($Global:config.whereScapeFolder, [System.IO.Path]::GetFileNameWithoutExtension($Global:config.mergedStatsFile), $runtimeFileStamp, [System.IO.Path]::GetExtension($Global:config.mergedStatsFile))
                             # Make sure $mergedStatsDataSaveFile is valid  NOTE:  -IsValid
                             if(-not (Test-Path -Path $mergedStatsDataSaveFile -IsValid))
                             {

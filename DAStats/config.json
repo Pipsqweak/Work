@@ -7,11 +7,12 @@
                         "ken.briney@powereng.com",
                         "russel.riley@powereng.com"
                     ],
-    "whereScapeFolder": "\\\\cdc-wherescape\\DA_Data",
+    "whereScapeFolder": "\\\\cdcfs1\\Azure_Data_Factory\\DA_Data\\New",
     "queueFolder": "E:\\DAStatsWork\\QueuedData",
     "standardStatsFile": "daStats.csv",
     "bandwidthStatsFile": "daBandwidthStats.csv",
     "mergedStatsFile": "daMergedStats.csv",
+    "userListFolder": "E:\\DAStatsWork\\SiteUserLists",
     "Sites": [
         {
             "Name": "Calgary",

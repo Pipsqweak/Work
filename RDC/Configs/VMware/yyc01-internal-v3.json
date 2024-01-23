@@ -96,8 +96,8 @@
     ],
     "hosts": [
         {
-            "serial": "FLM255104JD",
-            "assetTag": "48739",
+            "serial": "FLM255103FF",
+            "assetTag": "48724",
             "vmHostName": "yyc01-esx-c1-b3.powereng.com",
             "vmks": [
                 {
@@ -129,12 +129,12 @@
                 }
             ],
             "datastores":[
-                "YYC01_SATA_01","YYC01_RDC_SATA_01"
+                "YYC01_SATA_01"
             ]
         },
         {
-            "serial": "FLM255104GA",
-            "assetTag": "48738",
+            "serial": "FLM255104HG",
+            "assetTag": "48723",
             "vmHostName": "yyc01-esx-c1-b4.powereng.com",
             "vmks": [
                 {
@@ -166,7 +166,7 @@
                 }
             ],
             "datastores":[
-                "YYC01_SATA_01","YYC01_RDC_SATA_01"
+                "YYC01_SATA_01"
             ]
         }
     ]

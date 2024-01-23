@@ -11,8 +11,9 @@ using DataONTAP.C.Types.Snapmirror;
 using DataONTAP.C.Types.Snapshot;
 using DataONTAP.C.Types.Net;
 using DataONTAP.C.Types.Cifs;
-using VMware.VimAutomation.ViCore.Impl.V1.Inventory;
-using VMware.VimAutomation.ViCore.Impl.V1.DatastoreManagement;
+using VMware.VimAutomation.ViCore.Types.V1.Inventory;
+using VMware.VimAutomation.ViCore.Types.V1.DatastoreManagement;
+
 
 abstract public class DataObject<T>
 {
@@ -200,7 +201,7 @@ public class NetAppClusterCollection : IList<NetAppCluster>
                 where ((string)clusterInfo.ClusterUuid == c.UUID.ToString()) && ((string)clusterInfo.ClusterName == c.Name)
                 select c;
 
-        if (x.Count() == 0)
+        if(x.Count() == 0)
         {
             netAppCluster = new NetAppCluster(clusterInfo);
             _clusters.Add(netAppCluster);
@@ -241,11 +242,11 @@ public class NetAppClusterCollection : IList<NetAppCluster>
     {
         List<NetAppVServer> vServers = new List<NetAppVServer>();
 
-        (from c in _clusters
-         where (c.Source.NcController.Name == controllerName)
-         select c).ToList().ForEach(cluster => {
-             cluster.FindVServerByName(vServerName).ForEach(v => vServers.Add(v));
-         });
+         (from c in _clusters
+          where (c.Source.NcController.Name == controllerName)
+          select c).ToList().ForEach(cluster => {
+              cluster.FindVServerByName(vServerName).ForEach(v => vServers.Add(v));
+          });
 
         return vServers;
     }
@@ -409,16 +410,16 @@ public class NetAppClusterCollection : IList<NetAppCluster>
         return netAppVolumes;
     }
 
-    public List<NetAppVolume> FindVolumeByDatastore(NasDatastoreImpl datastore)
+    public List<NetAppVolume> FindVolumeByDatastore(NasDatastore datastore)
     {
         List<NetAppVolume> netAppVolumes = new List<NetAppVolume>();
 
         _clusters.ForEach(c => {
             c.VServers.ToList().ForEach(vs =>
             {
-                foreach (string address in datastore.RemoteHost)
+                foreach(string address in datastore.RemoteHost)
                 {
-                    if (vs.FindLIFByAddress(address).Count > 0)
+                    if(vs.FindLIFByAddress(address).Count > 0)
                     {
                         vs.FindVolumeByJunctionPath(datastore.RemotePath).ForEach(vol => netAppVolumes.Add(vol));
                     }
@@ -643,12 +644,12 @@ public class NetAppVServer : NetAppClusterObject<VserverInfo>
     {
         int retval = 1;
 
-        if ((null != obj) && (obj is NetAppVServer))
+        if((null != obj) && (obj is NetAppVServer))
         {
             NetAppVServer other = obj as NetAppVServer;
 
             retval = Cluster.CompareTo(other);
-            if (retval == 0)
+            if(retval == 0)
             {
                 retval = UUID.CompareTo(other.UUID);
                 if (retval == 0)
@@ -694,7 +695,7 @@ public class NetAppVServerCollection : IList<NetAppVServer>
                 where (v.Identity == item.Identity)
                 select v;
 
-        if (x.Count() == 0)
+        if(x.Count() == 0)
         {
             _vServers.Add(item);
         }
@@ -772,7 +773,7 @@ public class NetAppAggregate : NetAppClusterObject<AggrAttributes>
         }
 
         // Make sure aggregate belongs to cluster
-        if (cluster.Source.NcController.Name != aggregate.NcController.Name)
+        if(cluster.Source.NcController.Name != aggregate.NcController.Name)
         {
             throw new Exception(String.Format("Cluster mismatch in {0}.{1}.  Cluster controller name: {2}, aggregate controller name: {3}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name, cluster.Source.NcController.Name, aggregate.NcController.Name));
         }
@@ -785,10 +786,10 @@ public class NetAppAggregate : NetAppClusterObject<AggrAttributes>
         NetAppVolume newNetAppVolume = null;
 
         // First make sure volume belongs to same cluster as this aggregate
-        if (volume.NcController.Name == Cluster.Source.NcController.Name)
+        if(volume.NcController.Name == Cluster.Source.NcController.Name)
         {
             // Next, make sure vServer belongs to the same cluster as this aggregate
-            if (Cluster.UUID == vServer.Cluster.UUID)
+            if(Cluster.UUID == vServer.Cluster.UUID)
             {
                 // Next, make sure volume is contained on aggregate
                 if ((string)volume.VolumeIdAttributes.ContainingAggregateUuid == UUID.ToString())
@@ -835,15 +836,14 @@ public class NetAppVolume : NetAppObject<VolumeAttributes>
     public Decimal Size { get { return (null != Source) && (Source.VolumeSpaceAttributes.SizeTotalSpecified) ? (Decimal)Source.VolumeSpaceAttributes.SizeTotal : -1; } }
     public Decimal Used { get { return (null != Source) && (Source.VolumeSpaceAttributes.SizeUsedSpecified) ? (Decimal)Source.VolumeSpaceAttributes.SizeUsed : -1; } }
     public Decimal Available { get { return (null != Source) && (Source.VolumeSpaceAttributes.SizeAvailableSpecified) ? (Decimal)Source.VolumeSpaceAttributes.SizeAvailable : -1; } }
-    public Decimal SnapshotCount { get { return (null != Source) && (null != Source.VolumeSnapshotAttributes) && (Source.VolumeSnapshotAttributes.SnapshotCountSpecified) ? (int)Source.VolumeSnapshotAttributes.SnapshotCount : 0; } }
     public string SnaplockType { get { return ((null != Source) && (null != Source.VolumeSnaplockAttributes) && (null != Source.VolumeSnaplockAttributes.SnaplockType)) ? ((string)Source.VolumeSnaplockAttributes.SnaplockType).ToLower() : string.Empty; } }
     public override string Name { get { return ((null != Source) && (null != Source.Name)) ? Source.Name : string.Empty; } }
     public override Guid UUID { get { return (null != Source) ? Guid.Parse((string)Source.VolumeIdAttributes.Uuid) : Guid.Empty; } }
     public string JunctionPath { get { return ((null != Source) && (null != Source.VolumeIdAttributes.JunctionPath)) ? (string)Source.VolumeIdAttributes.JunctionPath : string.Empty; } }
-    public bool IsEncrypted { get { return ((null != Source) && (Source.EncryptSpecified)) ? (bool)Source.Encrypt : false; } }
 
     public List<NetAppShare> Shares { get; private set; }
     public List<NetAppVolume> SnapmirrorDestinations { get; private set; }
+    public List<NetAppSnapshot> Snapshots { get; private set; }
     public List<VMWareDatastore> Datastores { get; private set; }
 
     public NetAppVolume(NetAppVServer vServer, NetAppAggregate aggregate, VolumeAttributes volume) : base(volume)
@@ -864,7 +864,7 @@ public class NetAppVolume : NetAppObject<VolumeAttributes>
         }
 
         // Make sure everything is related.
-        if (volume.Vserver != vServer.Name)
+        if(volume.Vserver != vServer.Name)
         {
             throw new Exception(String.Format("vServer mismatch in {0}.{1}.  VServer: {2}, volume vServer name: {3}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name, vServer.Identity, volume.Vserver));
         }
@@ -874,7 +874,7 @@ public class NetAppVolume : NetAppObject<VolumeAttributes>
             throw new Exception(String.Format("Aggregate mismatch in {0}.{1}.  Aggregate: {2}, volume aggregate: {3}/{4}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name, aggregate.Identity, (string)volume.VolumeIdAttributes.ContainingAggregateName, (string)volume.VolumeIdAttributes.ContainingAggregateUuid));
         }
 
-        if (vServer.Cluster.UUID != aggregate.Cluster.UUID)
+        if(vServer.Cluster.UUID != aggregate.Cluster.UUID)
         {
             throw new Exception(String.Format("Cluster mismatch in {0}.{1}.  VServer/Cluster: {2}, Aggregate/Cluster: {3}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name, vServer.Identity, aggregate.Identity));
         }
@@ -883,6 +883,7 @@ public class NetAppVolume : NetAppObject<VolumeAttributes>
         Aggregate = aggregate;
         Shares = new List<NetAppShare>();
         SnapmirrorDestinations = new List<NetAppVolume>();
+        Snapshots = new List<NetAppSnapshot>();
         Datastores = new List<VMWareDatastore>();
     }
 
@@ -893,7 +894,7 @@ public class NetAppVolume : NetAppObject<VolumeAttributes>
             bool retval = (SnaplockType != "non_snaplock") && (SnaplockType != string.Empty);
 
             int a = 0;
-            while (!retval && (a < SnapmirrorDestinations.Count))
+            while(!retval && (a < SnapmirrorDestinations.Count))
             {
                 retval = SnapmirrorDestinations[a].IsSnaplockProtected;
                 a++;
@@ -910,7 +911,7 @@ public class NetAppVolume : NetAppObject<VolumeAttributes>
                 where (d.Aggregate.UUID == destination.Aggregate.UUID) && (d.UUID == destination.UUID)
                 select d;
 
-        if (x.Count() == 0)
+        if(x.Count() == 0)
         {
             SnapmirrorDestinations.Add(destination);
         }
@@ -946,63 +947,63 @@ public class NetAppVolume : NetAppObject<VolumeAttributes>
         return newNetAppShare;
     }
 
-    //public void AddSnapshot(SnapshotInfo snapshot)
-    //{
-    //    // Make sure the snapshot belongs to this volume
-    //    if (snapshot.NcController.Name == VServer.Cluster.Source.NcController.Name)
-    //    {
-    //        if ((string)snapshot.Vserver == VServer.Name)
-    //        {
-    //            if ((string)snapshot.Volume == Name)
-    //            {
-    //                // Next, make sure there is not a matching snapshot already in Snapshots.
-    //                var x = from s in Snapshots
-    //                        where s.CompareTo(snapshot) == 0
-    //                        select s;
+    public void AddSnapshot(SnapshotInfo snapshot)
+    {
+        // Make sure the snapshot belongs to this volume
+        if(snapshot.NcController.Name == VServer.Cluster.Source.NcController.Name)
+        {
+            if((string) snapshot.Vserver == VServer.Name)
+            {
+                if((string)snapshot.Volume == Name)
+                {
+                    // Next, make sure there is not a matching snapshot already in Snapshots.
+                    var x = from s in Snapshots
+                            where s.CompareTo(snapshot) == 0
+                            select s;
 
-    //                if (x.Count() == 0)
-    //                {
-    //                    Snapshots.Add(new NetAppSnapshot(this, snapshot));
-    //                }
-    //                else
-    //                {
-    //                    // Nothing, don't add the same snapshot more than once.
-    //                }
-    //            }
-    //            else
-    //            {
-    //                throw new Exception(String.Format("Volume mismatch in {0}.{1}.  Volume: {2}, Snapshot volume name: {3}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name, Identity, (string)snapshot.Volume));
-    //            }
-    //        }
-    //        else
-    //        {
-    //            throw new Exception(String.Format("VServer mismatch in {0}.{1}.  Volume vServer: {2}, Snapshot vServer name: {3}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name, VServer.Identity, (string)snapshot.Vserver));
-    //        }
-    //    }
-    //    else
-    //    {
-    //        throw new Exception(String.Format("Cluster mismatch in {0}.{1}.  Volume cluster controller name: {2}, Snapshot controller name: {3}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name, VServer.Cluster.Source.NcController.Name, snapshot.NcController.Name));
-    //    }
-    //}
+                    if(x.Count() == 0)
+                    {
+                        Snapshots.Add(new NetAppSnapshot(this, snapshot));
+                    }
+                    else
+                    {
+                        // Nothing, don't add the same snapshot more than once.
+                    }
+                }
+                else
+                {
+                    throw new Exception(String.Format("Volume mismatch in {0}.{1}.  Volume: {2}, Snapshot volume name: {3}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name, Identity, (string)snapshot.Volume));
+                }
+            }
+            else
+            {
+                throw new Exception(String.Format("VServer mismatch in {0}.{1}.  Volume vServer: {2}, Snapshot vServer name: {3}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name, VServer.Identity, (string)snapshot.Vserver));
+            }
+        }
+        else
+        {
+            throw new Exception(String.Format("Cluster mismatch in {0}.{1}.  Volume cluster controller name: {2}, Snapshot controller name: {3}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name, VServer.Cluster.Source.NcController.Name, snapshot.NcController.Name));
+        }
+    }
 
-    public VMWareDatastore AddDatastore(NasDatastoreImpl datastore)
+    public VMWareDatastore AddDatastore(NasDatastore datastore)
     {
         VMWareDatastore newVMDatastore = null;
 
         // Make sure everything is related
         bool vServerHasMatchingLIF = false;
         int a = 0;
-        while (!vServerHasMatchingLIF && (a < datastore.RemoteHost.Length))
+        while(!vServerHasMatchingLIF && (a < datastore.RemoteHost.Length))
         {
             vServerHasMatchingLIF = VServer.LIFs.Any(t => t.Address == datastore.RemoteHost[a]);
             a++;
         }
 
         // Have a lif with the right address?
-        if (vServerHasMatchingLIF)
+        if(vServerHasMatchingLIF)
         {
             // JunctionPath == RemotePath??
-            if (JunctionPath.ToLower() == datastore.RemotePath.ToLower())
+            if(JunctionPath.ToLower() == datastore.RemotePath.ToLower())
             {
                 // Finally, make sure datastore is not already in Datastores
                 var x = from d in Datastores
@@ -1022,6 +1023,57 @@ public class NetAppVolume : NetAppObject<VolumeAttributes>
         }
 
         return newVMDatastore;
+    }
+}
+
+public class NetAppSnapshot : NetAppObject<SnapshotInfo>,IComparable<SnapshotInfo>
+{
+    /*
+     *  NOTE: A snapshot's UUID <SnapshotInfo.SnapshotInstanceUuid> may not be globally unique.  If a volume is mirrored, then all of it's snapshot get mirrored as well, resulting in globally duplicate UUIDs.
+     *     However, within the same volume, there will be no duplicates.
+     */
+    public NetAppVolume Volume { get; private set; }
+    public DateTime? Created { get { return (null != Source) && (Source.AccessTimeSpecified) ? Source.AccessTimeDT : null; } }
+    public DateTime? ExpiryTime { get { return (null != Source) && (Source.ExpiryTimeSpecified) ? Source.ExpiryTimeDT : null; } }
+    public DateTime? SnaplockExpiryTime { get { return (null != Source) && (Source.SnaplockExpiryTimeSpecified) ? Source.SnaplockExpiryTimeDT : null; } }
+    public string SnapmirrorLabel { get { return (null != Source) ? (string)Source.SnapmirrorLabel : null; } }
+    public override string Name { get { return (null != Source) ? (string)Source.Name : null; } }
+    public override Guid UUID { get { return (null != Source) ? Guid.Parse((string)Source.SnapshotInstanceUuid) : Guid.Empty; } }
+    public long? CumulativeTotal { get { return (null != Source) && (Source.CumulativeTotalSpecified) ? Source.CumulativeTotal : null; } }
+    public long? Total { get { return (null != Source) && (Source.TotalSpecified) ? Source.Total : null; } }
+
+    public NetAppSnapshot(NetAppVolume volume, SnapshotInfo snapshot) : base(snapshot)
+    {
+        if (null == volume)
+        {
+            throw new Exception(String.Format("Missing volume in {0}.{1}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name));
+        }
+        if (null == snapshot)
+        {
+            throw new Exception(String.Format("Missing snapshot in {0}.{1}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name));
+        }
+
+        // Make sure snapshot belongs to volume
+        if((string)snapshot.Volume != volume.Name)
+        {
+            throw new Exception(String.Format("Volume mismatch in {0}.{1}.  Volume: {2}, Snapshot volume name: {3}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name, Volume.Identity, (string)snapshot.Volume));
+        }
+        Volume = volume;
+
+        // NOTE: Do not call Volume.AddSnapshot(snapshot) here, since AddSnapshot will in turn call new NetAppSnapshot creating a loop.
+    }
+
+    public int CompareTo(SnapshotInfo other)
+    {
+        int retval = 1;
+
+        retval = UUID.CompareTo(Guid.Parse((string)other.SnapshotInstanceUuid));
+        if (retval == 0)
+        {
+            retval = Name.CompareTo(other.Name);
+        }
+
+        return retval;
     }
 }
 
@@ -1045,7 +1097,7 @@ public class NetAppShare : DataObject<CifsShare>
         }
 
         // Make sure everything is related...
-        if ((string)share.Volume != volume.Name)
+        if((string)share.Volume != volume.Name)
         {
             throw new Exception(String.Format("Volume mismatch in {0}.{1}.  Volume: {2}, Share volume name: {3}.", MethodBase.GetCurrentMethod().ReflectedType.Name, MethodBase.GetCurrentMethod().Name, Volume.Identity, (string)share.Volume));
         }
@@ -1053,17 +1105,16 @@ public class NetAppShare : DataObject<CifsShare>
     }
 }
 
-public class VMWareDatastore : DataObject<NasDatastoreImpl>, IComparable
+public class VMWareDatastore : DataObject<NasDatastore>, IComparable
 {
     public NetAppVolume Volume { get; private set; }
     public string ID { get { return ((null != Source) && (null != Source.Id)) ? Source.Id : string.Empty; } }
     public string Name { get { return ((null != Source) && (null != Source.Name)) ? Source.Name : string.Empty; } }
-    public string Datacenter { get { return ((null != Source) && (null != Source.Datacenter)) ? Source.Datacenter.Name : string.Empty; } }
     public override string Identity { get { return Name; } }
 
     public List<VMWareVirtualMachine> VirtualMachines { get; private set; }
 
-    public VMWareDatastore(NetAppVolume volume, NasDatastoreImpl datastore) : base(datastore)
+    public VMWareDatastore(NetAppVolume volume, NasDatastore datastore) : base(datastore)
     {
         if (null == volume)
         {
@@ -1084,7 +1135,7 @@ public class VMWareDatastore : DataObject<NasDatastoreImpl>, IComparable
                 where d.ID == ID
                 select d;
 
-        if (x.Count() > 0)
+        if(x.Count() > 0)
         {
             // Make sure there is not already a reference to virtualMachine in VirtualMachines
             var y = from v in VirtualMachines
@@ -1125,7 +1176,7 @@ public class VMWareDatastore : DataObject<NasDatastoreImpl>, IComparable
     }
 }
 
-public class VMWareVirtualMachine : DataObject<VirtualMachineImpl>, IComparable
+public class VMWareVirtualMachine : DataObject<VirtualMachine>, IComparable
 {
     public string ID { get { return ((null != Source) && (null != Source.Id)) ? Source.Id : string.Empty; } }
     public string Name { get { return ((null != Source) && (null != Source.Name)) ? Source.Name : string.Empty; } }
@@ -1134,7 +1185,7 @@ public class VMWareVirtualMachine : DataObject<VirtualMachineImpl>, IComparable
 
     public List<VMWareDatastore> Datastores { get; set; }
 
-    public VMWareVirtualMachine(VirtualMachineImpl virtualMachine) : base(virtualMachine)
+    public VMWareVirtualMachine(VirtualMachine virtualMachine) : base(virtualMachine)
     {
         if (null == virtualMachine)
         {

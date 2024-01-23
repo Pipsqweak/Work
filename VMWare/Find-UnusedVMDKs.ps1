@@ -1,5 +1,8 @@
-$vms = $null
-$vms = Get-VM -Server $vCenter | Sort-Object Name
+$vms = [System.Collections.Generic.List[System.Object]]::new()
+Get-VM -Server $vCenter | ForEach-Object { $vms.Add($_) }
+Get-Template -Server $vCenter | ForEach-Object { $vms.Add($_) }
+$vms = $vms | Sort-Object Name
+
 
 $diskBackingData = @()
 $a = 0
@@ -142,8 +145,8 @@ while($a -lt $groups.Count)
     $a++
 }
 
-$unusedVMDKs | Out-GridView
-$diskBackingData | Out-GridView
+$unusedVMDKs | Sort-Object Datastore, Name | Out-GridView
+$diskBackingData | Sort-Object VMName, DiskLabel | Out-GridView
 
 $sb = [System.Text.StringBuilder]::new()
 

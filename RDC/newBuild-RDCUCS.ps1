@@ -32,7 +32,7 @@
 
 
 # Source all the utility functions.
-$rdcPrefix = "las04"
+$rdcPrefix = "yyc01"
 
 # Source in all the functions this script needs.
 . .\RDC\RDCBuildUtilityFunctions.ps1

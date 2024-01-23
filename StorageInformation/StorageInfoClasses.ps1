@@ -35,16 +35,16 @@ $requiredAssemblies | ForEach-Object {
         if($null -ne $assembly)
         {
             $requiredAssembliesLocations += $assembly.Location
-            LogInfo ("Loaded assembly: {0} from {1}" -f @($assembly.FullName, $assembly.Location))
+            Write-Host ("Loaded assembly: {0} from {1}" -f @($assembly.FullName, $assembly.Location))
         }
         else
         {
-            LogError ("Could not load assembly: {0}" -f @($_))
+            Write-Error ("Could not load assembly: {0}" -f @($_))
         }
     }
     catch
     {
-        LogError ("Could not load assembly: {0}" -f @($_))
+        Write-Error ("Could not load assembly: {0}" -f @($_))
     }
 }
 

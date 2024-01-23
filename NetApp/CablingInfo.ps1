@@ -1,7 +1,7 @@
-$shelfEnvironment01 = Get-NcShelfEnvironment -Controller $cdcCDOT -NodeName "CDC-NASA01"
-$shelfEnvironment02 = Get-NcShelfEnvironment -Controller $cdcCDOT -NodeName "CDC-NASA02"
+$shelfEnvironment01 = Get-NcShelfEnvironment -Controller $adcCDOT -NodeName "ADC-NASA01"
+$shelfEnvironment02 = Get-NcShelfEnvironment -Controller $adcCDOT -NodeName "ADC-NASA02"
 
-$shelfEnvironment = $shelfEnvironment02
+$shelfEnvironment = $shelfEnvironment01
 $cableDict = [System.Collections.Generic.SortedDictionary[[String],[System.Collections.Generic.SortedDictionary[[String],[Object[]]]]]]::new()
 
 $a = 0
@@ -96,7 +96,7 @@ function GetControllerNodeSASPorts
     return @(, $results)
 }
 
-$storageShelves = Get-NcStorageShelf -Controller $cdcCDOT
+$storageShelves = Get-NcStorageShelf -Controller $adcCDOT
 $nodeAdapterWWNs = $nodeAdapters | Select-Object -Unique -ExpandProperty WWN
 
 

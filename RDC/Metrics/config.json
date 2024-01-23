@@ -1,6 +1,7 @@
 {
     "MaximumRunTime": 30,
     "ResultsRepository": "\\\\cdcfs1\\Reference\\PerfTest\\Results",
+    "PreSDWANResultsFile": "PreSDWANCombined.csv",
     "AlertEmailAddresses": [
         "ken.briney@powereng.com",
         "itnetwork@powereng.com"
