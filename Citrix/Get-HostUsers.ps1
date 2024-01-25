@@ -53,7 +53,6 @@ function GetVDIAffectedUsersAndVMs
     return @($affectedUsers, $affectedVMs)
 }
 
-$affectedUsers -join "; " | Set-Clipboard
 
 # (@(Get-BrokerDesktop -AdminAddress $citrixHost -Filter { (HostingServerName -like $matchExpr) } -MaxRecordCount 5000 | Select-Object -ExpandProperty AssociatedUserUPNs -Unique) -join "; " )
 
@@ -460,7 +459,28 @@ while($a -lt $vmData.Length)
 }
 
 
+$affectedHosts = @("CDC-ESXVCAD01") # ,"CDC-ESXVCAD02","DDC-ESXVCAD01","DDC-ESXVCAD02","DDC-ESXVCAD03","DDC-ESXVCAD04","DDC-ESXVCAD05","DDC-ESX-C1-B4")
+$vdiUsers,$vdiVMs = GetVDIAffectedUsersAndVMs -citrixHost "cdc-ctx-dc01.powereng.com" -vmHostNames $affectedHosts
 
-$vdiUsers,$vdiVMs = GetVDIAffectedUsersAndVMs -citrixHost "cdc-ctx-dc01.powereng.com" -vmHostNames @("CDC-ESXVCAD01","CDC-ESXVCAD02")
-$vmData = GetVDIVMData -viServer $vCenter -citrixHost "cdc-ctx-dc01.powereng.com" -vmHostNames @("CDC-ESXVCAD01","CDC-ESXVCAD02") -affectedVMs $vdiVMs
+$vdiUsers -join "; " | Set-Clipboard
+
+
+$vmData = GetVDIVMData -viServer $vCenter -citrixHost "cdc-ctx-dc01.powereng.com" -vmHostNames $affectedHosts -affectedVMs $vdiVMs
 ShutdownVDIs -viServer $vCenter -citrixHost $citrixHost -vmData $vmData -takeAction
+
+
+
+
+
+try
+{
+    $vdi = Get-BrokerMachine -AdminAddress $citrixHost -MachineName "POWERENG\BDC-DC01" -ErrorAction Stop
+    if(-not $vdi.InMaintenanceMode)
+    {
+        Write-Host ("Placing {0} in maintenance mode." -f @($vdi.HostedMachineName))
+    }
+}
+catch
+{
+    Write-Host "Not a VDI"
+}

@@ -1,0 +1,14 @@
+DELETE FROM AggregateData;
+DELETE FROM Aggregates;
+DELETE FROM Clusters;
+DELETE FROM DataCollectionRuns;
+DELETE FROM DatastoreData;
+DELETE FROM Datastores;
+DELETE FROM ShareData;
+DELETE FROM SnapmirrorData;
+DELETE FROM VServers;
+DELETE FROM VirtualMachineData;
+DELETE FROM VirtualMachine_DatastoreData;
+DELETE FROM VirtualMachines;
+DELETE FROM VolumeData;
+DELETE FROM Volumes;

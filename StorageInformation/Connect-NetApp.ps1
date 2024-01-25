@@ -1,3 +1,4 @@
+# 20221227: Changed LogError to LogWarning when failing to connect to a cluster so the script will continue collecting data from the clusters it did connect to.
 # Ensure CM logging capabilities are available.
 if ($Global:CMLoggingAvailable)
 {
@@ -23,7 +24,7 @@ if ($Global:CMLoggingAvailable)
         }
         catch
         {
-            LogError ("Failed to connect to CDOT controller {0}." -f @($Global:scriptConfig.Filers.CDOT.Controllers[$a]))
+            LogWarning ("Failed to connect to CDOT controller {0}." -f @($Global:scriptConfig.Filers.CDOT.Controllers[$a]))
         }
         $a++
     }

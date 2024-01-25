@@ -9,7 +9,9 @@ WITH EXPL (RunID, SourceVolumeUUID, DestinationVolumeUUID) AS
 			INNER JOIN Volumes
 				ON ROOT.DestinationVolumeUUID = Volumes.UUID
 	WHERE
-		(Volumes.SnaplockType IS NOT NULL) AND (Volumes.SnaplockType <> 'non_snaplock')
+		(Volumes.SnaplockType IS NOT NULL)
+			AND (Volumes.SnaplockType <> 'non_snaplock')
+			AND (ROOT.RunID = (SELECT MAX(ID) as RunID FROM DataCollectionRuns as MaxRunID))
 
 	UNION ALL
 
@@ -37,18 +39,12 @@ WITH EXPL (RunID, SourceVolumeUUID, DestinationVolumeUUID) AS
 		DestinationVolumes.Name as DestinationVolumeName
      FROM
 		EXPL
-			INNER JOIN Volumes as SourceVolumes
-				ON SourceVolumeUUID = SourceVolumes.UUID
-			INNER JOIN VServers as SourceVServers
-				ON SourceVolumes.VServerUUID = SourceVServers.UUID
-			INNER JOIN Clusters as SourceClusters
-				ON SourceVServers.ClusterUUID = SourceClusters.UUID
-			INNER JOIN Volumes as DestinationVolumes
-				ON DestinationVolumeUUID = DestinationVolumes.UUID
-			INNER JOIN VServers as DestinationVServers
-				ON DestinationVolumes.VServerUUID = DestinationVServers.UUID
-			INNER JOIN Clusters as DestinationClusters
-				ON DestinationVServers.ClusterUUID = DestinationClusters.UUID
+			INNER JOIN Volumes as SourceVolumes ON SourceVolumeUUID = SourceVolumes.UUID
+			INNER JOIN VServers as SourceVServers ON SourceVolumes.VServerUUID = SourceVServers.UUID
+			INNER JOIN Clusters as SourceClusters ON SourceVServers.ClusterUUID = SourceClusters.UUID
+			INNER JOIN Volumes as DestinationVolumes ON DestinationVolumeUUID = DestinationVolumes.UUID
+			INNER JOIN VServers as DestinationVServers ON DestinationVolumes.VServerUUID = DestinationVServers.UUID
+			INNER JOIN Clusters as DestinationClusters ON DestinationVServers.ClusterUUID = DestinationClusters.UUID
      ORDER BY SourceVolumeUUID, DestinationVolumeUUID;
 
 

@@ -1,7 +1,7 @@
 USE [StorageInformation]
 GO
 
-/****** Object:  Table [dbo].[Clusters]    Script Date: 6/7/2021 2:05:10 PM ******/
+/****** Object:  Table [dbo].[Clusters]    Script Date: 11/1/2022 1:34:24 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -20,4 +20,5 @@ CREATE TABLE [dbo].[Clusters](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+
 

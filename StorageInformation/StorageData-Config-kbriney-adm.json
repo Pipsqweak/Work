@@ -1,0 +1,71 @@
+{
+    "LogPath":  "C:\\Users\\kbriney-adm\\PSScripts\\Repos\\PEI-IT-OPS\\StorageInformation\\Logs",
+    "LogsToKeep":  14,
+    "Database": {
+        "Server": "CDC-NTAPMGMT01\\SQLExpress",
+        "Name": "StorageInformation"
+    },
+    "Filers":  {
+                   "CDOT":  {
+                                "UserName":  "POWERENG\\SRVC-AllStorage-RO",
+                                "Password":  "01000000d08c9ddf0115d1118c7a00c04fc297eb01000000a4b9161c4403064790f6a6640858e2c70000000002000000000003660000c0000000100000004638f5f59f5c8e57d0836807590c00f70000000004800000a000000010000000b7f4e25f67a676bb20cfa012a2cbb7fc280000005c446b6528e381733ab894dc127d84b09001a2ead7b14310deca08b8cda20dda2df6716cf93adcda140000003aef1e6ab50bf6085a874864109f4f7217ecff1b",
+                                "Controllers":  [
+                                                    "adc-cdotclst01.powereng.com",
+                                                    "apl-cdotclst01.powereng.com",
+                                                    "ast-cdotclst01.powereng.com",
+                                                    "aus-cdotclst01.powereng.com",
+                                                    "bdc-cdotclst01.powereng.com",
+                                                    "bdcd-cdotclst01.powereng.com",
+                                                    "bil-cdotclst01.powereng.com",
+                                                    "boi-cdotclst01.powereng.com",
+                                                    "cdc-cdotclst01.powereng.com",
+                                                    "ch3-ntap01.powereng.com",
+                                                    "clk-cdotclst01.powereng.com",
+                                                    "den-cdotclst01.powereng.com",
+                                                    "fmc-cdotclst01.powereng.com",
+                                                    "fre-cdotclst01.powereng.com",
+                                                    "hou-cdotclst01.powereng.com",
+                                                    "ito-cdotclst01.powereng.com",
+                                                    "min-cdotclst01.powereng.com",
+                                                    "opk-cdotclst01.powereng.com",
+                                                    "phx-cdotclst01.powereng.com",
+                                                    "plv-cdotclst01.powereng.com",
+                                                    "ptl-cdotclst01.powereng.com",
+                                                    "san-cdotclst01.powereng.com",
+                                                    "slc-cdotclst01.powereng.com"
+                                                ]
+                            },
+                   "SM":  {
+                              "UserName":  "POWERENG\\SRVC-AllStorage-RO",
+                              "Password":  "01000000d08c9ddf0115d1118c7a00c04fc297eb01000000a4b9161c4403064790f6a6640858e2c70000000002000000000003660000c000000010000000357339daf57daa5e58a85af79d5ba3c40000000004800000a000000010000000896a558a867f9d921e99ae49ac14dba428000000f35136d9a68fd3e6da2a5ef5890485ed1bb50585f414d4cd79c0e203bb9071290ada570f4a62983c140000008a19670d84f28370303a5668ecf2f7f111c128de",
+                              "Nodes":  [
+                                            "arbprdnas1.powereng.com",
+                                            "atlprdnas2.powereng.com",
+                                            "atlprdnas3.powereng.com",
+                                            "bosprdnas1.powereng.com",
+                                            "cinprdnas1.powereng.com",
+                                            "edpprdnas1.powereng.com",
+                                            "ftwprdnas1.powereng.com",
+                                            "hamprdnas1.powereng.com",
+                                            "hlyprdnas2.powereng.com",
+                                            "hlyprdnas3.powereng.com",
+                                            "msnnas1.powereng.com",
+                                            "mtlprdnas1.powereng.com",
+                                            "orasan1.powereng.com",
+                                            "orasan2.powereng.com",
+                                            "orlprdnas1.powereng.com",
+                                            "orlprdnas2.powereng.com",
+                                            "stlprdnas2.powereng.com",
+                                            "stlprdnas3.powereng.com",
+                                            "syrnas1.powereng.com",
+                                            "tdcprdnas1.powereng.com",
+                                            "vanprdnas1.powereng.com"
+                                        ]
+                          }
+               },
+    "vCenter":  {
+                    "Server":  "tdcprdvctr1.powereng.com",
+                    "UserName":  "POWERENG\\SRVCvCenterReadAll",
+                    "Password":  "01000000d08c9ddf0115d1118c7a00c04fc297eb01000000a4b9161c4403064790f6a6640858e2c70000000002000000000003660000c000000010000000c60a17d00c0ef3b44c936a26788ac4410000000004800000a000000010000000cc52b2415a4ccfc4a6aef42bdb1dd29b20000000e51d1e40d456d415a98c050027767e640f6b4adab9693172a26e000e6128f75c1400000099aa422ddfdf39876b1ccc8c8cadf640da18c075"
+                }
+}

@@ -102,6 +102,38 @@ if(-not $found)
             }
         }
 
+        # Initialize an [EVDataPoint] from a VirtualMachine
+        EVDataPoint([VMware.VimAutomation.ViCore.Impl.V1.Inventory.VirtualMachineImpl] $vm)
+        {
+            $this.SetName($vm.Name)
+
+            if($vm.Version -match "^v(\d+)")
+            {
+                $this.SetCurrentVersion($Matches[1])
+            }
+            if (($null -ne $vm.Guest) -and (-not [String]::IsNullOrEmpty($vm.Guest.OSFullName)))
+            {
+                $this.SetOperatingSystem($vm.Guest.OSFullName)
+            } `
+            else # NOT (($null -ne $vm.ExtensionData.Guest) -and (-not [String]::IsNullOrEmpty($vm.ExtensionData.Guest.GuessFullName)))
+            {
+                $this.SetOperatingSystem($vm.GuestId)
+            }
+
+            if ([String]::IsNullOrEmpty($vm.ExtensionData.Guest.IpAddress))
+            {
+                $this.SetIP($vm.ExtensionData.Guest.IpAddress)
+            } `
+            else # NOT ([String]::IsNullOrEmpty($vm.ExtensionData.Guest.IpAddress))
+            {
+                # Nothing.
+            }
+            $this.SetSerialNumber($vm.BIOSNumber)
+            $this.SetManufacturer("VMWare, Inc.")
+            $this.SetModel("VMware Virtual Platform")
+            $this.UpdateFromIPAMByName()
+        }
+
         [void] SetManufacturer([String] $manufacturer)
         {
             $this.Manufacturer = $manufacturer

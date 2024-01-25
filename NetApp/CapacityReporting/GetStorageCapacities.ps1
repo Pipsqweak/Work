@@ -109,10 +109,12 @@ function Main($config)
 
     if (-not $Global:isError)
     {
+        $dtNow = [DateTime]::Now.ToString("yyyyMMdd")
         try
         {
             $aggregateData = @()
             $aggregates = @(Get-NcAggr -Controller @($cDot.Values) -ErrorAction Stop | Where-Object { $_.Name -notmatch "ROOT_aggr" } | Sort-Object @{E={$_.NcController.Name}; Descending=$false}, Name)
+            $vols = @(Get-NcVol -Controller @($cDot.Values) -ErrorAction Stop)
 
             $b = 0
             while($b -lt $aggregates.Length)
@@ -137,18 +139,39 @@ function Main($config)
 
             try
             {
-                $csvFileName = "{0}\{1}-StorageCapacity.csv" -f @($config.ExportPath, [DateTime]::Now.ToString("yyyyMMdd"))
+                $csvFileName = "{0}\{1}-StorageCapacity.csv" -f @($config.ExportPath, $dtNow)
                 $aggregateData | Export-Csv -Force -Path $csvFileName -NoTypeInformation -Delimiter "," -Encoding ASCII
                 [Log]::Info("Exported storage capacity data to: {0}" -f @($csvFileName))
             }
             catch
             {
-                [Log]::Error("Failed to export storage capacity data.")
+                [Log]::Error("Failed to export aggregate storage capacity data.")
             }
         }
         catch
         {
             [Log]::Error("Failed to retrieve comprehensive aggregate data.")
+        }
+
+        try
+        {
+            $vols = @(Get-NcVol -Controller @($cDot.Values) -ErrorAction Stop)
+            $volumeData = @($vols | Select-Object @{N="Cluster";E={@($_.NcController.Name -split '\.')[0].ToUpper()}}, Vserver, Name, Aggregate, TotalSize, @{N="Used";E={$_.TotalSize - $_.Available}}, Available, Encrypt, @{N="UUID"; E={$_.VolumeIdAttributes.Uuid}}, @{N="Date"; E={[System.DateTime]::Now.ToString("M/d/yyyy")}})
+
+            try
+            {
+                $csvFileName = "{0}\{1}-StorageCapacity-Volume.csv" -f @($config.ExportPath, $dtNow)
+                $volumeData | Sort-Object Cluster, Vserver, Name | Export-Csv -Force -Path $csvFileName -NoTypeInformation -Delimiter "," -Encoding ASCII
+                [Log]::Info("Exported volume storage capacity data to: {0}" -f @($csvFileName))
+            }
+            catch
+            {
+                [Log]::Error("Failed to export volume storage capacity data.")
+            }
+        }
+        catch
+        {
+            [Log]::Error("Failed to retrieve comprehensive volume data.")
         }
     }
     else # NOT (-not $Global::isError)

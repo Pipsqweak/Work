@@ -117,6 +117,44 @@ Class DBConnection : System.IDisposable
         return $result
     }
 
+    [Int32] ExecuteNonQuery(
+        [System.Data.SqlClient.SqlCommand] $cmd
+    )
+    {
+        $result = $null
+        if($this.Open())
+        {
+            $completed = $false
+            $tries = 0
+            do
+            {
+                try
+                {
+                    $result = $cmd.ExecuteNonQuery()
+                    $completed = $true
+                }
+                catch
+                {
+                    $tries++
+
+                    # Sleep a random period of time to let other transactions complete...
+                    $sleepMS = Get-Random -Minimum 3 -Maximum 10
+                    Start-Sleep -Milliseconds $sleepMS
+                }
+            }
+            while((-not $completed) -and ($tries -lt [DBConnection]::maxRetries))
+            $cmd.Dispose()
+            $this.Close()
+        }
+        else
+        {
+            [Log]::Error("Unable to open connection to database in {0}." -f $MyInvocation.MyCommand)
+        }
+
+        return $result
+    }
+
+
     [System.Object] ExecuteScalar(
         [String] $query
     )
@@ -160,6 +198,45 @@ Class DBConnection : System.IDisposable
         else
         {
             [Log]::Error("Empty query sent to {0}!" -f $MyInvocation.MyCommand)
+        }
+
+        return $result
+    }
+
+    [System.Object] ExecuteScalar(
+        [System.Data.SqlClient.SqlCommand] $cmd
+    )
+    {
+        $result = $null
+
+        if($this.Open())
+        {
+            $completed = $false
+            $tries = 0
+            do
+            {
+                try
+                {
+                    $result = $cmd.ExecuteScalar()
+                    $completed = $true
+                }
+                catch
+                {
+                    $tries++
+
+                    # Sleep a random period of time to let other transactions complete...
+                    $sleepMS = Get-Random -Minimum 3 -Maximum 10
+                    Start-Sleep -Milliseconds $sleepMS
+                }
+            }
+            while((-not $completed) -and ($tries -lt [DBConnection]::maxRetries))
+
+            $cmd.Dispose()
+            $this.Close()
+        }
+        else
+        {
+            [Log]::Error("Unable to open connection to database in {0}." -f $MyInvocation.MyCommand)
         }
 
         return $result

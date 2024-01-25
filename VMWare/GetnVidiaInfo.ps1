@@ -14,11 +14,22 @@ $d.ProfileName = "grid_t4-2q"
 $d.MemoryMB = 2048
 $profileMatrix += $d
 
+$d = "" | Select-Object ProfileName, MemoryMB
+$d.ProfileName = "nvidia_a16-4q"
+$d.MemoryMB = 4096
+$profileMatrix += $d
+
+$d = "" | Select-Object ProfileName, MemoryMB
+$d.ProfileName = "nvidia_a16-2q"
+$d.MemoryMB = 2048
+$profileMatrix += $d
+
+
 $vmHosts = Get-VMHost -Server $vcenter
-$vcadHosts = @($vmHosts | Where-Object { $_.ExtensionData.Hardware.PciDevice | Where-Object { ($_.VendorName -match "Nvidia") -and ($_.DeviceName -match "Tesla") } } | Sort-Object Name)
+$vcadHosts = @($vmHosts | Where-Object { $_.ExtensionData.Hardware.PciDevice | Where-Object { ($_.VendorName -match "Nvidia") -and (($_.DeviceName -match "Tesla") -or ($_.DeviceName -match "nVidia")) } } | Sort-Object Name)
 $vCADData = @()
 $sb = [System.Text.StringBuilder]::new()
-$a = 0
+[int] $a = 0
 while($a -lt $vcadHosts.Length)
 {
     $j = "" | Select-Object Host, MemoryTotal, MemoryUsed, GPUs, VMs, TotalGPUMemoryGB, GPUMemoryAvailableGB
@@ -86,7 +97,7 @@ while($a -lt $vcadHosts.Length)
                         } `
                         else # NOT ($null -ne $gridProfile)
                         {
-                            # Nothing.
+                            Write-Host ("Unknown profile: {0}:{1}" -f @($d.VM, $d.vGPUProfile))
                         }
                     }
 #                }
@@ -127,4 +138,4 @@ while($a -lt $vcadHosts.Length)
     $a++
 }
 
-$sb.ToString()
+$sb.ToString() | Set-Clipboard

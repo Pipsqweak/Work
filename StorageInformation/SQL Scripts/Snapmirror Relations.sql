@@ -16,26 +16,18 @@ SELECT
 	, DestinationVolumeData.Available AS DestinationVolumeAvailable
 	, DestinationVolumeData.IsSnaplockProtected AS DestinationVolumeIsSnaplockProtected
 FROM
-	Volumes AS SourceVolumes
-		INNER JOIN SnapmirrorData ON SourceVolumes.UUID = SnapmirrorData.SourceVolumeUUID
-		INNER JOIN VServers AS SourceVServers ON SourceVolumes.VServerUUID = SourceVServers.UUID
+	SnapmirrorData
+		INNER JOIN VolumeData AS SourceVolumeData ON (SnapmirrorData.SourceVolumeUUID = SourceVolumeData.VolumeUUID) AND (SourceVolumeData.RunID = SnapmirrorData.RunID)
+		INNER JOIN VolumeData AS DestinationVolumeData ON (SnapmirrorData.DestinationVolumeUUID = DestinationVolumeData.VolumeUUID) AND (DestinationVolumeData.RunID = SnapmirrorData.RunID)
+		INNER JOIN Volumes AS SourceVolumes ON SourceVolumeData.VolumeUUID = SourceVolumes.UUID
+		INNER JOIN Volumes AS DestinationVolumes ON DestinationVolumeData.VolumeUUID = DestinationVolumes.UUID
+		INNER JOIN VServers AS SourceVServers ON SourceVolumeData.vServerUUID = SourceVServers.UUID
+		INNER JOIN VServers AS DestinationVServers ON DestinationVolumeData.vServerUUID = DestinationVServers.UUID
 		INNER JOIN Clusters AS SourceClusters ON SourceVServers.ClusterUUID = SourceClusters.UUID
-		INNER JOIN VolumeData AS SourceVolumeData ON (SnapmirrorData.RunID = SourceVolumeData.RunID) AND (SourceVolumes.UUID = SourceVolumeData.VolumeUUID)
-		INNER JOIN Volumes AS DestinationVolumes ON DestinationVolumes.UUID = SnapmirrorData.DestinationVolumeUUID
-		INNER JOIN VServers AS DestinationVServers ON DestinationVolumes.VServerUUID = DestinationVServers.UUID
 		INNER JOIN Clusters AS DestinationClusters ON DestinationVServers.ClusterUUID = DestinationClusters.UUID
-		INNER JOIN VolumeData AS DestinationVolumeData ON (SnapmirrorData.RunID = DestinationVolumeData.RunID) AND (DestinationVolumes.UUID = DestinationVolumeData.VolumeUUID)
+
 WHERE
---    SnapmirrorData.RunID = 11)
-	(SnapmirrorData.RunID = (
-		SELECT 
-			TOP 1 ID AS MaxRunID
-		FROM
-			DataCollectionRuns
-		ORDER BY ID DESC
-	))
-	-- AND
-	-- (SourceDatastoreData.DatastoreID IS NOT NULL)	
+	SnapmirrorData.RunID = dbo.MaxRunID()
 ORDER BY
 	  SnapmirrorData.RunID
     , SourceCluster

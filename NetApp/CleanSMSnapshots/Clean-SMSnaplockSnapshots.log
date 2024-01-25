@@ -1,0 +1,44 @@
+20220121 17:47:14: [ERROR ] Configuration .json file: .\Clean-SMSnaplockSnapshots.json does not exist.
+20220121 17:47:14: [WARNING] Configuration data missing 'LogPath'.  Check .\Clean-SMSnaplockSnapshots.json.
+20220121 17:47:14: [WARNING] Defaulting to [C:\Users\kbriney-adm\PSScripts\NetApp\Clean-SMSnaplockSnapshots.log]
+20220121 17:47:14: [WARNING] Configuration data missing 'LogRetention'. Defaulting to 365 days.
+20220121 17:47:14: [ERROR  ] Configuration data missing 'SMSnaplockFilerName'.
+20220121 17:47:14: [WARNING] Configuration data missing 'VolumesToIgnore'.  Defaulting to none.
+20220121 17:47:14: [WARNING] Configuration data missing 'ToAddresses'.  Defaulting to itstorage@powereng.com.
+20220121 17:47:14: [WARNING] Configuration data missing 'SMTPServer'.  Defaulting to smtp.powereng.com.
+20220121 17:47:14: [WARNING] Configuration data missing 'FromAddress'.  Defaulting to snapcleaner@powereng.com.
+20220121 17:48:05: [INFO   ] Loaded configuration from .\Clean-SMSnaplockSnapshots.json
+20220121 17:48:05: [WARNING] Configuration data missing 'LogPath'.  Check .\Clean-SMSnaplockSnapshots.json.
+20220121 17:48:05: [WARNING] Defaulting to [C:\Users\kbriney-adm\PSScripts\NetApp\Clean-SMSnaplockSnapshots.log]
+20220121 17:48:05: [WARNING] Configuration data missing 'LogRetention'. Defaulting to 365 days.
+20220121 17:48:05: [ERROR  ] Configuration data missing 'SMSnaplockFilerName'.
+20220121 17:48:05: [WARNING] Configuration data missing 'VolumesToIgnore'.  Defaulting to none.
+20220121 17:48:05: [WARNING] Configuration data missing 'ToAddresses'.  Defaulting to itstorage@powereng.com.
+20220121 17:48:05: [WARNING] Configuration data missing 'SMTPServer'.  Defaulting to smtp.powereng.com.
+20220121 17:48:05: [WARNING] Configuration data missing 'FromAddress'.  Defaulting to snapcleaner@powereng.com.
+20220121 17:49:02: [WARNING] Configuration data missing 'LogPath'.  Check .\Clean-SMSnaplockSnapshots.json.
+20220121 17:49:02: [WARNING] Defaulting to [C:\Users\kbriney-adm\PSScripts\NetApp\Clean-SMSnaplockSnapshots.log]
+20220121 17:49:02: [WARNING] Configuration data missing 'LogRetention'. Defaulting to 365 days.
+20220121 17:49:02: [ERROR  ] Configuration data missing 'SMSnaplockFilerName'.
+20220121 17:49:02: [WARNING] Configuration data missing 'VolumesToIgnore'.  Defaulting to none.
+20220121 17:49:02: [WARNING] Configuration data missing 'ToAddresses'.  Defaulting to itstorage@powereng.com.
+20220121 17:49:02: [WARNING] Configuration data missing 'SMTPServer'.  Defaulting to smtp.powereng.com.
+20220121 17:49:02: [WARNING] Configuration data missing 'FromAddress'.  Defaulting to snapcleaner@powereng.com.
+20220121 17:50:05: [INFO   ] Loaded configuration from .\Clean-SMSnaplockSnapshots.json
+20220121 17:50:05: [WARNING] Configuration data missing 'LogPath'.
+20220121 17:50:05: [WARNING] Defaulting to [C:\Users\kbriney-adm\PSScripts\NetApp\Clean-SMSnaplockSnapshots.log]
+20220121 17:50:05: [WARNING] Configuration data missing 'LogRetention'. Defaulting to 365 days.
+20220121 17:50:05: [ERROR  ] Configuration data missing 'SMSnaplockFilerName'.
+20220121 17:50:05: [WARNING] Configuration data missing 'VolumesToIgnore'.  Defaulting to none.
+20220121 17:50:05: [WARNING] Configuration data missing 'ToAddresses'.  Defaulting to itstorage@powereng.com.
+20220121 17:50:05: [WARNING] Configuration data missing 'SMTPServer'.  Defaulting to smtp.powereng.com.
+20220121 17:50:05: [WARNING] Configuration data missing 'FromAddress'.  Defaulting to snapcleaner@powereng.com.
+20220121 17:51:01: [INFO   ] Loaded configuration from .\Clean-SMSnaplockSnapshots.json
+20220121 17:51:01: [WARNING] Configuration data missing 'LogPath'.
+20220121 17:51:01: [WARNING] Defaulting to [C:\Users\kbriney-adm\PSScripts\NetApp\Clean-SMSnaplockSnapshots.log]
+20220121 17:51:01: [WARNING] Configuration data missing 'LogRetention'. Defaulting to 365 days.
+20220121 17:51:01: [ERROR  ] Configuration data missing 'SMSnaplockFilerName'.
+20220121 17:51:02: [WARNING] Configuration data missing 'VolumesToIgnore'.  Defaulting to none.
+20220121 17:51:02: [WARNING] Configuration data missing 'ToAddresses'.  Defaulting to itstorage@powereng.com.
+20220121 17:51:02: [WARNING] Configuration data missing 'SMTPServer'.  Defaulting to smtp.powereng.com.
+20220121 17:51:02: [WARNING] Configuration data missing 'FromAddress'.  Defaulting to snapcleaner@powereng.com.

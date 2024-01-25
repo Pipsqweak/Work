@@ -1,0 +1,45 @@
+[------------- Sending Request to Server ------------
+
+<configResolveDn
+dn="sys"
+cookie="1679589949/302301ee-ecc6-4677-8ddd-8dd6f5616649"
+inHierarchical="false">
+</configResolveDn>
+
+<configEstimateImpact
+cookie="1679589949/302301ee-ecc6-4677-8ddd-8dd6f5616649">
+    <inConfigs>
+<pair key="sys/svc-ext/snmp-svc/snmp-trapstatseeker.powereng.com">
+    <commSnmpTrap
+    community="2003POWER"
+    hostname="statseeker.powereng.com"
+    version="v2c"
+    dn="sys/svc-ext/snmp-svc/snmp-trapstatseeker.powereng.com"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+    </commSnmpTrap>
+</pair>
+    </inConfigs>
+</configEstimateImpact>
+
+<configConfMos
+cookie="1679589949/302301ee-ecc6-4677-8ddd-8dd6f5616649"
+inHierarchical="false">
+    <inConfigs>
+<pair key="sys/svc-ext/snmp-svc/snmp-trapstatseeker.powereng.com">
+    <commSnmpTrap
+    community="2003POWER"
+    hostname="statseeker.powereng.com"
+    version="v2c"
+    dn="sys/svc-ext/snmp-svc/snmp-trapstatseeker.powereng.com"
+    
+    status="created"
+    
+    sacl="addchild,del,mod">
+    </commSnmpTrap>
+</pair>
+    </inConfigs>
+</configConfMos>
+-----------------------------------------------------]

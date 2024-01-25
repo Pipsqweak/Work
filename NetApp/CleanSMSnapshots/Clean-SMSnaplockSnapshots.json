@@ -1,0 +1,13 @@
+{
+    "SMSnaplockFilerName":  "TDCPRDNAS1",
+    "VolumesToIgnore":  [
+                            "lockvault_log_29032021_162237"
+                        ],
+    "LogPath":  "E:\\Scripts\\Logs\\SnaplockCleaner\\Log.txt",
+    "LogRetention":  7,
+    "SMTPServer":  "smtp.powereng.com",
+    "FromAddress":  "Snaplock Snapshot Cleaner <snapcleaner@powereng.com>",
+    "ToAddresses":  [
+                        "Briney,Ken <ken.briney@powereng.com>"
+                    ]
+}

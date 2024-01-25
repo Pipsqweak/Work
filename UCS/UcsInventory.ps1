@@ -1,4 +1,6 @@
-
+<#
+                SKIP TO THE BOTTOM
+#>
 # UcsInventory.ps1
 
 param(
@@ -69,7 +71,8 @@ if (! $skip)
 if (! $skip)
 {
   Try {
-    Write-Host "Enter UCS Credentials of UCS Manager(s)"
+    Write-Host "Enter UCS Credentials of UCS Manager(s)"
+
     ${ucsCred} = Get-Credential
   }
   Catch {
@@ -180,7 +183,8 @@ foreach ($ucs in $ucsArray) {
       Write-Host "Exiting..."
       Write-Host ""
       exit
-    }
+    }
+
 
     Try {
      if ($verb) {
@@ -320,7 +324,7 @@ foreach ($ucs in $ucsArray) {
         if ($verb) {
           Write-Host "ps: $($ps.Dn)"
         }
-        
+
         [Object[]] $eqp = ( Import-Csv -path "C:\Temp\equipmentManufacturingDef.csv" | where { $_.Pid -eq $ps.Model } )
 
         $row++
@@ -578,7 +582,7 @@ foreach ($ucs in $ucsArray) {
           if ($verb) {
             Write-Host "ma: $($ma.Dn)"
           }
-          Try 
+          Try
           {
             $cap += $ma.CurrCapacity
           }
@@ -872,7 +876,7 @@ foreach ($ucs in $ucsArray) {
         if ($verb) {
           Write-Host "ma: $($ma.Dn)"
         }
-        Try 
+        Try
         {
           $cap += $ma.CurrCapacity
         }
@@ -1098,7 +1102,7 @@ foreach ($ucs in $ucsArray) {
   }
 
   if ($verb) {
-    Write-Host ""  
+    Write-Host ""
   }
 
 } # end loop $ucs
@@ -1121,3 +1125,30 @@ if (! $skip)
 }
 Write-Host ""
 
+
+$ucsClasses = @("networkElement", "equipmentSwitchCard", "equipmentFanModule", "equipmentFan", "equipmentPsu", "equipmentChassis", "equipmentIOCard", "equipmentFex", "computeBlade", "computeRackUnit", "computeBoard", "processorUnit", "memoryArray", "memoryUnit", "storageLocalDisk", "adaptorUnit", "graphicsCard" )
+# "firmwareRunning"  "equipmentManufacturingDef"
+
+$equipDefs = Get-UcsManagedObject -ClassId "equipmentManufacturingDef" -Ucs @($ucsManagers.Values) | Where-Object { (-not [String]::IsNullOrEmpty($_.Sku)) -and ($_.Sku -ne "na") } | Select-Object -Unique Sku,Name
+
+$uniqueModels = @()
+
+$ucsClasses | ForEach-Object {
+    $ucsClass = $_
+    Write-Host -NoNewline ("`r`nCollecting {0} data..." -f @($ucsClass));
+    $elements = Get-UcsManagedObject -Ucs @($ucsManagers.Values) -ClassId $ucsClass
+    $elements | Select-Object -Unique -ExpandProperty Model | Foreach-Object {
+        $model = $_
+        if ($uniqueModels -notcontains $model)
+        {
+            Write-Host -NoNewline ("{0}, " -f @($model))
+            $uniqueModels += $model
+        } `
+        else # NOT ($uniqueModels -notcontains $_)
+        {
+            # Nothing.
+        }
+    }
+}
+
+$uniqueModels | Foreach-Object { $model = $_; $equipDefs | Where-Object { $_.Sku -eq $model } } | Sort-Object Sku | ConvertTo-Csv -NoTypeInformation -Delimiter "`t" | Set-Clipboard

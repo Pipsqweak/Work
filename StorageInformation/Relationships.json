@@ -1,0 +1,106 @@
+[
+    {
+        "parentTable": {
+            "Name": "VServers",
+            "Column": "UUID"
+        },
+        "childTables": [
+            {
+                "Name": "VolumeData",
+                "Column": "vServerUUID"
+            }
+        ]
+    },
+    {
+        "parentTable": {
+            "Name": "Aggregates",
+            "Column": "UUID"
+        },
+        "childTables": [
+            {
+                "Name": "VolumeData",
+                "Column": "AggregateUUID"
+            },
+            {
+                "Name": "AggregateData",
+                "Column": "AggregateUUID"
+            }
+        ]
+    },
+    {
+        "parentTable": {
+            "Name": "Volumes",
+            "Column": "UUID"
+        },
+        "childTables": [
+            {
+                "Name": "DatastoreData",
+                "Column": "VolumeUUID"
+            },
+            {
+                "Name": "VolumeData",
+                "Column": "VolumeUUID"
+            },
+            {
+                "Name": "SnapmirrorData",
+                "Column": "SourceVolumeUUID"
+            },
+            {
+                "Name": "SnapmirrorData",
+                "Column": "DestinationVolumeUUID"
+            },
+            {
+                "Name": "ShareData",
+                "Column": "VolumeUUID"
+            }
+        ]
+    },
+    {
+        "parentTable": {
+            "Name": "Datastores",
+            "Column": "ID"
+        },
+        "childTables": [
+            {
+                "Name": "DatastoreData",
+                "Column": "DatastoreID"
+            },
+            {
+                "Name": "VirtualMachine_DatastoreData",
+                "Column": "DatastoreID"
+            }
+        ]
+    },
+    {
+        "parentTable": {
+            "Name": "VirtualMachines",
+            "Column": "ID"
+        },
+        "childTables": [
+            {
+                "Name": "VirtualMachineData",
+                "Column": "VirtualMachineID"
+            },
+            {
+                "Name": "VirtualMachine_DatastoreData",
+                "Column": "VirtualMachineID"
+            }
+        ]
+    },
+    {
+        "parentTable": {
+            "Name": "Clusters",
+            "Column": "UUID"
+        },
+        "childTables": [
+            {
+                "Name": "VServers",
+                "Column": "ClusterUUID"
+            },
+            {
+                "Name": "Aggregates",
+                "Column": "ClusterUUID"
+            }
+        ]
+    }
+]

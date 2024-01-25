@@ -32,34 +32,34 @@ $ucsVLANGroups = @(
 
 $vNICTemplatePairs = @(
     @{
-        Primary   = @{Name = "DMZ.GST.AX"; Description = "DMZ Guest | Fabric A | No Failover"; Switch = "A"; MTU = 1500; VLANGroups = @("DMZ-GUEST") };
-        Secondary = @{Name = "DMZ.GST.BX"; Description = "DMZ Guest | Fabric B | No Failover"; Switch = "B"; };
+        Primary   = @{Name = "GST.DMZ.AX"; Description = "DMZ Guest | Fabric A | No Failover"; Switch = "A"; MTU = 1500; VLANGroups = @("DMZ-GUEST") };
+        Secondary = @{Name = "GST.DMZ.BX"; Description = "DMZ Guest | Fabric B | No Failover"; Switch = "B"; };
     },
     @{
-        Primary   = @{Name = "DMZ.STG.AX"; Description = "DMZ Storage | Fabric A | No Failover"; Switch = "A"; MTU = 9000; VLANGroups = @("DMZ-STORAGE") };
-        Secondary = @{Name = "DMZ.STG.BX"; Description = "DMZ Storage | Fabric B | No Failover"; Switch = "B"; };
+        Primary   = @{Name = "STG.DMZ.AX"; Description = "DMZ Storage | Fabric A | No Failover"; Switch = "A"; MTU = 9000; VLANGroups = @("DMZ-STORAGE") };
+        Secondary = @{Name = "STG.DMZ.BX"; Description = "DMZ Storage | Fabric B | No Failover"; Switch = "B"; };
     },
     @{
-        Primary   = @{Name = "DMZ.MGTVMN.AB"; Description = "DMZ MGMT & vMotion | Fabric A | Failover B"; Switch = "A-B"; MTU = 9000; VLANGroups = @("DMZ-MGMT-VMOTION") };
-        Secondary = @{Name = "DMZ.VMNMGT.BA"; Description = "DMZ vMotion & MGMT | Fabric B | Failover A"; Switch = "B-A"; };
+        Primary   = @{Name = "MGTVMN.DMZ.AB"; Description = "DMZ MGMT & vMotion | Fabric A | Failover B"; Switch = "A-B"; MTU = 9000; VLANGroups = @("DMZ-MGMT-VMOTION") };
+        Secondary = @{Name = "VMNMGT.DMZ.BA"; Description = "DMZ vMotion & MGMT | Fabric B | Failover A"; Switch = "B-A"; };
     },
     @{
-        Primary   = @{Name = "INT.GST.AX"; Description = "Internal Guest | Fabric A | No Failover"; Switch = "A"; MTU = 1500; VLANGroups = @("GUEST") };
-        Secondary = @{Name = "INT.GST.BX"; Description = "Internal Guest | Fabric B | No Failover"; Switch = "B"; };
+        Primary   = @{Name = "GST.INT.AX"; Description = "Internal Guest | Fabric A | No Failover"; Switch = "A"; MTU = 1500; VLANGroups = @("GUEST") };
+        Secondary = @{Name = "GST.INT.BX"; Description = "Internal Guest | Fabric B | No Failover"; Switch = "B"; };
     },
     @{
-        Primary   = @{Name = "INT.STG.AX"; Description = "Internal Storage | Fabric A | No Failover"; Switch = "A"; MTU = 9000; VLANGroups = @("STORAGE") };
-        Secondary = @{Name = "INT.STG.BX"; Description = "Internal Storage | Fabric B | No Failover"; Switch = "B"; };
+        Primary   = @{Name = "STG.INT.AX"; Description = "Internal Storage | Fabric A | No Failover"; Switch = "A"; MTU = 9000; VLANGroups = @("STORAGE") };
+        Secondary = @{Name = "STG.INT.BX"; Description = "Internal Storage | Fabric B | No Failover"; Switch = "B"; };
     },
     @{
-        Primary   = @{Name = "INT.MGTVMN.AB"; Description = "Internal MGMT & vMotion | Fabric A | Failover B"; Switch = "A-B"; MTU = 9000; VLANGroups = @("MGMT-VMOTION") };
-        Secondary = @{Name = "INT.VMNMGT.BA"; Description = "Internal vMotion & MGMT | Fabric B | Failover A"; Switch = "B-A"; };
+        Primary   = @{Name = "MGTVMN.INT.AB"; Description = "Internal MGMT & vMotion | Fabric A | Failover B"; Switch = "A-B"; MTU = 9000; VLANGroups = @("MGMT-VMOTION") };
+        Secondary = @{Name = "VMNMGT.INT.BA"; Description = "Internal vMotion & MGMT | Fabric B | Failover A"; Switch = "B-A"; };
     }
 )
 
 
 
 Start-UcsTransaction
-$mo = Get-UcsOrg -Level root  | Add-UcsVnicTemplate -ModifyPresent  -Name "DMZ.GST.AX"
+$mo = Get-UcsOrg -Level root  | Add-UcsVnicTemplate -ModifyPresent  -Name "GST.DMZ.AX"
 $mo_1 = $mo | Add-UcsFabricNetGroupRef -ModifyPresent -Name "DMZ-GUEST"
 Complete-UcsTransaction
