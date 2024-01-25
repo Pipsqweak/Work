@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DataONTAP.C.Types.Cluster;
@@ -10,9 +11,9 @@ using DataONTAP.C.Types.Snapmirror;
 using DataONTAP.C.Types.Snapshot;
 using DataONTAP.C.Types.Net;
 using DataONTAP.C.Types.Cifs;
-using VMware.VimAutomation.ViCore.Impl.V1.Inventory;
-using VMware.VimAutomation.ViCore.Impl.V1.DatastoreManagement;
-using System.Collections;
+using VMware.VimAutomation.ViCore.Types.V1.Inventory;
+using VMware.VimAutomation.ViCore.Types.V1.DatastoreManagement;
+
 
 abstract public class DataObject<T>
 {
@@ -409,7 +410,7 @@ public class NetAppClusterCollection : IList<NetAppCluster>
         return netAppVolumes;
     }
 
-    public List<NetAppVolume> FindVolumeByDatastore(NasDatastoreImpl datastore)
+    public List<NetAppVolume> FindVolumeByDatastore(NasDatastore datastore)
     {
         List<NetAppVolume> netAppVolumes = new List<NetAppVolume>();
 
@@ -453,6 +454,7 @@ public class NetAppClusterCollection : IList<NetAppCluster>
                     {
                         ds.VirtualMachines.Where(vm => (vm.Name == vmName) && (vm.ID == vmID)).ToList().ForEach(vm =>
                         {
+                            // Add vm to vms if it is not already in the list.
                             if (vms.Count(v1 => ((v1.Name == vm.Name) && (v1.ID == vm.ID))) == 0)
                             {
                                 vms.Add(vm);
@@ -985,7 +987,7 @@ public class NetAppVolume : NetAppObject<VolumeAttributes>
         }
     }
 
-    public VMWareDatastore AddDatastore(NasDatastoreImpl datastore)
+    public VMWareDatastore AddDatastore(NasDatastore datastore)
     {
         VMWareDatastore newVMDatastore = null;
 
@@ -1104,7 +1106,7 @@ public class NetAppShare : DataObject<CifsShare>
     }
 }
 
-public class VMWareDatastore : DataObject<NasDatastoreImpl>, IComparable
+public class VMWareDatastore : DataObject<NasDatastore>, IComparable
 {
     public NetAppVolume Volume { get; private set; }
     public string ID { get { return ((null != Source) && (null != Source.Id)) ? Source.Id : string.Empty; } }
@@ -1113,7 +1115,7 @@ public class VMWareDatastore : DataObject<NasDatastoreImpl>, IComparable
 
     public List<VMWareVirtualMachine> VirtualMachines { get; private set; }
 
-    public VMWareDatastore(NetAppVolume volume, NasDatastoreImpl datastore) : base(datastore)
+    public VMWareDatastore(NetAppVolume volume, NasDatastore datastore) : base(datastore)
     {
         if (null == volume)
         {
@@ -1175,16 +1177,27 @@ public class VMWareDatastore : DataObject<NasDatastoreImpl>, IComparable
     }
 }
 
-public class VMWareVirtualMachine : DataObject<VirtualMachineImpl>, IComparable
+public class VMWareVirtualMachine : DataObject<VirtualMachine>, IComparable
 {
     public string ID { get { return ((null != Source) && (null != Source.Id)) ? Source.Id : string.Empty; } }
     public string Name { get { return ((null != Source) && (null != Source.Name)) ? Source.Name : string.Empty; } }
     public string PowerState { get { return (null != Source) ? Source.PowerState.ToString() : string.Empty; } }
     public override string Identity { get { return string.Format("{0}:{1}", ID, Name); } }
 
+    public string ConfiguredGuestOS { get { return ((null != Source) && (null != Source.Guest)) ? Source.Guest.ConfiguredGuestId : "N/A"; } }
+    public string RuntimeGuestOS { get { return ((null != Source) && (null != Source.Guest)) ? Source.Guest.RuntimeGuestId : "N/A"; } }
+
+    public decimal MemoryMB { get { return (null != Source) ? Source.MemoryMB : 0; } }
+
+    public int NumCPU { get { return (null != Source) ? Source.NumCpu : 0; } }
+
+    public decimal ProvisionStorageGB { get { return (null != Source) ? Source.ProvisionedSpaceGB : 0; } }
+
+    public decimal UsedStorageGB { get { return (null != Source) ? Source.UsedSpaceGB : 0; } }
+
     public List<VMWareDatastore> Datastores { get; set; }
 
-    public VMWareVirtualMachine(VirtualMachineImpl virtualMachine) : base(virtualMachine)
+    public VMWareVirtualMachine(VirtualMachine virtualMachine) : base(virtualMachine)
     {
         if (null == virtualMachine)
         {

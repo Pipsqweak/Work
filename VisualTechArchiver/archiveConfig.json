@@ -1,0 +1,18 @@
+{
+    "ProjectRoot": "C:\\Users\\kbriney\\POWER Engineers, Inc\\TM-Viz File Share - _Projects",
+    "ArchiveRoot": "\\\\boifs1\\Visual_Tech\\projects_1\\Projects",
+    "ArchiveProjects": [
+        {
+            "Source": "AEP",
+            "Destination": null,
+            "Start": null,
+            "Complete": null
+        },
+        {
+            "Source": "Idaho Power",
+            "Destination": "Idaho Power Archive",
+            "Start": null,
+            "Complete": null
+        }
+    ]
+}
