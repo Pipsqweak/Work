@@ -1,0 +1,8 @@
+K:\KLB\PEI-IT-OPS\DNSTest\DNSTest\obj\Debug\DNSTest.csproj.AssemblyReference.cache
+K:\KLB\PEI-IT-OPS\DNSTest\DNSTest\obj\Debug\DNSTest.csproj.SuggestedBindingRedirects.cache
+K:\KLB\PEI-IT-OPS\DNSTest\DNSTest\obj\Debug\DNSTest.csproj.CoreCompileInputs.cache
+K:\KLB\PEI-IT-OPS\DNSTest\DNSTest\bin\Debug\DNSTest.exe.config
+K:\KLB\PEI-IT-OPS\DNSTest\DNSTest\bin\Debug\DNSTest.exe
+K:\KLB\PEI-IT-OPS\DNSTest\DNSTest\bin\Debug\DNSTest.pdb
+K:\KLB\PEI-IT-OPS\DNSTest\DNSTest\obj\Debug\DNSTest.exe
+K:\KLB\PEI-IT-OPS\DNSTest\DNSTest\obj\Debug\DNSTest.pdb

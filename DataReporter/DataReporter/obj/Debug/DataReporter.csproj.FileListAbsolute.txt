@@ -1,0 +1,15 @@
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\bin\Debug\DataReporter.exe.config
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\bin\Debug\DataReporter.exe
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\bin\Debug\DataReporter.pdb
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\bin\Debug\MySql.Data.dll
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\bin\Debug\MySql.Data.xml
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\obj\Debug\DataReporter.csproj.AssemblyReference.cache
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\obj\Debug\DataReporter.csproj.CoreCompileInputs.cache
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\obj\Debug\DataReporter.csproj.CopyComplete
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\obj\Debug\DataReporter.exe
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\obj\Debug\DataReporter.pdb
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\bin\Debug\System.Memory.dll
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\bin\Debug\System.Threading.Tasks.Extensions.dll
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\bin\Debug\System.Numerics.Vectors.dll
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\bin\Debug\System.Buffers.dll
+K:\KLB\PEI-IT-OPS\DataReporter\DataReporter\obj\Debug\DataReporter.csproj.SuggestedBindingRedirects.cache

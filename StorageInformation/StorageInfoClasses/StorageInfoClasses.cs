@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DataONTAP.C.Types.Cluster;
@@ -454,6 +455,7 @@ public class NetAppClusterCollection : IList<NetAppCluster>
                     {
                         ds.VirtualMachines.Where(vm => (vm.Name == vmName) && (vm.ID == vmID)).ToList().ForEach(vm =>
                         {
+                            // Add vm to vms if it is not already in the list.
                             if (vms.Count(v1 => ((v1.Name == vm.Name) && (v1.ID == vm.ID))) == 0)
                             {
                                 vms.Add(vm);
@@ -1182,6 +1184,17 @@ public class VMWareVirtualMachine : DataObject<VirtualMachine>, IComparable
     public string Name { get { return ((null != Source) && (null != Source.Name)) ? Source.Name : string.Empty; } }
     public string PowerState { get { return (null != Source) ? Source.PowerState.ToString() : string.Empty; } }
     public override string Identity { get { return string.Format("{0}:{1}", ID, Name); } }
+
+    public string ConfiguredGuestOS { get { return ((null != Source) && (null != Source.Guest)) ? Source.Guest.ConfiguredGuestId : "N/A"; } }
+    public string RuntimeGuestOS { get { return ((null != Source) && (null != Source.Guest)) ? Source.Guest.RuntimeGuestId : "N/A"; } }
+
+    public decimal MemoryMB { get { return (null != Source) ? Source.MemoryMB : 0; } }
+
+    public int NumCPU { get { return (null != Source) ? Source.NumCpu : 0; } }
+
+    public decimal ProvisionStorageGB { get { return (null != Source) ? Source.ProvisionedSpaceGB : 0; } }
+
+    public decimal UsedStorageGB { get { return (null != Source) ? Source.UsedSpaceGB : 0; } }
 
     public List<VMWareDatastore> Datastores { get; set; }
 

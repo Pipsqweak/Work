@@ -37,20 +37,23 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="DataONTAP.C">
-      <HintPath>..\..\..\..\..\Program Files (x86)\NetApp\NetApp PowerShell Toolkit\Modules\DataONTAP\DataONTAP.C.dll</HintPath>
+      <HintPath>C:\Program Files\WindowsPowerShell\Modules\NetApp.ONTAP\9.12.1.2302\DataONTAP.C.dll</HintPath>
     </Reference>
     <Reference Include="OntapiPS">
-      <HintPath>..\..\..\..\..\Program Files (x86)\NetApp\NetApp PowerShell Toolkit\Modules\DataONTAP\OntapiPS.dll</HintPath>
+      <HintPath>C:\Program Files\WindowsPowerShell\Modules\NetApp.ONTAP\9.12.1.2302\OntapiPS.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="VMware.VimAutomation.Sdk.Types">
+      <HintPath>C:\Program Files\WindowsPowerShell\Modules\VMware.VimAutomation.Sdk\13.1.0.21605170\net472\VMware.VimAutomation.Sdk.Types.dll</HintPath>
+    </Reference>
     <Reference Include="VMware.VimAutomation.Sdk.Util10">
-      <HintPath>..\..\..\..\..\Program Files\WindowsPowerShell\Modules\VMware.VimAutomation.Sdk\12.2.0.17531155\net45\VMware.VimAutomation.Sdk.Util10.dll</HintPath>
+      <HintPath>C:\Program Files\WindowsPowerShell\Modules\VMware.VimAutomation.Sdk\13.1.0.21605170\net472\VMware.VimAutomation.Sdk.Util10.dll</HintPath>
     </Reference>
     <Reference Include="VMware.VimAutomation.ViCore.Impl">
-      <HintPath>..\..\..\..\..\Program Files\WindowsPowerShell\Modules\VMware.VimAutomation.Core\12.3.0.17839688\net45\VMware.VimAutomation.ViCore.Impl.dll</HintPath>
+      <HintPath>C:\Program Files\WindowsPowerShell\Modules\VMware.VimAutomation.Core\13.1.0.21606170\net472\VMware.VimAutomation.ViCore.Impl.dll</HintPath>
     </Reference>
     <Reference Include="VMware.VimAutomation.ViCore.Types">
-      <HintPath>..\..\..\..\..\Program Files\WindowsPowerShell\Modules\VMware.VimAutomation.Core\12.3.0.17839688\net45\VMware.VimAutomation.ViCore.Types.dll</HintPath>
+      <HintPath>C:\Program Files\WindowsPowerShell\Modules\VMware.VimAutomation.Core\13.1.0.21606170\net472\VMware.VimAutomation.ViCore.Types.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
