@@ -7001,16 +7001,17 @@ function MountDatastoresToHosts
     return $success
 }
 
-function SetAdvancedSettingForVMHost($vmHost, $setting, $value)
+function SetAdvancedSettingForVMHost($viServer, $vmHost, $setting, $value)
 {
     try
     {
-        $advSetting = Get-AdvancedSetting -Server $vCenter -Entity $vmHost -Name $setting -ErrorAction Stop
+        $advSetting = Get-AdvancedSetting -Server $viServer -Entity $vmHost -Name $setting -ErrorAction Stop
 
         if($advSetting.Value -ne $value)
         {
             try
             {
+
                 $newAdvSetting = $advSetting | Set-AdvancedSetting -Value $value -Confirm:$false -ErrorAction Stop
                 Write-Host -ForegroundColor Green ("{0,-30}{1,-50}{2,25}{3,25} (Updated)" -f @($vmHost.Name, $advSetting.Name, $advSetting.Value, $newAdvSetting.Value))
             }
@@ -7030,12 +7031,12 @@ function SetAdvancedSettingForVMHost($vmHost, $setting, $value)
     }
 }
 
-function SetAdvancedSettingsForVMhost($vmHost)
+function SetAdvancedSettingsForVMhost($viServer, $vmHost)
 {
     $b = 0
     while($b -lt $settingsToCheck.Length)
     {
-        SetAdvancedSettingForVMHost $vmHost $Global:settingsToCheck[$b].Name $Global:settingsToCheck[$b].RecommendedValue
+        SetAdvancedSettingForVMHost $viServer $vmHost $Global:settingsToCheck[$b].Name $Global:settingsToCheck[$b].RecommendedValue
         $b++
     }
 }
@@ -7045,7 +7046,7 @@ function JoinESXiToDomain
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$false, Position=0)]
-        [VMware.VimAutomation.ViCore.Impl.V1.VIServerImpl] $vCenter,
+        [VMware.VimAutomation.ViCore.Impl.V1.VIServerImpl] $viServer,
 
         [Parameter(Mandatory=$false, Position=1)]
         [VMware.VimAutomation.ViCore.Impl.V1.Inventory.VMHostImpl] $vmHost,
@@ -7057,7 +7058,7 @@ function JoinESXiToDomain
         [PSCredential] $adCredentials
     )
 
-    if ($null -ne $vCenter)
+    if ($null -ne $viServer)
     {
         # TRUE
 
@@ -7099,7 +7100,7 @@ function JoinESXiToDomain
 
                                 try
                                 {
-                                    $vmHostAuthentication = Get-VMHostAuthentication -Server $vCenter -VMHost $vmHost -ErrorAction SilentlyContinue
+                                    $vmHostAuthentication = Get-VMHostAuthentication -Server $viServer -VMHost $vmHost -ErrorAction SilentlyContinue
                                 }
                                 catch { }
 
@@ -7179,7 +7180,7 @@ function JoinESXiToDomain
             ReportError ("Missing vmHost in {0}." -f @($MyInvocation.MyCommand.Name))
         }
     }
-    else # NOT ($null -ne $vCenter)
+    else # NOT ($null -ne $viServer)
     {
         # FALSE
 
@@ -7369,7 +7370,7 @@ function UpdateESXiAdvSettings
         }
 
         # Must happen after the ESXi host is joined to the domain.  -- well sort of ... or the admin group makes sense.
-        SetAdvancedSettingsForVMhost $vmHost
+        SetAdvancedSettingsForVMhost $viServer $vmHost
 
         # Think this might have to wait until the local DC is up and running.
         if($JoinAD)
@@ -7379,9 +7380,9 @@ function UpdateESXiAdvSettings
     }
 }
 
-function RenameLocalDatastores($vCenter, $vmHost)
+function RenameLocalDatastores($viServer, $vmHost)
 {
-    $localDataStores = @(Get-Datastore -Server $vCenter -RelatedObject $vmHost | Where-Object { $_.Type -eq "VMFS" })
+    $localDataStores = @(Get-Datastore -Server $viServer -RelatedObject $vmHost | Where-Object { $_.Type -eq "VMFS" })
 
     $a = 0
     while($a -lt $localDataStores.Length)
@@ -7393,7 +7394,7 @@ function RenameLocalDatastores($vCenter, $vmHost)
             Write-Host -ForegroundColor Green ("Renaming {0}:{1} to {2}." -f @($vmHost.Name, $localDataStores[$a].Name, $newDSName))
             try
             {
-                [void] (Set-Datastore -Server $vCenter -Datastore $localDataStores[$a] -Name $newDSName -ErrorAction Stop)
+                [void] (Set-Datastore -Server $viServer -Datastore $localDataStores[$a] -Name $newDSName -ErrorAction Stop)
             }
             catch
             {

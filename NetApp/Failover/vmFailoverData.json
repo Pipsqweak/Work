@@ -1,0 +1,161 @@
+{
+
+    Left off trying to figure out how to properly represent everything...
+        What datastore DRs to what...
+
+    Add switch to ignoreNFS or ignoreCIFS
+    "datastores": [
+        "name": "SE4_DR_SATA_01",
+        "primaryFailover":  ""
+    ],
+
+    "clusters": [
+        {
+            "name": "DDC-INT-CLUSTER-01",
+            "datastores": [
+                {
+                    "home":
+                    {
+                        "name": "DDC_VM_SSD_01",
+                        "remoteHost": "10.247.11.26",
+                        "remotePath": "/VMware/DDC_SSD_01",
+                        "volume": ""
+                    },
+                    "dr":
+                    {
+                        "name": "DDC_VM_SSD_01",
+                        "remoteHost": "10.247.11.26",
+                        "remotePath": "/VMware/DDC_SSD_01",
+                        "volume": ""
+                    }
+                },
+                {
+                    "home":
+                    {
+                        "name": "DDC_VM_SSD_02",
+                        "remoteHost": "10.247.11.26",
+                        "remotePath": "/VMware/DDC_SSD_02",
+                        "volume": ""
+                    },
+                    "dr":
+                    {
+                        "name": "DDC_VM_SSD_02",
+                        "remoteHost": "10.247.11.26",
+                        "remotePath": "/VMware/DDC_SSD_02",
+                        "volume": ""
+                    }
+                }
+
+            ],
+            "drCluster": "CDC-INT-CLUSTER-01",
+            "vms": [ ]
+        },
+        {
+            "name": "CDC-INT-CLUSTER-01",
+            "drCluster": "DDC-INT-CLUSTER-01",
+            "vms": [ ]
+        },
+        {
+            "name": "LAB-PRD-CLUSTER-01",
+            "drCluster": "DDC-INT-CLUSTER-01",
+            "vms": [
+                {
+                    "name":"LAB-DHCP01",
+                    "vnics": [
+                        {
+                            "home": "DistributedVirtualPortgroup-dvportgroup-1130",
+                            "dr": "DistributedVirtualPortgroup-dvportgroup-50011"
+                        }
+                    ],
+                    "datastores": [
+                        {
+                            "home": "datastore-1058"
+                        }
+                    ]
+                    ]
+                },
+                {
+                    "name":"LAB-DHCP01"
+                }
+            ]
+        },
+        {
+            "name": "YYC01-INT-CLUSTER-01",
+            "drCluster": "DDC-INT-CLUSTER-01",
+            "vms": [ ]
+        },
+        {
+            "name": "LAS04-INT-CLUSTER-01",
+            "drCluster": "DDC-INT-CLUSTER-01",
+            "vms": [ ]
+        },
+        {
+            "name": "NY7-INT-CLUSTER-01",
+            "drCluster": "CDC-INT-CLUSTER-01",
+            "vms": [ ]
+        },
+        {
+            "name": "DA11-INT-CLUSTER-01",
+            "drCluster": "DDC-INT-CLUSTER-01",
+            "vms": [ ]
+        },
+        {
+            "name": "SE4-INT-CLUSTER-01",
+            "drCluster": "DDC-INT-CLUSTER-01",
+            "vms": [ ]
+        },
+        {
+            "name": "CH3-INT-CLUSTER-01",
+            "drCluster": "CDC-INT-CLUSTER-01",
+            "vms": [ ]
+        },
+        {
+            "name": "AT4-INT-CLUSTER-01",
+            "drCluster": "CDC-INT-CLUSTER-01",
+            "vms": [ ]
+        }
+
+
+
+
+
+
+    ],
+    "cifsServer": "xyz-smb01",
+    "shareName": "share1",
+    "owners":[
+        "Owner1",
+        "Owner2"
+    ],
+    "explicitRules": [
+        {
+            "Path": "FileFolderPath",
+            "FileSystemRights": "FSR",
+            "AccessControlType": "AccessType",
+            "IdentityReference": "ID",
+            "InheritanceFlags": "Inheritance",
+            "PropagationFlags": "PropFlags"
+        },
+        {
+            "Path": "FileFolderPath",
+            "FileSystemRights": "FSR",
+            "AccessControlType": "AccessType",
+            "IdentityReference": "ID",
+            "InheritanceFlags": "Inheritance",
+            "PropagationFlags": "PropFlags"
+        }
+    ],
+    "stats":
+    {
+        "Directories": 15,
+        "Files": 56,
+        "TotalSize": 54665,
+        "ageData": [
+            {
+                "age": 0,
+                "count": 9,
+                "size": 1500
+            }
+        ]
+    }
+}

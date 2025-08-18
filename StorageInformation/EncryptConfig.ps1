@@ -81,7 +81,6 @@ $Global:LogPath = "{0}\{1}.log" -f @($Global:scriptConfig.LogPath, [DateTime]::N
 
 # Convert all the plain text passwords into encrypted strings.
 $Global:scriptConfig.Filers.CDOT.Password = ConvertTo-SecureString -String $Global:scriptConfig.Filers.CDOT.Password -AsPlainText -Force | ConvertFrom-SecureString
-$Global:scriptConfig.Filers.SM.Password = ConvertTo-SecureString -String $Global:scriptConfig.Filers.SM.Password -AsPlainText -Force | ConvertFrom-SecureString
 $Global:scriptConfig.vCenter.Password = ConvertTo-SecureString -String $Global:scriptConfig.vCenter.Password -AsPlainText -Force | ConvertFrom-SecureString
 
 # Save the configuration data back to the same file it was read from.

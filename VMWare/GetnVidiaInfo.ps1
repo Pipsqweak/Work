@@ -1,17 +1,25 @@
 $profileMatrix = @()
 $d = "" | Select-Object ProfileName, MemoryMB
 $d.ProfileName = "grid_p40-2q"
-$d.MemoryMB = 2048
+#$d.MemoryMB = 2048
+$d.MemoryMB = 4096
 $profileMatrix += $d
 
 $d = "" | Select-Object ProfileName, MemoryMB
 $d.ProfileName = "grid_p6-2q"
-$d.MemoryMB = 2048
+#$d.MemoryMB = 2048
+$d.MemoryMB = 4096
 $profileMatrix += $d
 
 $d = "" | Select-Object ProfileName, MemoryMB
 $d.ProfileName = "grid_t4-2q"
-$d.MemoryMB = 2048
+#$d.MemoryMB = 2048
+$d.MemoryMB = 4096
+$profileMatrix += $d
+
+$d = "" | Select-Object ProfileName, MemoryMB
+$d.ProfileName = "grid_t4-4q"
+$d.MemoryMB = 4096
 $profileMatrix += $d
 
 $d = "" | Select-Object ProfileName, MemoryMB
@@ -21,28 +29,32 @@ $profileMatrix += $d
 
 $d = "" | Select-Object ProfileName, MemoryMB
 $d.ProfileName = "nvidia_a16-2q"
-$d.MemoryMB = 2048
+#$d.MemoryMB = 2048
+$d.MemoryMB = 4096
 $profileMatrix += $d
 
-
-$vmHosts = Get-VMHost -Server $vcenter
-$vcadHosts = @($vmHosts | Where-Object { $_.ExtensionData.Hardware.PciDevice | Where-Object { ($_.VendorName -match "Nvidia") -and (($_.DeviceName -match "Tesla") -or ($_.DeviceName -match "nVidia")) } } | Sort-Object Name)
-$vCADData = @()
-$sb = [System.Text.StringBuilder]::new()
-[int] $a = 0
-while($a -lt $vcadHosts.Length)
+function GetVCADHostData
 {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true, Position=1)]
+        [VMware.VimAutomation.ViCore.Impl.V1.Inventory.VMHostImpl]
+        $vcadHost
+    )
+
+    $sb = [System.Text.StringBuilder]::new()
+
     $j = "" | Select-Object Host, MemoryTotal, MemoryUsed, GPUs, VMs, TotalGPUMemoryGB, GPUMemoryAvailableGB
-    $j.Host = $vcadHosts[$a].Name
-    $j.MemoryTotal = $vcadHosts[$a].MemoryTotalMB
-    $j.MemoryUsed = $vcadHosts[$a].MemoryUsageMB
+    $j.Host = $vcadHost.Name
+    $j.MemoryTotal = $vcadHost.MemoryTotalMB
+    $j.MemoryUsed = $vcadHost.MemoryUsageMB
     $j.TotalGPUMemoryGB = 0
     $j.GPUMemoryAvailableGB = 0
     $j.GPUs = @()
     $j.VMs = @()
-    [void] $sb.AppendLine(("`r`n{0}, Memory (MB): Total: {1:N2} / Used {2:N2}" -f @($vcadHosts[$a].Name, $vcadHosts[$a].MemoryTotalMB, $vcadHosts[$a].MemoryUsageMB)))
-    $hostVMS = @(Get-VM -Server $vcenter -Location $vcadHosts[$a])
-    $esxcli = Get-EsxCli -VMHost $vcadHosts[$a] -V2
+    [void] $sb.AppendLine(("`r`n{0}, Memory (MB): Total: {1:N2} / Used {2:N2}" -f @($vcadHost.Name, $vcadHost.MemoryTotalMB, $vcadHost.MemoryUsageMB)))
+    $hostVMS = @(Get-VM -Server $vcenter -Location $vcadHost)
+    $esxcli = Get-EsxCli -VMHost $vcadHost -V2
     if($null -ne $esxcli)
     {
         $gridCards = @($esxcli.graphics.device.list.Invoke())
@@ -108,7 +120,7 @@ while($a -lt $vcadHosts.Length)
 
             $b++
         }
-        $availableHostMemoryMB = $vcadHosts[$a].MemoryTotalMB - $vcadHosts[$a].MemoryUsageMB
+        $availableHostMemoryMB = $vcadHost.MemoryTotalMB - $vcadHost.MemoryUsageMB
         $availableGPUMemoryMB = $j.GPUMemoryAvailableGB * 1KB
         [void] $sb.AppendLine("`tResources Available: Host Memory: {0:N2}GB, GPU Memory: {1:N2}GB" -f @(($availableHostMemoryMB / 1KB), $j.GPUMemoryAvailableGB))
 
@@ -134,6 +146,20 @@ while($a -lt $vcadHosts.Length)
         }
     }
 
+    return @($j, $sb)
+}
+
+$vmHosts = Get-VMHost -Server $vcenter
+$vcadHosts = @($vmHosts | Where-Object { $_.ExtensionData.Hardware.PciDevice | Where-Object { ($_.VendorName -match "Nvidia") -and (($_.DeviceName -match "Tesla") -or ($_.DeviceName -match "nVidia")) } } | Sort-Object Name)
+$vCADData = @()
+$sb = [System.Text.StringBuilder]::new()
+[int] $a = 0
+while($a -lt $vcadHosts.Length)
+{
+
+    $j, $tSB = GetVCADHostData -vcadHost $vcadHosts[$a]
+
+    [void] $sb.AppendLine($tSB.ToString())
     $vCADData += $j
     $a++
 }

@@ -25,11 +25,15 @@ Param(
 
     [Parameter(Mandatory=$false,Position=6,ValueFromPipeline=$false,HelpMessage="Copy archive to discovery folder.  Default: No")]
     [switch]
-    $listOnly
+    $listOnly,
+
+    [Parameter(Mandatory=$true,Position=7,ValueFromPipeline=$false,HelpMessage="Folder for log files.")]
+    [String]
+    $logFolder
 )
 
 <#
-    Must be ran with administrator privileges.
+    Must be ran with administrator privileges.  As of 2025/1/28, this is the one to use.
 
     Given a set of command line parameters:
 
@@ -53,12 +57,9 @@ Param(
     WaitForRobocopyProcesses
 
         Inputs:
-
-            $roboProcesses: An array of processes (returned from Start-Process -PassThru) to check
             $maxRoboProcesses: The maximum number of ROBOCOPY processes to allow to run.  Default: 0 (Wait for all)
 
         Outputs:
-
             $procs.Length: The number of child ROBOCOPY processes returned from our CIM query (and PS filter)...
                 @(Get-CimInstance -Class Win32_Process | Where-Object { ($_.Caption -match "robocopy") -and ($_.ParentProcessId -eq $myProcId) })
 
@@ -375,7 +376,7 @@ catch
 $tmpFolder = $projectWiseDiscoveryFolder
 
 # Path to the merged log file.
-$mergedLogFile = "E:\TMP\LHTMP\{0}.log" -f @($pwProjectNumber)
+$mergedLogFile = "{0}\{1}.log" -f @($logFolder, $pwProjectNumber)
 
 # Path to the condensed log file.
 #   Since this file is written AFTER 7-Zip is done, we are safe to write it straight to the project folder.
@@ -414,7 +415,7 @@ while($a -lt $uniqueSourceLocations.Length)
         $sourceFolder = [System.IO.Path]::GetFileName($sourceLocation)
 
         # Name of log file for the next ROBOCOPY process
-        $logFile = "E:\TMP\LHTMP\{0}.log" -f @($sourceFolder)
+        $logFile = "{0}\{1}.log" -f @($logFolder, $sourceFolder)
 
         # Temporary destination for ROBOCOPY
         $tmpDestination = "{0}\{1}\{2}" -f @($tmpFolder, $pwProjectNumber, $sourceFolder)
@@ -442,7 +443,7 @@ while($a -lt $uniqueSourceLocations.Length)
         $logFiles += $logFile
 
         <#
-            The below logic was used because calling WaitForRobocopyProcesses uses Get-CimInstance which is slow enough that
+            The logic below was used because calling WaitForRobocopyProcesses uses Get-CimInstance which is slow enough that
             rarely were there more than 2/3 ROBOCOPY processes running, which only slows then entire process down.
 
             So, if I *KNOW" I can't possibly have too many ROBOCOPY processes running, because I haven't started

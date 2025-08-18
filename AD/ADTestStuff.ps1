@@ -148,3 +148,8 @@ foreach($test in @("user","group"))
     $result = TestRecycleBin $test
     Write-Host ("`r`nTest {0} Passed: {1}`r`n`r`n" -f @($test, $result))
 }
+
+
+<#
+    I'd like to create a tool that compares AD groups to look to group similarity.  Not sure exactly how to do it, but I'll start here...
+#>

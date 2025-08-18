@@ -1,0 +1,173 @@
+{
+    "vCenter": "vc.powereng.com",
+    "ucsManager": "ch3-ucs01.powereng.com",
+    "datacenterID": "Datacenter-datacenter-1062",
+    "vSphereClusterID": "ClusterComputeResource-domain-c1070",
+    "switch":
+    {
+        "name": "CH3 INT vDS 02",
+        "mtu": 9000,
+        "version": "7.0.3",
+        "uplinkMappings": [
+            {
+                "uplinkName": "INT.MGTVMN.AB",
+                "vNICName": "INT.MGTVMN.AB"
+            },
+            {
+                "uplinkName": "INT.VMNMGT.BA",
+                "vNICName": "INT.VMNMGT.BA"
+            },
+            {
+                "uplinkName": "INT.STG.AX",
+                "vNICName": "INT.STG.AX"
+            },
+            {
+                "uplinkName": "INT.STG.BX",
+                "vNICName": "INT.STG.BX"
+            },
+            {
+                "uplinkName": "INT.GST.AX",
+                "vNICName": "INT.GST.AX"
+            },
+            {
+                "uplinkName": "INT.GST.BX",
+                "vNICName": "INT.GST.BX"
+            }
+        ],
+        "portGroups": [
+            {
+                "vlanID": 3,
+                "name": "VL03-SERVERDATA",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 5,
+                "name": "VL05-INFRAMGMT",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.MGTVMN.AB"
+                ],
+                "standbyUplinkNames": [
+                    "INT.VMNMGT.BA"
+                ]
+            },
+            {
+                "vlanID": 11,
+                "name": "VL11-VMOTION",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.VMNMGT.BA"
+                ],
+                "standbyUplinkNames": [
+                    "INT.MGTVMN.AB"
+                ]
+            },
+            {
+                "vlanID": 11,
+                "name": "VL11-STORAGE",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.STG.AX",
+                    "INT.STG.BX"
+                ],
+                "standbyUplinkNames": []
+            }
+        ]
+    },
+    "datastores":
+    [
+        {
+            "name":  "CH3_SATA_01",
+            "filer":  "CH3-NTAP01",
+            "nfsHost":  "10.234.11.10",
+            "nfsPath":  "/VMware/CH3_SATA_01"
+        },
+        {
+            "name":  "CH3_DMZ_SATA_01",
+            "filer":  "CH3-NTAP01",
+            "nfsHost":  "10.234.11.10",
+            "nfsPath":  "/VMware/CH3_DMZ_SATA_01"
+        }
+    ],
+    "hosts": [
+        {
+            "serial": "FLM255104PQ",
+            "vmHostName": "ch3-esx-c1-b3.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL05-INFRAMGMT",
+                    "ipAddress": "10.234.5.90",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-STORAGE",
+                    "ipAddress": "10.234.11.90",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-VMOTION",
+                    "ipAddress": "10.245.11.130",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores":[
+                "CH3_SATA_01",
+                "CH3_DMZ_SATA_01"
+            ]
+        },
+        {
+            "serial": "FLM255104JQ",
+            "vmHostName": "ch3-esx-c1-b4.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL05-INFRAMGMT",
+                    "ipAddress": "10.234.5.91",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-STORAGE",
+                    "ipAddress": "10.234.11.91",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-VMOTION",
+                    "ipAddress": "10.234.11.131",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores":[
+                "CH3_SATA_01",
+                "CH3_DMZ_SATA_01"
+            ]
+        }
+    ]
+}

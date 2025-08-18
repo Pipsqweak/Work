@@ -1,4 +1,6 @@
-﻿# Based on my testing, the following 12 lines do not execute properly when sourcing this script file.
+﻿. C:\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\TempTest\Log.ps1
+
+# Based on my testing, the following 12 lines do not execute properly when sourcing this script file.
 # It appears type/class definitions are completed first, which results in an exception being thrown
 # since the MySQL.Data assembly is not loaded prior to the class being defined.
 #
@@ -12,7 +14,7 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
     if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullName -match "MySQL.Data" }).Length -eq 0)
     {
         throw "Unable to load MySQL.Data assembly."
-    }
+    } `
     else
     {
     }
@@ -35,6 +37,8 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
             # Used for implementing System.IDisposable
             [Boolean] hidden $disposing = $false
 
+            [Boolean] $Good2Go = $false
+
             MySQLDBConnection (
                 [String] $connectionString
             )
@@ -46,16 +50,19 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
                     if($null -eq $this.connection)
                     {
                         [Log]::Error("Failed to create DB connection in {0}." -f $MyInvocation.MyCommand)
-                    }
+                        $this.Good2Go = $false
+                    } `
                     else
                     {
                         # Nothing, the connection was successfully created
+                        $this.Good2Go = $true
                     }
-                }
+                } `
                 else
                 {
                     $msg = "DB connection string missing in {0}." -f $MyInvocation.MyCommand
                     [Log]::Error($msg)
+                    $this.Good2Go = $false
                     throw $msg
                 }
             }
@@ -72,7 +79,7 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
                     {
                         [Log]::Error("Failed to open DB connection.")
                     }
-                }
+                } `
                 else
                 {
                     # Nothing, connection is already open
@@ -85,7 +92,7 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
                 if($this.connection.State -ne [System.Data.ConnectionState]::Closed)
                 {
                     $this.connection.Close()
-                }
+                } `
                 else
                 {
                     # Nothing, connection is already closed
@@ -127,12 +134,12 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
                         while((-not $completed) -and ($tries -lt [MySQLDBConnection]::maxRetries))
                         $cmd.Dispose()
                         $this.Close()
-                    }
+                    } `
                     else
                     {
                         [Log]::Error("Unable to open connection to database in {0}." -f $MyInvocation.MyCommand)
                     }
-                }
+                } `
                 else
                 {
                     [Log]::Error("Empty query sent to {0}!" -f $MyInvocation.MyCommand)
@@ -175,12 +182,12 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
 
                         $cmd.Dispose()
                         $this.Close()
-                    }
+                    } `
                     else
                     {
                         [Log]::Error("Unable to open connection to database in {0}." -f $MyInvocation.MyCommand)
                     }
-                }
+                } `
                 else
                 {
                     [Log]::Error("Empty query sent to {0}!" -f $MyInvocation.MyCommand)
@@ -232,7 +239,7 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
                 $tmpDT = $null
                 if(-not [String]::IsNullOrEmpty($query))
                 {
-                    $tmpDT = New-Object 'System.Data.DataTable'
+                    $tmpDT = [System.Data.DataTable]::new()
 
                     if($null -ne $tmpDT)
                     {
@@ -246,30 +253,30 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
                                 if(-not $this.ExecuteLoad($cmd, $tmpDT))
                                 {
                                     [Log]::Warning("Failed to complete query: {0}" -f @($query))
-                                }
+                                } `
                                 else
                                 {
                                     # Nothing all is well
                                 }
                                 $cmd.Dispose()
-                            }
+                            } `
                             else
                             {
                                 [Log]::Error("Failed to create connection command in {0}." -f $MyInvocation.MyCommand)
                             }
 
                             $this.Close()
-                        }
+                        } `
                         else
                         {
                             [Log]::Error("Unable to open connection to database in {0}." -f $MyInvocation.MyCommand)
                         }
-                    }
+                    } `
                     else
                     {
                         [Log]::Error("Failed to create datatable in {0}." -f $MyInvocation.MyCommand)
                     }
-                }
+                } `
                 else
                 {
                     [Log]::Error("Empty query sent to {0}!" -f $MyInvocation.MyCommand)
@@ -312,24 +319,24 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
                                 }
 
                                 $cmd.Dispose()
-                            }
+                            } `
                             else
                             {
                                 [Log]::Error("Failed to create connection command in {0}." -f $MyInvocation.MyCommand)
                             }
 
                             $this.Close()
-                        }
+                        } `
                         else
                         {
                             [Log]::Error("Unable to open connection to database in {0}." -f $MyInvocation.MyCommand)
                         }
-                    }
+                    } `
                     else
                     {
                         [Log]::Warning("No SQL commands sent to {0}." -f $MyInvocation.MyCommand)
                     }
-                }
+                } `
                 else
                 {
                     [Log]::Warning("Null SQL command string array sent to {0}." -f $MyInvocation.MyCommand)
@@ -362,7 +369,7 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
                                     if(-not $paramName.StartsWith("@"))
                                     {
                                         $paramName = ("@{0}" -f $params[$p].Name)
-                                    }
+                                    } `
                                     else
                                     {
                                         # Nothing
@@ -372,19 +379,19 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
                                     {
                                         # [Log]::Info("Adding parameter {0} Value {1}" -f @($paramName, $params[$p].Value.ToString()))
                                         $cmd.Parameters.Add([MySql.Data.MySqlClient.MySqlParameter]::new($paramName, $params[$p].Value))
-                                    }
+                                    } `
                                     else
                                     {
                                         [Log]::Warning("Parameter ({0}) missing Value key." -f @($p))
                                         $paramsAreValid = $false
                                     }
-                                }
+                                } `
                                 else
                                 {
                                     [Log]::Warning("Parameter ({0}) has empty name." -f @($p))
                                     $paramsAreValid = $false
                                 }
-                            }
+                            } `
                             else
                             {
                                 [Log]::Warning("Parameter ({0}) missing Name key." -f @($p))
@@ -399,7 +406,7 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
                             if(-not $this.ExecuteLoad($cmd, $tmpDT))
                             {
                                 [Log]::Warning("Failed to complete query: {0}" -f @($spName))
-                            }
+                            } `
                             else
                             {
                                 # Nothing all is well
@@ -417,23 +424,23 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
                                         {
                                             [Log]::Warning($tmpDT.Rows[$e].ERROR)
                                         }
-                                    }
+                                    } `
                                     else
                                     {
                                         # Nothing
                                     }
-                                }
+                                } `
                                 else
                                 {
                                     # Nothing
                                 }
-                            }
+                            } `
                             else
                             {
                                 # Nothing
                             }
                             $results = $tmpDT
-                        }
+                        } `
                         else
                         {
                             [Log]::Warning("Not executing stored procedure {0} due to invalid parameters." -f @($spName))
@@ -441,12 +448,12 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
 
                         $cmd.Dispose()
                         $this.Close()
-                    }
+                    } `
                     else
                     {
                         [Log]::Error("Unable to open connection to database in {0}." -f $MyInvocation.MyCommand)
                     }
-                }
+                } `
                 else
                 {
                     [Log]::Warning("Attempt to execute stored procedure with no name.")
@@ -461,7 +468,7 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
                 if(-not [String]::IsNullOrEmpty($paramName))
                 {
                     $ht = @{ Name = $paramName; Value = $paramValue }
-                }
+                } `
                 else
                 {
                     [Log]::Warning("Paramater must have a name.")
@@ -489,12 +496,12 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
                 }
             }
         }
-    }
+    } `
     else
     {
         # Nothing, the class is already defined.
     }
-}
+} `
 else
 {
     throw "MySQL.Data assembly not loaded."

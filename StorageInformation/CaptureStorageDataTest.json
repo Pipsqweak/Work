@@ -1,0 +1,30 @@
+{
+    "LogPath":  "E:\\Scripts\\StorageReporter\\Test",
+    "LogsToKeep":  14,
+    "Database": {
+        "Server": "CDC-NTAPMGMT01\\SQLExpress",
+        "Name": "StorageInfoTest"
+    },    
+    "Filers":  {
+                   "CDOT":  {
+                                "UserName":  "POWERENG\\SRVC-AllStorage-RO",
+                                "Password":  "01000000d08c9ddf0115d1118c7a00c04fc297eb01000000193d44eebbed1346b949e8ad9d6070340000000002000000000003660000c000000010000000be07df9065b4b025e11621f689a07f0e0000000004800000a000000010000000506a248bbc1ba7a6842f892fd7fdf831680000006364079c91215860ce9adb77b9d167be4e62e0fc8e4bfa002f03a0b6e269acf228acdda9d0b85af3813aadf95d9db4321bc19c08c558eb844a87c07e5aab0dec2f69977103abcf90938539a4ae988cbe304479a5171e33e67cab707e3b63debad6267864b0c84ed4140000001f299524ae11c0307d890a253f2bd81f78aa229e",
+                                "Controllers":  [
+                                                    "at4-ntap01.powereng.com",
+                                                    "bdc-cdotclst01.powereng.com",
+                                                    "cdc-cdotclst01.powereng.com",
+                                                    "ch3-ntap01.powereng.com",
+                                                    "da11-ntap01.powereng.com",
+                                                    "las04-ntap01.powereng.com",
+                                                    "ny7-ntap01.powereng.com",
+                                                    "se4-ntap01.powereng.com",
+                                                    "yyc01-ntap01.powereng.com"
+                                                ]
+                            }
+               },
+    "vCenter":  {
+                    "Server":  "tdcprdvctr1.powereng.com",
+                    "UserName":  "POWERENG\\SRVCvCenterReadAll",
+                    "Password":  "01000000d08c9ddf0115d1118c7a00c04fc297eb01000000193d44eebbed1346b949e8ad9d6070340000000002000000000003660000c0000000100000006506ad517e2d9bbcdfdc077f972d80510000000004800000a000000010000000337d0ccd96a78e489bdb8ffdf1707046480000003af28cadbdccb609a53c775cb82be752f9b65823123e6cf339e9400f7d4c6407ed202741ad695d837862ab69a3d6bef01be8f2fda13278cdf8c76aa7f465f0c4499d2360b8c7eeb1140000004c47bf7c3b4ac78b7363696fd88e14dbbbc9386a"
+                }
+}

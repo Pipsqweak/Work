@@ -1,0 +1,8 @@
+"ShareName"	"Owners"
+"\\syrfs1\Line"	"POWERENG\FS-SYRFS1-Line-Share-FC, POWERENG\FS-SYRFS1-Line-Share-RW"
+"\\syrfs1\PD_DistMgmt"	"POWERENG\FS-SYRFS1-PD_DistMgmt-Share-FC, POWERENG\FS-SYRFS1-PD_DistMgmt-Share-RW"
+"\\syrfs1\PD_ProjMgmt"	"POWERENG\FS-SYRFS1-PD_ProjMgmt-Share-FC, POWERENG\FS-SYRFS1-PD_ProjMgmt-Share-RW"
+"\\syrfs1\SAS"	"POWERENG\FS-SYRFS1-SAS-Share-FC, POWERENG\FS-SYRFS1-SAS-Share-RW"
+"\\syrfs1\Shares$"	"Everyone"
+"\\syrfs1\Substation"	"POWERENG\FS-SYRFS1-Substation-Share-FC, POWERENG\FS-SYRFS1-Substation-Share-RW"
+"\\syrfs1\Xchange"	"POWERENG\FS-ALL-Xchange-Share-FC, POWERENG\FS-ALL-Xchange-Share-RW"

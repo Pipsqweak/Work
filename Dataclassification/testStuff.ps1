@@ -2,7 +2,7 @@ function AddLongUNCPath($str) { $retval = $str; if($str -notmatch "^\\\\\?\\unc\
 
 function RemoveLongUNCPath($str) { return ($str -replace "^\\\\\?\\UNC\\","\\") }
 
-function NewDictionaryLeaf($dict, $key, $translation = [String]::Empty)
+function NewDictionaryLeaf($dict, $key, $translation = [String]::Empty, $cifsServer = [String]::Empty, $fs1Alias = [String]::Empty)
 {
     if(-not $dict.ContainsKey($key))
     {
@@ -14,6 +14,8 @@ function NewDictionaryLeaf($dict, $key, $translation = [String]::Empty)
                 Write-Host ("->{0}" -f @($translation))
             }
             #>
+        $dict[$key].Add("CIFSServer", $cifsServer)
+        $dict[$key].Add("FS1Alias", $fs1Alias)
         $dict[$key].Add("Translation", $translation)
         $dict[$key].Add("Children", [System.Collections.Generic.SortedDictionary[[String],[Object]]]::new([System.StringComparer]::OrdinalIgnoreCase))
     }
@@ -21,38 +23,43 @@ function NewDictionaryLeaf($dict, $key, $translation = [String]::Empty)
     return @( , $dict[$key]["Children"])
 }
 
+<#
+    BuildTranslationDictionaryFromCSV reads the contents of a CSV file previously created with ExportNCCIFSSharesToCSV then creates a dictionary used to translate
+#>
 function BuildTranslationDictionaryFromCSV
 {
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$true,Position=0)]
         [String]
-        $csvPath,
+        $translationCSVPath,
 
-        [Parameter(Mandatory=$true,Position=1)]
+        [Parameter(Mandatory=$false,Position=1)]
         [String]
         $forServer = [String]::Empty
     )
 
     try
     {
-        $allCifsShares = Import-CSV -Delimiter "`t" -Path $csvPath
+        $allCifsShares = Import-CSV -Delimiter "`t" -Path $translationCSVPath
 
         $Global:pathTranslationDictionary = [System.Collections.Generic.SortedDictionary[[String],[Object]]]::new([System.StringComparer]::OrdinalIgnoreCase)
         $uniqueCifsServers = @($allCifsShares | Select-Object -Unique -ExpandProperty CifsServer)
 
+        $uniqueCifsServers = @($allCifsShares | Select-Object -Unique CifsServer, FS1Alias)
+
         if(-not [String]::IsNullOrEmpty($forServer))
         {
-            $uniqueCifsServers = @($uniqueCifsServers | Where-Object { $_ -eq $forServer })
+            $uniqueCifsServers = @($uniqueCifsServers | Where-Object { ($_.CifsServer -eq $forServer) -or (($_.FS1Alias -eq $forServer)) })
         }
         $a = 0
         while($a -lt $uniqueCifsServers.Length)
         {
             $translationDictionary = $Global:pathTranslationDictionary
 
-            $translationDictionary = NewDictionaryLeaf $translationDictionary $uniqueCifsServers[$a]
+            $translationDictionary = NewDictionaryLeaf -dict $translationDictionary -key $uniqueCifsServers[$a].CifsServer -cifsServer $uniqueCifsServers[$a].CifsServer -fs1Alias $uniqueCifsServers[$a].FS1Alias
             $cifsServerShares = [System.Collections.Generic.List[Object]]::new()
-            @($allCifsShares | Where-Object { ($_.CifsServer -eq $uniqueCifsServers[$a]) } | Sort-Object Path) | ForEach-Object { $cifsServerShares.Add($_) }
+            @($allCifsShares | Where-Object { ($_.CifsServer -eq $uniqueCifsServers[$a].CifsServer) -or ($_.FS1Alias -eq $uniqueCifsServers[$a].FS1Alias) } | Sort-Object Path) | ForEach-Object { $cifsServerShares.Add($_) }
 
             $shareNum = 0
             while($shareNum -lt $cifsServerShares.Count)
@@ -61,7 +68,7 @@ function BuildTranslationDictionaryFromCSV
                 $childShares = @($cifsServerShares | Where-Object { ($_.Path -ne $parentCifsShare.Path) -and $_.Path.StartsWith($parentCifsShare.Path) })
                 if($childShares.Length -gt 0)
                 {
-                    $translationDictionary = NewDictionaryLeaf $translationDictionary $parentCifsShare.ShareName
+                    $translationDictionary = NewDictionaryLeaf -dict $translationDictionary -key $parentCifsShare.ShareName -cifsServer $uniqueCifsServers[$a].CifsServer -fs1Alias $uniqueCifsServers[$a].FS1Alias
                     $parentTranslationDictionary = $translationDictionary
                     [void] $cifsServerShares.Remove($parentCifsShare)
                     $b = 0
@@ -77,12 +84,12 @@ function BuildTranslationDictionaryFromCSV
                                 if($c -eq ($subFolders.Length - 1))
                                 {
                                     # Write-Host ("`t`t[{0}] -> {1}" -f @($subFolders[$c], ("{0}\{1}" -f @($childShares[$b].CifsServer, $childShares[$b].ShareName))))
-                                    $translationDictionary = NewDictionaryLeaf $translationDictionary $subFolders[$c] ("{0}\{1}" -f @($childShares[$b].CifsServer, $childShares[$b].ShareName))
+                                    $translationDictionary = NewDictionaryLeaf -dict $translationDictionary -key $subFolders[$c] -translation ("{0}\{1}" -f @($childShares[$b].CifsServer, $childShares[$b].ShareName)) -cifsServer $uniqueCifsServers[$a].CifsServer -fs1Alias $uniqueCifsServers[$a].FS1Alias
                                 }
                                 else
                                 {
                                     # Write-Host ("`t`tadding child key: {0}" -f @($subFolders[$c]))
-                                    $translationDictionary = NewDictionaryLeaf $translationDictionary $subFolders[$c]
+                                    $translationDictionary = NewDictionaryLeaf -dict $translationDictionary -key $subFolders[$c] -cifsServer $uniqueCifsServers[$a].CifsServer -fs1Alias $uniqueCifsServers[$a].FS1Alias
                                 }
                             }
                             else
@@ -104,7 +111,7 @@ function BuildTranslationDictionaryFromCSV
     }
     catch
     {
-        # [Log]::Error("CIFS server shares file {0} not found." -f @($csvPath))
+        # [Log]::Error("CIFS server shares file {0} not found." -f @($translationCSVPath))
     }
 }
 
@@ -147,6 +154,12 @@ function TranslatePath($pathToTranslate)
     if($pathToTranslate -match "^\\\\\?\\unc\\")
     {
         $d.DirectShare = AddLongUNCPath $d.DirectShare
+    }
+
+    if(($null -ne $pathParts) -and ($pathParts.Length -gt 0) -and (-not [String]::IsNullOrEmpty($pathParts[0])) -and $Global:pathTranslationDictionary.ContainsKey($pathParts[0]) -and (-not [String]::IsNullOrEmpty($Global:pathTranslationDictionary[$pathParts[0]].CIFSServer)) -and (-not [String]::IsNullOrEmpty($Global:pathTranslationDictionary[$pathParts[0]].FS1Alias)))
+    {
+        $d.DirectShare = [regex]::Replace($d.DirectShare, ("\\{0}\\" -f @($Global:pathTranslationDictionary[$pathParts[0]].CIFSServer)), ("\{0}\" -f @($Global:pathTranslationDictionary[$pathParts[0]].FS1Alias)))
+        $d.TranslatedPath = [regex]::Replace($d.TranslatedPath, ("\\{0}\\" -f @($Global:pathTranslationDictionary[$pathParts[0]].CIFSServer)), ("\{0}\" -f @($Global:pathTranslationDictionary[$pathParts[0]].FS1Alias)))
     }
 
     return $d
@@ -238,8 +251,15 @@ function GetPathOwners($sharePath)
     return @(, $ownerList)
 }
 
-function ShowStats()
+function ShowStats
 {
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [String]
+        $saveToPath = [String]::Empty
+    )
+
     $shareKeys = @($Global:sizeByAgeDict.Keys)
 
     $statData = [System.Collections.Generic.List[Object]]::new()
@@ -317,14 +337,35 @@ function ShowStats()
         $a++
     }
 
-    $cbd = $statData | ConvertTo-Csv -NoTypeInformation -Delimiter "`t"
-    $cbd[1..($cbd.Length - 1)] | Set-Clipboard
-    $t | Format-Table -AutoSize -Property *
-    Write-Host "Stats copied to clipboard"
+    if(-not [String]::IsNullOrEmpty($saveToPath))
+    {
+        try
+        {
+            $statData | Export-Csv -NoTypeInformation -Delimiter "`t" -Path $saveToPath
+        }
+        catch
+        {
+
+        }
+    }
+    else
+    {
+        $cbd = $statData | ConvertTo-Csv -NoTypeInformation -Delimiter "`t"
+        $cbd[1..($cbd.Length - 1)] | Set-Clipboard
+        $t | Format-Table -AutoSize -Property *
+        Write-Host "Stats copied to clipboard"
+    }
 }
 
-function ShowOwners()
+function ShowOwners
 {
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [String]
+        $saveToPath = [String]::Empty
+    )
+
     $shareKeys = @($Global:sizeByAgeDict.Keys)
 
     $statData = [System.Collections.Generic.List[Object]]::new()
@@ -340,10 +381,79 @@ function ShowOwners()
         $a++
     }
 
-    $cbd = $statData | ConvertTo-Csv -NoTypeInformation -Delimiter "`t"
-    $cbd[1..($cbd.Length - 1)] | Set-Clipboard
-    $cbd | Format-Table -AutoSize -Property *
-    Write-Host "Owners copied to clipboard"
+    if(-not [String]::IsNullOrEmpty($saveToPath))
+    {
+        try
+        {
+            $statData | Export-Csv -NoTypeInformation -Delimiter "`t" -Path $saveToPath
+        }
+        catch
+        {
+
+        }
+    }
+    else
+    {
+        $cbd = $statData | ConvertTo-Csv -NoTypeInformation -Delimiter "`t"
+        $cbd[1..($cbd.Length - 1)] | Set-Clipboard
+        $cbd | Format-Table -AutoSize -Property *
+        Write-Host "Owners copied to clipboard"
+    }
+}
+
+function CaptureExplicitACLRules($fsi)
+{
+    $abandonedRuleFound = $false
+    if($null -ne $fsi)
+    {
+        try
+        {
+            $fsiACL = $fsi.GetAccessControl()
+            $explicitRules = @($fsiACL.Access | Where-Object { -not $_.IsInherited })
+
+            $a = 0
+            while($a -lt $explicitRules.Length)
+            {
+                $kk = "" | Select-Object Path, FileSystemRights,AccessControlType,IdentityReference,InheritanceFlags,PropagationFlags
+                $kk.Path = $fsi.FullName
+                $kk.FileSystemRights = $fsiACL.Access[$a].FileSystemRights.ToString()
+                $kk.AccessControlType = $fsiACL.Access[$a].AccessControlType.ToString()
+                $kk.IdentityReference = $fsiACL.Access[$a].IdentityReference.ToString()
+                $kk.InheritanceFlags = $fsiACL.Access[$a].InheritanceFlags.ToString()
+                $kk.PropagationFlags = $fsiACL.Access[$a].PropagationFlags.ToString()
+
+                $Global:explicitACLRules.Add($kk)
+
+                if((-not $abandonedRuleFound) -and ($kk.IdentityReference -match "^S-1-5"))
+                {
+                    Write-Host ("Abandoned ACL rule on {0}." -f @($kk.Path))
+                    $abandonedRuleFound = $true
+                }
+
+                $a++
+            }
+        }
+        catch
+        {
+
+        }
+    }
+    else
+    {
+        Write-Host ("Null `$fsi sent to CaptureExplicitACLRules")
+    }
+}
+
+function DumpExplicitACLs()
+{
+    if($Global:explicitACLRules.Count -gt 0)
+    {
+        $Global:explicitACLRules | Export-Csv -NoTypeInformation -Delimiter "`t" -Path $Global:explicitACLRulesSavePath -Force
+    }
+    else
+    {
+        Write-Host "No explicit ACL rules found."
+    }
 }
 
 function ListDirectory($di)
@@ -353,6 +463,7 @@ function ListDirectory($di)
         if($di -is [System.IO.DirectoryInfo])
         {
             $pathTranslation = TestTranslation $di.FullName
+            CaptureExplicitACLRules $di
 
             if(-not $Global:sizeByAgeDict.ContainsKey($pathTranslation.DirectShare))
             {
@@ -419,6 +530,7 @@ function ListDirectory($di)
                     $Global:sizeByAgeDict[$pathTranslation.DirectShare].Files += $diFiles.Length
                     $diFiles | ForEach-Object {
                         $fi = $_
+                        CaptureExplicitACLRules $fi
                         $Global:sizeByAgeDict[$pathTranslation.DirectShare].TotalSize += $fi.Length
                         foreach($ageKey in [ShareStats]::FileAgeKeys)
                         {
@@ -434,28 +546,39 @@ function ListDirectory($di)
                         {
                             $fileTranslation = TranslatePath $fi.FullName
                             $keyPressed = [Console]::ReadKey($false)
-                            # Write-Host ("[{0}]" -f @([System.Enum]::GetName([System.ConsoleKey], $keyPressed)))
+                            $keyRead = $keyPressed.Key
+
                             Write-Host ("`r`n{0}`r`nTranslated: {1}`t{2}`t{3}" -f @($_.FullName, $fileTranslation.TranslatedPath, (Format-StorageNumber $_.Length), $_.CreationTime.ToString("yyyyMMdd hh:mm:ss")))
                             if(($null -ne $Global:sizeByAgeDict[$pathTranslation.DirectShare].Owners) -and ($Global:sizeByAgeDict[$pathTranslation.DirectShare].Owners.Count -gt 0))
                             {
                                 Write-Host ("`tOwners:")
                                 $Global:sizeByAgeDict[$pathTranslation.DirectShare].Owners | ForEach-Object { Write-Host ("`t`t{0}" -f @($_)) }
                             }
-                            if($keyPressed.Key -eq [System.ConsoleKey]::O)
+
+                            if($keyRead -eq [System.ConsoleKey]::X)
+                            {
+                                DumpExplicitACLs
+                            }
+                            elseif ($keyRead -eq [System.ConsoleKey]::S)
+                            {
+                                Write-Host ("`r`n{0}`t{1}`t{2}" -f @($_.FullName, (Format-StorageNumber $_.Length), $_.CreationTime.ToString("yyyyMMdd hh:mm:ss")))
+                                ShowStats
+                            }
+                            elseif ($keyRead -eq [System.ConsoleKey]::C)
+                            {
+                                CopyStats
+                            }
+                            elseif($keyRead -eq [System.ConsoleKey]::O)
                             {
                                 ShowOwners
                             }
-                            elseif($keyPressed.Key -eq [System.ConsoleKey]::D)
+                            elseif($keyRead -eq [System.ConsoleKey]::D)
                             {
                                 if($Global:directoryExceptions.Count -gt 0)
                                 {
                                     Write-Host ("`r`nDirectory Exceptions:")
                                     Write-Host ("`t{0}" -f @(($Global:directoryExceptions -join "`r`n`t")))
                                 }
-                            }
-                            else
-                            {
-                                ShowStats
                             }
                         }
                     }
@@ -520,7 +643,6 @@ class ShareStats
     }
 }
 
-
 function InitShareAgeDictionary
 {
     [CmdLetBinding()]
@@ -548,8 +670,61 @@ function InitShareAgeDictionary
     }
 }
 
-function LD($di)
+<#
+
+**************** Saved the explicit ACLs, but not file age or owner data. ****************
+
+#>
+
+function CreateSavePath($folderToSaveTo,$cifsServer)
 {
+    $serverFolder = "{0}\{1}" -f @($folderToSaveTo, $cifsServer)
+    if(-not [System.IO.Directory]::Exists($serverFolder))
+    {
+        New-Item -Path $folderToSaveTo -Name $cifsServer -ItemType Directory | Out-Null
+    }
+
+    $Global:explicitACLRulesSavePath = "{0}\explicitRules.csv" -f @($serverFolder)
+
+    return $serverFolder
+}
+
+function SaveData($folderToSaveTo,$cifsServer)
+{
+    try
+    {
+        $serverFolder = CreateSavePath -folderToSaveTo $folderToSaveTo -cifsServer $cifsServer
+        DumpExplicitACLs
+
+        $ownerFile = "{0}\owners.csv" -f @($serverFolder)
+        ShowOwners -saveToPath $ownerFile
+
+        $fileAgeDataFile = "{0}\fileAgeData.csv" -f @($serverFolder)
+        ShowStats -saveToPath $fileAgeDataFile
+    }
+    catch
+    {
+
+    }
+}
+
+function LD
+{
+    [CmdLetBinding()]
+    Param(
+        [Parameter(Mandatory=$true,Position=0)]
+        [String]
+        $translationCSVPath,
+
+        [Parameter(Mandatory=$true,Position=2)]
+        [String]
+        $folderToSaveTo,
+
+        [Parameter(Mandatory=$true,Position=3)]
+        [String]
+        $di
+    )
+
     [ShareStats]::InitFileAgeKeys()
     $Global:sizeByAgeDict = [System.Collections.Generic.SortedDictionary[[String], [ShareStats]]]::new([System.StringComparer]::OrdinalIgnoreCase)
 
@@ -560,12 +735,20 @@ function LD($di)
     $Global:translationsAttempted = 0
     $Global:translationsFailed = [System.Collections.Generic.List[String]]::new()
 
+    $Global:explicitACLRules = [System.Collections.Generic.List[System.Object]]::new()
+
     $tDI = RemoveLongUNCPath $di
     $diParts = $tDI.Split(@('\'), [System.StringSplitOptions]::RemoveEmptyEntries)
     $serverName = $diParts[0]
+    $shareName = $diParts[1]
+
+    # "C:\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\Dataclassification\Data"
+    CreateSavePath -folderToSaveTo $folderToSaveTo -cifsServer $serverName
 
     $oldTitle = $host.UI.RawUI.WindowTitle
-    BuildTranslationDictionaryFromCSV "\\cdc-ntapmgmt01\c$\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\Dataclassification\AllCifsShares-20231213.csv" $serverName
+    BuildTranslationDictionaryFromCSV -translationCSVPath $translationCSVPath -forServer $serverName
+        # "\\cdc-ntapmgmt01\c$\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\Dataclassification\AllCifsShares-20231213.csv" $serverName
+
     $host.ui.RawUI.WindowTitle = $di.ToLower()
     ListDirectory $di
     if($Global:directoryExceptions.Count -gt 0)
@@ -581,6 +764,7 @@ function LD($di)
     }
     ShowStats
     $host.UI.RawUI.WindowTitle = $oldTitle
+    SaveData -folderToSaveTo $folderToSaveTo -cifsServer $serverName
 }
 
 
@@ -673,5 +857,133 @@ function teststuff
     }
 }
 
+function ExportNCCIFSSharesToCSV($csvPath)
+{
+    $dnsServer = @(Get-DnsClientServerAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -notmatch "loopback" } | Select-Object -ExpandProperty ServerAddresses)[0]
+    $cifsServerAliases = Get-DnsServerResourceRecord -RRType CName -ZoneName "powereng.com" -ComputerName $dnsServer | Where-Object { $_.HostName -match "fs1$" } | Select-Object @{N='Alias';E={$_.HostName.ToLower()}},@{N='AliasFor';E={$_.RecordData.HostNameAlias.ToLower().Replace(".powereng.com.","")}}
 
-$encryptableVolumes = @(Get-NCVol -Controller @($cDot.Values) | Where-Object { ($_.VolumeSnaplockAttributes.SnaplockType -eq "non_snaplock" ) -and (-not $_.VolumeStateAttributes.IsNodeRoot) -and (-not $_.VolumeStateAttributes.IsVserverRoot) })
+    $allCifsShares = [System.Collections.Generic.List[Object]]::new()
+
+    # Get all volumes that do not match:
+    #   1. CifsServer contains "DR-"
+    #   2. ShareName is: c$, ipc$, or admin$
+    # @(Get-NCCifsShare -Controller @($cDot.Values) -ErrorAction Stop | Where-Object { ($_.CifsServer -notmatch "DR\-") -and ($_.ShareName -ne "c$") -and ($_.ShareName -ne "ipc$") -and ($_.ShareName -ne "admin$") }) | Sort-Object -Property @{E={$_.NCController.Name}; Descending = $false}, @{E={$_.CifsServer}; Descending = $false}, @{E={$_.Path}; Descending = $false} | Foreach-Object { $allCifsShares.Add($_) }
+    @(Get-NCCifsShare -Controller @($cDot.Values) -ErrorAction Stop | Where-Object { ($_.ShareName -ne "c$") -and ($_.ShareName -ne "ipc$") -and ($_.ShareName -ne "admin$") }) | Sort-Object -Property @{E={$_.NCController.Name}; Descending = $false}, @{E={$_.CifsServer}; Descending = $false}, @{E={$_.Path}; Descending = $false} | Foreach-Object {
+        $share = $_
+        $shareACLs = @(Get-NcCifsShareAcl -Controller $share.NCController -VserverContext $share.VServer -Share $share.ShareName)
+
+        # Favor shares with a no_access ACL so we don't include secondary shares without the no_access ACL
+        if(@($shareACLs | Where-Object { $_.Permission -eq "no_access" }).Length -ge 1)
+        {
+            # Further limit the shares to avoid duplicates.
+            if(@($allCifsShares | Where-Object { ($_.NCController.Name -eq $share.NcController.Name) -and ($_.VServer -eq $share.VServer) -and ($_.Volume -eq $share.Volume) -and ($_.Path -eq $share.Path) } ).Length -eq 0)
+            {
+                $allCifsShares.Add($_)
+            }
+        }
+    }
+    #@(Get-NCCifsShare -Controller @($cDot.Values) -ErrorAction Stop | Where-Object { ($_.CifsServer -notmatch "DR\-") -and ($_.ShareName -ne "c$") -and ($_.ShareName -ne "ipc$") -and ($_.ShareName -ne "admin$") } | Foreach-Object { $x = "" | Select-Object CifsServer,ShareName,Path; $x.CifsServer = $_.CifsServer; $x.ShareName = $_.ShareName; $x.Path = $_.Path; $x } | Sort-Object CifsServer,Path,ShareName)
+    # $allCifsShares | Export-Csv -Path $csvPath -Delimiter "`t" -NoTypeInformation
+
+
+    # Now, filter out all the shares that are hosted on data protection destination volumes...
+    $cifsShareVolumes = [System.Collections.Generic.List[Object]]::new()
+    $indexesToRemove = [System.Collections.Generic.List[int]]::new()
+
+    # List of CIFS servers that have shares not hosted on DR destination volumes (excluding Shares$)
+    $cifsServersWithNonDRShareVols = [System.Collections.Generic.List[String]]::new()
+
+    foreach($cifsShare in $allCifsShares)
+    {
+        if(-not [String]::IsNullOrEmpty($cifsShare.Volume))
+        {
+            try
+            {
+                $vol = $cifsShareVolumes | Where-Object { ($_.NCController.name -eq $cifsShare.NcController.Name) -and ($_.VServer -eq $cifsShare.Vserver) -and ($_.Name -eq $cifsShare.Volume) }
+                if($null -eq $vol)
+                {
+                    # Write-Host ("Getting {0}://{1}/{2}" -f @($cifsShare.NcController.Name, $cifsShare.Vserver, $cifsShare.Volume))
+                    $vol = Get-NCVol -Controller $cifsShare.NcController -Vserver $cifsShare.Vserver -Name $cifsShare.Volume -ErrorAction Stop
+                    $cifsShareVolumes.Add($vol)
+                }
+
+                if($null -ne $vol)
+                {
+                    if($vol.VolumeMirrorAttributes.IsDataProtectionMirror)
+                    {
+                        $idx = $allCifsShares.IndexOf($cifsShare)
+                        if($idx -gt -1)
+                        {
+                            $i = $indexesToRemove.BinarySearch($idx)
+                            if($i -lt 0)
+                            {
+                                $indexesToRemove.Insert(-bnot $i, $idx)
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if($cifsShare.ShareName -ne "Shares$")
+                        {
+                            $i = $cifsServersWithNonDRShareVols.BinarySearch($cifsShare.CifsServer)
+                            if($i -lt 0)
+                            {
+                                $cifsServersWithNonDRShareVols.Insert(-bnot $i, $cifsShare.CifsServer)
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Write-Host ("No volume found for: {0}://{1}/{2}" -f @($cifsShare.NcController.Name, $cifsShare.Vserver, $cifsShare.Volume))
+                }
+            }
+            catch
+            {
+                Write-Host ("Failed to get {0}://{1}/{2}" -f @($cifsShare.NcController.Name, $cifsShare.Vserver, $cifsShare.Volume))
+            }
+        }
+    }
+
+    $drShares = @($allCifsShares | Where-Object { $_.CifsServer -notin $cifsServersWithNonDRShareVols } | Sort-Object CifsServer)
+
+    # Remove any remaining shares (typically Shares$) on CIFS servers which only host DR volume shares from $allCifsShares
+    foreach($cifsShare in $drShares)
+    {
+        $idx = $allCifsShares.IndexOf($cifsShare)
+        if($idx -gt -1)
+        {
+            $i = $indexesToRemove.BinarySearch($idx)
+            if($i -lt 0)
+            {
+                $indexesToRemove.Insert(-bnot $i, $idx)
+            }
+        }
+    }
+
+    $a = $indexesToRemove.Count - 1
+    while($a -ge 0)
+    {
+        $idx = $indexesToRemove[$a]
+        if(($idx -ge 0) -and ($idx -lt $allCifsShares.Count))
+        {
+            $cifsShare = $allCifsShares[$idx]
+            # Write-Host ("Removing CIFS share on DP volume: \\{0}\{1} ==> {2}://{3}/{4}" -f @($cifsShare.CifsServer, $cifsShare.ShareName, $cifsShare.NcController.Name, $cifsShare.Vserver, $cifsShare.Volume))
+            [void] $allCifsShares.RemoveAt($idx)
+        }
+        $a--
+    }
+
+    @(foreach($cifsShare in $allCifsShares)
+    {
+        $fs1Alias = $cifsServerAliases | where-object { ($_.AliasFor -match $cifsShare.CifsServer) -or ($_.Alias -match $cifsShare.CifsServer) } | Select-Object -First 1 -ExpandProperty Alias
+        if($null -ne $fs1Alias)
+        {
+            $cifsShare | Select-Object @{N='Cluster'; E={$_.NCController.Name}}, VServer, CifsServer, @{N='FS1Alias';E={ $fs1Alias }}, ShareName, Path, @{N='UNCPath';E={"\\?\UNC\{0}\{1}" -f @($fs1Alias, $_.ShareName) }}
+        }
+        else
+        {
+            Write-Host ("No FS1 alias for {0}:{1}:{2}" -f @($cifsShare.CifsServer, $cifsShare.ShareName, $cifsShare.Path))
+        }
+    }) | Export-CSV -Force -Delimiter "`t" -NoTypeInformation -Path $csvPath
+}

@@ -1,0 +1,8 @@
+"ShareName"	"Owners"
+"\\mtlfs1\CAE"	"POWERENG\FS-MTLFS1-CAE-Share-FC, POWERENG\FS-MTLFS1-CAE-Share-RW"
+"\\mtlfs1\Public"	"POWERENG\FS-MTLFS1-Public-Share-FC, POWERENG\FS-MTLFS1-Public-Share-RW"
+"\\mtlfs1\Reference"	"POWERENG\FS-ALL-Reference-Share-FC, POWERENG\FS-ALL-Reference-Share-RW"
+"\\mtlfs1\Restricted"	"POWERENG\FS-MTLFS1-Restricted-Share-FC, POWERENG\FS-MTLFS1-Restricted-Share-RW"
+"\\mtlfs1\Shares$"	"Everyone"
+"\\mtlfs1\Substation"	"POWERENG\FS-MTLFS1-Substation-Share-FC, POWERENG\FS-MTLFS1-Substation-Share-RW"
+"\\mtlfs1\Xchange"	"POWERENG\FS-ALL-Xchange-Share-FC, POWERENG\FS-ALL-Xchange-Share-RW"

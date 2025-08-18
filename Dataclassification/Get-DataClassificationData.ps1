@@ -888,10 +888,6 @@ function ListDirectory
 {
     [CmdLetBinding()]
     Param(
-        [Parameter(Mandatory=$true,Position=0)]
-        [DBConnection]
-        $dbConn,
-
         [Parameter(Mandatory=$true,Position=1)]
         [System.Object]
         $di
@@ -901,7 +897,7 @@ function ListDirectory
     {
         if($di -is [System.IO.DirectoryInfo])
         {
-            $pathTranslation = TestTranslation $di.FullName
+            $pathTranslation = TranslationPath $di.FullName
 
             if(-not $Global:sizeByAgeDict.ContainsKey($pathTranslation.DirectShare))
             {

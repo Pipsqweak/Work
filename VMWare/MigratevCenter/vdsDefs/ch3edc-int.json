@@ -1,0 +1,261 @@
+{
+    "vCenter": "vc.powereng.com",
+    "ucsManager": "cdc-ucs01.powereng.com",
+    "datacenterID": "Datacenter-datacenter-1024",
+    "vSphereClusterID": "ClusterComputeResource-domain-c1032",
+    "switch":
+    {
+        "name": "CH3 INT vDS 01",
+        "mtu": 9000,
+        "version": "7.0.3",
+        "uplinkMappings": [
+            {
+                "uplinkName": "INT.MGTVMN.AB",
+                "vNICName": "INT.MGTVMN.AB"
+            },
+            {
+                "uplinkName": "INT.VMNMGT.BA",
+                "vNICName": "INT.VMNMGT.BA"
+            },
+            {
+                "uplinkName": "INT.STG.AX",
+                "vNICName": "INT.STG.AX"
+            },
+            {
+                "uplinkName": "INT.STG.BX",
+                "vNICName": "INT.STG.BX"
+            },
+            {
+                "uplinkName": "INT.GST.AX",
+                "vNICName": "INT.GST.AX"
+            },
+            {
+                "uplinkName": "INT.GST.BX",
+                "vNICName": "INT.GST.BX"
+            }
+        ],
+        "portGroups": [
+            {
+                "vlanID": 1,
+                "name": "VL01-PSRV",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.MGTVMN.AB"
+                ],
+                "standbyUplinkNames": [
+                    "INT.VMNMGT.BA"
+                ]
+            },
+            {
+                "vlanID": null,
+                "name": "VL01-PSRV (Native)",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.MGTVMN.AB"
+                ],
+                "standbyUplinkNames": [
+                    "INT.VMNMGT.BA"
+                ]
+            },
+            {
+                "vlanID": 2,
+                "name": "VL02-SERVERDATA",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 3,
+                "name": "VL03-SERVERDATA",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 3,
+                "name": "VL03-SERVERDATA (Ephemeral)",
+                "portBinding": "Ephemeral",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 5,
+                "name": "VL05-INFRAMGMT",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.MGTVMN.AB"
+                ],
+                "standbyUplinkNames": [
+                    "INT.VMNMGT.BA"
+                ]
+            },
+            {
+                "vlanID": 7,
+                "name": "VL07-NLS",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 8,
+                "name": "VL09-LBFRONTEND",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 9,
+                "name": "VL09-LBFARM",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 11,
+                "name": "VL11-VMOTION",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.VMNMGT.BA"
+                ],
+                "standbyUplinkNames": [
+                    "INT.MGTVMN.AB"
+                ]
+            },
+            {
+                "vlanID": 11,
+                "name": "VL11-STORAGE",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.STG.AX",
+                    "INT.STG.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 20,
+                "name": "VL20-VOICE-ELAN",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 21,
+                "name": "VL21-INFOSEC-MGMT",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 29,
+                "name": "VL29-ENTPROV",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 40,
+                "name": "VL40-CLIENTLAN",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 80,
+                "name": "VL80-DEV1",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": null,
+                "name": "VLTRUNK-LBBACKEND",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "INT.GST.AX",
+                    "INT.GST.BX"
+                ],
+                "standbyUplinkNames": []
+            }
+        ]
+    },
+    "datastores":
+    [
+        {
+            "name":  "CDC_VM_SSD_01",
+            "filer":  "CDC-CDOTCLST01",
+            "nfsHost":  "10.245.11.26",
+            "nfsPath":  "/VMware/CDC_SSD_01"
+        }
+    ],
+    "hosts": [
+        {
+            "serial": "FCH2552766T",
+            "vmHostName": "cdc-esx-c1-b8.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL05-INFRAMGMT",
+                    "ipAddress": "10.245.5.110",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-STORAGE",
+                    "ipAddress": "10.245.11.130",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL11-VMOTION",
+                    "ipAddress": "10.245.11.129",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores":[
+                "CDC_VM_SSD_01"
+            ]
+        }
+    ]
+}

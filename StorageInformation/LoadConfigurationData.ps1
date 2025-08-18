@@ -157,28 +157,6 @@ if ($Global:CMLoggingAvailable)
                                 {
                                     LogError "Configuration data missing CDOT 'Filers' data."
                                 }
-
-                                if($null -ne $scriptConfig.Filers.SM)
-                                {
-                                    if(($null -eq $scriptConfig.Filers.SM.UserName) -or ([String]::IsNullOrEmpty($scriptConfig.Filers.SM.UserName)))
-                                    {
-                                        LogError "Configuration data missing SM 'Filers' user name."
-                                    }
-
-                                    if($null -eq $scriptConfig.Filers.SM.Password)
-                                    {
-                                        LogError "Configuration data missing SM 'Filers' password."
-                                    }
-
-                                    if(($null -eq $scriptConfig.Filers.SM.Nodes) -or ($scriptConfig.Filers.SM.Nodes.Length -eq 0))
-                                    {
-                                        LogError "Configuration data missing SM 'Filers' nodes list."
-                                    }
-                                }
-                                else
-                                {
-                                    LogError "Configuration data missing SM 'Filers' data."
-                                }
                             }
                             else
                             {

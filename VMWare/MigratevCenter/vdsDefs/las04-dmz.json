@@ -1,0 +1,193 @@
+{
+    "vCenter": "vc.powereng.com",
+    "ucsManager": "las04-ucs01.powereng.com",
+    "datacenterID": "Datacenter-datacenter-1082",
+    "vSphereClusterID": "ClusterComputeResource-domain-c1088",
+    "switch":
+    {
+        "name": "LAS04 DMZ vDS 01",
+        "mtu": 9000,
+        "version": "7.0.3",
+        "uplinkMappings": [
+            {
+                "uplinkName": "MGTVMN.DMZ.AB",
+                "vNICName": "MGTVMN.DMZ.AB"
+            },
+            {
+                "uplinkName": "VMNMGT.DMZ.BA",
+                "vNICName": "VMNMGT.DMZ.BA"
+            },
+            {
+                "uplinkName": "STG.DMZ.AX",
+                "vNICName": "STG.DMZ.AX"
+            },
+            {
+                "uplinkName": "STG.DMZ.BX",
+                "vNICName": "STG.DMZ.BX"
+            },
+            {
+                "uplinkName": "GST.DMZ.AX",
+                "vNICName": "GST.DMZ.AX"
+            },
+            {
+                "uplinkName": "GST.DMZ.BX",
+                "vNICName": "GST.DMZ.BX"
+            }
+        ],
+        "portGroups": [
+            {
+                "vlanID": 60,
+                "name": "VL60-EXTDMZ",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "GST.DMZ.AX",
+                    "GST.DMZ.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 61,
+                "name": "VL61-INTDMZ",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "GST.DMZ.AX",
+                    "GST.DMZ.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 63,
+                "name": "VL63-WSINTDMZ",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "GST.DMZ.AX",
+                    "GST.DMZ.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 68,
+                "name": "VL68-DMZVMOTION",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "VMNMGT.DMZ.BA"
+                ],
+                "standbyUplinkNames": [
+                    "MGTVMN.DMZ.AB"
+                ]
+            },
+            {
+                "vlanID": 68,
+                "name": "VL68-DMZSTORAGE",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "STG.DMZ.AX",
+                    "STG.DMZ.BX"
+                ],
+                "standbyUplinkNames": []
+            },
+            {
+                "vlanID": 69,
+                "name": "VL69-DMZMGMT",
+                "portBinding": "Static",
+                "activeUplinkNames": [
+                    "MGTVMN.DMZ.AB"
+                ],
+                "standbyUplinkNames": [
+                    "VMNMGT.DMZ.BA"
+                ]
+            }
+        ]
+    },
+    "datastores":
+    [
+        {
+            "name": "LAS04_DMZ_SATA_01",
+            "filer": "LAS04-NTAP01",
+            "nfsHost": "10.232.68.10",
+            "nfsPath": "/VMware/LAS04_DMZ_SATA_01"
+        },
+        {
+            "name":  "LAS04_RDC_SATA_01",
+            "filer":  "LAS04-NTAP01",
+            "nfsHost":  "10.232.68.10",
+            "nfsPath":  "/VMware/LAS04_RDC_SATA_01"
+        }
+    ],
+    "hosts": [
+        {
+            "serial": "FLM26020MEE",
+            "assetTag": "48731",
+            "vmHostName": "las04z-esx-c1-b1.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL69-DMZMGMT",
+                    "ipAddress": "10.232.69.90",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL68-DMZSTORAGE",
+                    "ipAddress": "10.232.68.90",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL68-DMZVMOTION",
+                    "ipAddress": "10.232.68.130",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores": [
+                "LAS04_DMZ_SATA_01","LAS04_RDC_SATA_01"
+            ]
+        },
+        {
+            "serial": "FLM260109JP",
+            "assetTag": "48730",
+            "vmHostName": "las04z-esx-c1-b2.powereng.com",
+            "vmks": [
+                {
+                    "vmkName": "vmk0",
+                    "mtu": 1500,
+                    "portGroupName": "VL69-DMZMGMT",
+                    "ipAddress": "10.232.69.91",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": true,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk1",
+                    "mtu": 9000,
+                    "portGroupName": "VL68-DMZSTORAGE",
+                    "ipAddress": "10.232.68.91",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": false
+                },
+                {
+                    "vmkName": "vmk2",
+                    "mtu": 9000,
+                    "portGroupName": "VL68-DMZVMOTION",
+                    "ipAddress": "10.232.68.131",
+                    "subnetMask": "255.255.255.0",
+                    "mgmtEnabled": false,
+                    "vMotionEnabled": true
+                }
+            ],
+            "datastores": [
+                "LAS04_DMZ_SATA_01","LAS04_RDC_SATA_01"
+            ]
+        }
+    ]
+}

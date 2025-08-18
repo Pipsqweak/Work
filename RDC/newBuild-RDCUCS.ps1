@@ -32,7 +32,7 @@
 
 
 # Source all the utility functions.
-$rdcPrefix = "yyc01"
+$rdcPrefix = "cdc"
 
 # Source in all the functions this script needs.
 . .\RDC\RDCBuildUtilityFunctions.ps1
@@ -459,8 +459,10 @@ $mo_14 = $serviceProfileTemplate | Set-UcsServerPower -State "admin-up" -Force -
 # $virtualizationDefinition = (Get-Content -Path (".\RDC\configs\VMware\{0}-internal-v3.json" -f @($rdcPrefix))) | ConvertFrom-Json
 # $virtualizationDefinition = (Get-Content -Path (".\RDC\configs\VMware\{0}-dmzv3.json" -f @($rdcPrefix))) | ConvertFrom-Json
 
+$virtualizationDefinition = Get-Content -Path ".\RDC\configs\VMware\cdcInternalv3 for vc.json" | ConvertFrom-Json
 
-$viServer = $vCenter
+# $viServer = $vCenter
+$viServer = $vc
 $doReportSuccess = $true
 $ucs = $rdcConfigurationData.ucsManager
 $Global:ucsData = $null
@@ -473,6 +475,7 @@ $adCreds = Get-Credential -Message "Provide credentials to join ESXi host(s) to 
 $virtualizationDefinition.ucsManager = $rdcConfigurationData.ucsManager
 
 $viServer = $vCenter
+$viServer = $vc
 $datacenter = Get-vSphereDatacenter -viServer $viServer -Name $virtualizationDefinition.datacenterName -createMissing
 if ($null -ne $datacenter)
 {

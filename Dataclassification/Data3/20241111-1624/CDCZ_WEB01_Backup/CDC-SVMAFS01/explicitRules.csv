@@ -1,0 +1,5 @@
+"Path"	"FileSystemRights"	"AccessControlType"	"IdentityReference"	"InheritanceFlags"	"PropagationFlags"
+"\\?\UNC\CDC-SVMAFS01\CDCZ_WEB01_Backup"	"FullControl"	"Allow"	"POWERENG\FS-FileServices-ADM"	"ContainerInherit, ObjectInherit"	"None"
+"\\?\UNC\CDC-SVMAFS01\CDCZ_WEB01_Backup"	"FullControl"	"Allow"	"POWERENG\FS-BDCFS1-BDCZ_WEB01_Backup-Share-FC"	"ContainerInherit, ObjectInherit"	"None"
+"\\?\UNC\CDC-SVMAFS01\CDCZ_WEB01_Backup"	"Modify, Synchronize"	"Allow"	"POWERENG\FS-BDCFS1-BDCZ_WEB01_Backup-Share-RW"	"ContainerInherit, ObjectInherit"	"None"
+"\\?\UNC\CDC-SVMAFS01\CDCZ_WEB01_Backup"	"ReadAndExecute, Synchronize"	"Allow"	"POWERENG\FS-BDCFS1-BDCZ_WEB01_Backup-Share-RO"	"ContainerInherit, ObjectInherit"	"None"

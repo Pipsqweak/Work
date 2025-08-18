@@ -24,7 +24,7 @@ while($a -lt $ucsManagerKeys.Length)
         Write-Host -NoNewline ("`t{0}..." -f @($b))
         try
         {
-            $mo = Backup-Ucs -Type $b -PathPattern $pathPattern -Ucs $ucs -Xml:$isXML | Out-Null
+            Backup-Ucs -Type $b -PathPattern $pathPattern -Ucs $ucs -Xml:$isXML | Out-Null
             Write-Host -ForegroundColor Gray "complete"
         }
         catch

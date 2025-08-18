@@ -1,4 +1,4 @@
-﻿$nfsDatastores = Get-Datastore -Server $vcenter | Where-Object { $_.Type -eq "NFS" } 
+﻿$nfsDatastores = Get-Datastore -Server $vcenter | Where-Object { $_.Type -eq "NFS" }
 $cdotInterfaces = @(Get-NcNetInterface -Controller @($cDot.Values))
 
 $dataStoreLIF = $cdotInterfaces | Where-Object { $_.Address -eq $nfsDatastores[0].RemoteHost }
@@ -39,7 +39,7 @@ while($a -lt $vInfos.Count)
 
         # Now find all NFS LIFs that match one of the matching datastores' remote addresses AND are hosted on the same VServer this volume is on.
         $datastoreLIFS = @($cdotInterfaces | Where-Object { ($dsRemoteHostAddresses -contains $_.Address) -and ($_.VServer -eq $vInfos[$a].baseVolume.Vserver) -and ($_.NCController.Name -eq $vInfos[$a].baseVolume.NcController.Name) })
-        
+
         # If there is at least 1 LIF that matches this volume's VServer and NC Controller after already matching the junction path to the datastore remote path, I think we're good..
         if($dataStoreLIFS.Length -gt 0)
         {
@@ -47,7 +47,7 @@ while($a -lt $vInfos.Count)
                 $lif = $_
                 $ds = $dsMatchingPath | Where-Object { ($_.RemoteHost -eq $lif.Address) -and ($_.RemotePath -eq $vInfos[$a].baseVolume.JunctionPath) }
 
-                $dsVMs = $dsVMs = @($ds.ExtensionData.Vm | ForEach-Object { $vmId = "{0}-{1}" -f @($_.Type, $_.Value); $vm = Get-VM -Server $vCenter -Id $vmId -ErrorAction SilentlyContinue; <# Write-Host ("{0}:{1}" -f @($vm.Name, $vmID));#> if(($null -ne $vm) -and (-not $vm.Name.StartsWith("vCLS"))) { $vm } })
+                $dsVMs = @($ds.ExtensionData.Vm | ForEach-Object { $vmId = "{0}-{1}" -f @($_.Type, $_.Value); $vm = Get-VM -Server $vCenter -Id $vmId -ErrorAction SilentlyContinue; <# Write-Host ("{0}:{1}" -f @($vm.Name, $vmID));#> if(($null -ne $vm) -and (-not $vm.Name.StartsWith("vCLS"))) { $vm } })
 
                 $ds.RemoteHost | ForEach-Object {
                     Write-Host ("{5}) {0}:{1} --> {2}:{3}:{4}" -f @($_, $ds.RemotePath, $vInfos[$a].baseVolume.NcController.Name, $vInfos[$a].baseVolume.Vserver, $vInfos[$a].baseVolume.Name, $a))

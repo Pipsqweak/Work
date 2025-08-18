@@ -55,7 +55,7 @@ $dnsServer = "cdc-dc01.powereng.com"
 
 . .\Log.ps1
 
-$logPath = "{0}\SyncIPAMDNS.log" -f @($env:TEMP)
+$logPath = "{0}\FixDNSPTR.log" -f @($env:TEMP)
 [Log]::Init($logPath, "SyncIPAMDNS", 14, 1, [LogLevel]::INFO)
 [Log]::Info("Logging initialized...")
 
@@ -63,7 +63,7 @@ $logPath = "{0}\SyncIPAMDNS.log" -f @($env:TEMP)
 
 #  Build a connection string from the configuration data and the credential
 $dbConnectionString = "Server={0};Port={1};Database={2};Uid={3};Pwd={4};Default Command Timeout=600;" -f @(
-    "ddc-ipam01.powereng.com",
+    "ddc-ipam02.powereng.com",
     3306,
     "gestioip",
     "gestioip",
@@ -75,6 +75,12 @@ $ipamDB = [MySQLDBConnection]::new($dbConnectionString)
 
 Write-Host "Loading IPAM data..."
 $ipamDT = $ipamDB.GetDataTable("select h.hostname, INET_NTOA(h.ip) as address, cnce2.entry as aZone, cnce3.entry as ptrZone from host h inner join net n on h.red_num = n.red_num left join custom_net_column_entries cnce2 on (n.red_num = cnce2.net_id) and (cnce2.cc_id = 2) left join custom_net_column_entries cnce3 on (n.red_num = cnce3.net_id) and (cnce3.cc_id = 3) where h.hostname <> '' order by h.ip;")
+$ipamSubnetsDT = $ipamDB.GetDataTable("SELECT * FROM net WHERE red LIKE '10.%' ORDER BY INET_ATON(red);")
+# $ipamSubnets = [System.Collections.Generic.List[System.Data.DataRow]]::new()
+# $ipamSubnetsDT.Rows | ForEach-Object { $ipamSubnets.Add($_) }
+$ipamRecords = [System.Collections.Generic.List[System.Data.DataRow]]::new()
+$ipamDT.Rows | ForEach-Object { $ipamRecords.Add($_) }
+
 Write-Host ("Loaded {0} IPAM records." -f @($ipamDT.Rows.Count))
 
 $aRecordZoneNames = @($ipamDT | Select-Object -Unique -ExpandProperty aZone | Where-Object { -not [String]::IsNullOrEmpty($_) })
@@ -83,8 +89,6 @@ $ptrZoneNames = @($ipamDT | Select-Object -Unique -ExpandProperty ptrZone | Wher
 $aRecordCollections = [System.Collections.Generic.SortedDictionary[[System.String],[System.Collections.Generic.List[Microsoft.Management.Infrastructure.CimInstance]]]]::new()
 $ptrRecordCollections = [System.Collections.Generic.SortedDictionary[[System.String],[System.Collections.Generic.List[Microsoft.Management.Infrastructure.CimInstance]]]]::new()
 
-$ipamRecords = [System.Collections.Generic.List[System.Data.DataRow]]::new()
-$ipamDT.Rows | ForEach-Object { $ipamRecords.Add($_) }
 
 
 

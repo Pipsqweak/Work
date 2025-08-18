@@ -26,17 +26,17 @@ Import-Module Cisco.UCSManager
 set-executionpolicy remoteSigned
 
 # form: ucs-powereng.com\kbriney-adm
-$cred = Get-Credential -Message "Enter credentials to connect to UCS..."
+# $cred = Get-Credential -Message "Enter credentials to connect to UCS..."
 $UCSname = "PEI"
 
-$handle1 = Connect-Ucs cdc-ucs01.powereng.com -NotDefault -Credential $cred
-$handle2 = Connect-Ucs ddc-ucs01.powereng.com -NotDefault -Credential $cred
+# $handle1 = Connect-Ucs cdc-ucs01.powereng.com -NotDefault -Credential $cred
+# $handle2 = Connect-Ucs ddc-ucs01.powereng.com -NotDefault -Credential $cred
 
-$handleArray = $handle1,$handle2
+$handleArray = @($ucsManagers.Values)
 
 # Create the HTML file #
 
-$ReportFile = "C:\TMP\UCSReport\UCS-HealthCheck-$UCSname.html"
+$ReportFile = "C:\TEMP\UCS-HealthCheck-$UCSname.html"
 
 # Define the HTML #
 $sbHTML = [System.Text.StringBuilder]::new()

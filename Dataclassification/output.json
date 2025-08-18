@@ -1,0 +1,39 @@
+{
+    "cifsServer": "xyz-smb01",
+    "shareName": "share1",
+    "owners":[
+        "Owner1",
+        "Owner2"
+    ],
+    "explicitRules": [
+        {
+            "Path": "FileFolderPath",
+            "FileSystemRights": "FSR",
+            "AccessControlType": "AccessType",
+            "IdentityReference": "ID",
+            "InheritanceFlags": "Inheritance",
+            "PropagationFlags": "PropFlags"
+        },
+        {
+            "Path": "FileFolderPath",
+            "FileSystemRights": "FSR",
+            "AccessControlType": "AccessType",
+            "IdentityReference": "ID",
+            "InheritanceFlags": "Inheritance",
+            "PropagationFlags": "PropFlags"
+        }
+    ],
+    "stats":
+    {
+        "Directories": 15,
+        "Files": 56,
+        "TotalSize": 54665,
+        "ageData": [
+            {
+                "age": 0,
+                "count": 9,
+                "size": 1500
+            }
+        ]
+    }
+}

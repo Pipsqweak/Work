@@ -1,0 +1,5 @@
+"Path"	"FileSystemRights"	"AccessControlType"	"IdentityReference"	"InheritanceFlags"	"PropagationFlags"
+"\\?\UNC\CDC-SVMAFS01\PW"	"FullControl"	"Allow"	"POWERENG\FS-FileServices-ADM"	"ContainerInherit, ObjectInherit"	"None"
+"\\?\UNC\CDC-SVMAFS01\PW"	"FullControl"	"Allow"	"POWERENG\FS-CDCFS1-PW-Share-FC"	"ContainerInherit, ObjectInherit"	"None"
+"\\?\UNC\CDC-SVMAFS01\PW"	"Modify, Synchronize"	"Allow"	"POWERENG\FS-CDCFS1-PW-Share-RW"	"ContainerInherit, ObjectInherit"	"None"
+"\\?\UNC\CDC-SVMAFS01\PW"	"ReadAndExecute, Synchronize"	"Allow"	"POWERENG\FS-CDCFS1-PW-Share-RO"	"ContainerInherit, ObjectInherit"	"None"

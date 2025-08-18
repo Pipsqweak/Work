@@ -435,3 +435,239 @@ while($b -lt $ctrlrs.Length)
 }
 
 $cifsData | ConvertTo-Csv -NoTypeInformation -Delimiter "`t" | Set-Clipboard
+
+$cifsShares = Get-NcCifsShare -Controller @($cdcCDOT) | Where-Object { ($_.VServer -eq "CDC-SVMA01") -and ($_.ShareName -notin @("admin`$","ipc`$","c`$"))}
+$shares = $cifsShares | Where-Object { $_.ShareName -in @("PW", "PW_Active_01$", "PW_Active_02$", "PW_Active_03$", "PW_Active_04$", "Reference", "SAW", "CDCZ_WEB01_Backup", "SQL_DB_Backups", "UpdateManager", "Vault_Backup", "Vault_FileStore$", "Xchange")}
+$vols = Get-NCVol -Controller $cdcCDOT -Vserver "CDC-SVMA01" -Volume @($shares | Select-Object -ExpandProperty Volume)
+$cdcExtraShares = @(
+    $shares | ForEach-Object {
+        $s = $_
+        $d = "" | Select-Object ShareName, Used, Size, Volume, Available
+        $v = $vols | Where-Object { $_.Name -eq $s.Volume }
+        $d.ShareName = "\\cdcfs1\{0}" -f @($s.ShareName)
+        $d.Volume = $s.Volume
+        $d.Size = $v.TotalSize
+        $d.Used = ($v.TotalSize - $v.Available) + $v.VolumeSisAttributes.TotalSpaceSaved
+        $d.Available = $v.Available
+
+        $d
+    }
+)
+$cdcExtraShares | ConvertTo-Csv -Delimiter "`t" -NoTypeInformation | Set-Clipboard
+
+$pwVols = Get-NCVol -Controller $cdcCDOT -Vserver "CDC-SVMA01" | Where-Object { $_.JunctionPath -match "^/Shares/PW"}
+
+$otherPWVols = @(
+    $pwVols | ForEach-Object {
+        $v = $_
+        $vv = @($vols | Where-Object { $_.Name -eq $v.Name })
+        if($vv.Length -eq 0)
+        {
+            $v
+        }
+    }
+)
+
+$sheetData = [System.Collections.Generic.List[System.Object]]::new()
+@($cDot.Values) | ForEach-Object {
+    $d = "" | Select-Object Name, IP, Location, SiteCode, Type, TotalSize, TotalUsed
+    $c = $_
+    $aggrs = @(Get-NCAggr -Controller $c)
+
+    $d.Name = $c.Name
+    $d.IP = $c.Address
+    $d.SiteCode = ""
+    $d.Location = "DC"
+    $d.Type = "NAS"
+    $d.TotalSize = 0
+    $d.TotalUsed = 0
+    $aggrs | Foreach-Object {
+        $a = $_
+        $d.TotalSize += $a.TotalSize
+        $d.TotalUsed += ($a.TotalSize - $a.Available)
+    }
+    Write-Host ("Cluster: {0}, Total Size: {1}, Total Used: {1}" -f @($d.Name, (Format-StorageNumber $d.TotalSize), (Format-StorageNumber $d.TotalUsed)))
+    $sheetData.Add($d)
+}
+
+$vms = @(Get-VM -Server $vCenter | Where-Object { $_.Name -notmatch "^vCLS\-" })
+$sheetData = [System.Collections.Generic.List[System.Object]]::new()
+$a = 0
+while($a -lt $vms.Length)
+{
+    $d = "" | Select-Object Name, Location, SiteCode, Domain, Status, IPAddress, FQDN, ServerType, OS, Function, MoveToNutanix, MigrationType, MigrationStatus, Notes, Manufacturer, Model, AssetTag, vCPUs, MemoryGB, OSDiskSizeGB, DataDisk1UsedGB, DataDisk2UsedGB, DataDisk3UsedGB, OOBIPAddress, OOBAdministrator, OOBPassword, PurchaseDate, WarrantyExpiryDate
+    if($null -eq $noteProperties)
+    {
+        $noteProperties = @($d | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name)
+    }
+    $d.Domain = "powereng.com"
+    $d.ServerType = "Virtual"
+    $d.Function = ""
+    $d.MoveToNutanix = ""
+    $d.MigrationType = ""
+    $d.MigrationStatus = ""
+    $d.Manufacturer = "N/A"
+    $d.Model = "N/A"
+    $d.AssetTag = "N/A"
+    $d.OOBIPAddress = "N/A"
+    $d.OOBAdministrator = "LAPS"
+    $d.OOBPassword = "N/A"
+    $d.PurchaseDate = "N/A"
+    $d.WarrantyExpiryDate = "N/A"
+
+    $d.Name = $vms[$a].Name
+    $d.Location = $vms[$a].VMHost.Name
+    $d.SiteCode = @($d.Location -split "-")[0].ToUpper().TrimEnd('Z')
+    $d.Status = if($vms[$a].PowerState -eq "PoweredOn") { "UP" } else { "DOWN" }
+    try
+    {
+        $d.OS = $vms[$a].Guest.ExtensionData.GuestFullName
+    }
+    finally
+    {
+        if([String]::IsNullOrEmpty($d.OS))
+        {
+            $d.OS = $vms[$a].GuestId
+        }
+    }
+    if($d.Location -match "esxvcad\d\d")
+    {
+        $d.Function = "VCAD/VDI"
+    } `
+    elseif (($d.Name -match "\-VDI") -or ($d.OS -match "Windows 10 "))
+    {
+        $d.Function = "VDI"
+    }
+
+    $d.vCPUs = $vms[$a].NumCpu
+    $d.MemoryGB = $vms[$a].MemoryGB
+
+    $d.Notes = $vms[$a].Notes -join "`r`n"
+
+    $d.OSDiskSizeGB = 0
+    if(($null -ne $vms[$a].Guest) -and ($null -ne $vms[$a].Guest.Disks) -and ($vms[$a].Guest.Disks.Count -gt 0))
+    {
+        $disks = $vms[$a].Guest.Disks | Sort-Object Path
+
+        if($null -ne $disks[0])
+        {
+            $d.OSDiskSizeGB = [math]::Ceiling($disks[0].CapacityGB)
+        }
+
+        $d.DataDisk1UsedGB = 0
+        $d.DataDisk2UsedGB = 0
+        $d.DataDisk3UsedGB = 0
+        $b = 1
+        while(($b -lt $disks.Length) -and ($b -le 3))
+        {
+            $d.("DataDisk{0}UsedGB" -f @($b)) = [math]::Ceiling(($disks[$b].CapacityGB - $disks[$b].FreeSpaceGB))
+            $b++
+        }
+    } `
+    else
+    {
+        try
+        {
+            $disks = $vms[$a] | Get-HardDisk -Server $vCenter -ErrorAction Stop
+            $labels = @($disks | Select-Object @{N="Label"; E={$_.ExtensionData.DeviceInfo.Label}} | Select-Object -ExpandProperty Label | Sort-Object)
+            if($labels.Length -gt 0)
+            {
+                $osDisk = $disks | Where-Object { $_.ExtensionData.DeviceInfo.Label -eq $labels[0] }
+                if($null -ne $osDisk)
+                {
+                    $d.OSDiskSizeGB = $osDisk.CapacityGB
+                }
+
+                $d.DataDisk1UsedGB = 0
+                $d.DataDisk2UsedGB = 0
+                $d.DataDisk3UsedGB = 0
+                $b = 1
+                while(($b -lt $labels.Length) -and ($b -lt 3))
+                {
+                    $dataDisk = $disks | Where-Object { $_.ExtensionData.DeviceInfo.Label -eq $labels[$b] }
+                    if($null -ne $dataDisk)
+                    {
+                        $d.("DataDisk{0}UsedGB" -f @($b)) = [math]::Ceiling($dataDisk[$b].CapacityGB)
+                    }
+                    $b++
+                }
+            }
+        }
+        catch
+        {
+
+        }
+    }
+
+
+    if(($null -ne $vms[$a].Guest) -and ($null -ne $vms[$a].Guest.IPAddress))
+    {
+        $d.IPAddress = ($vms[$a].Guest.IPAddress -match "\d+\.\d+\.\d+\.\d+")[0]
+    }
+
+    if(-not [String]::IsNullOrEmpty($vms[$a].Guest.HostName))
+    {
+        $d.FQDN = $vms[$a].Guest.HostName.ToLower()
+    }
+
+    try
+    {
+        $dns = Resolve-DnsName $d.Name -ErrorAction Stop
+        if([String]::IsNullOrEmpty($d.IPAddress))
+        {
+            $d.IPAddress = $dns.IPAddress
+        }
+        if([String]::IsNullOrEmpty($d.FQDN))
+        {
+            $d.FQDN = $dns.Name.ToLower()
+        }
+    }
+    catch
+    {
+        try
+        {
+            $dns = Resolve-DnsName -Name $d.Name -Server 10.247.80.10 -ErrorAction Stop
+            if([String]::IsNullOrEmpty($d.IPAddress))
+            {
+                $d.IPAddress = $dns.IPAddress
+            }
+            if([String]::IsNullOrEmpty($d.FQDN))
+            {
+                $d.FQDN = $dns.Name.ToLower()
+            }
+        }
+        catch {}
+    }
+
+    if([String]::IsNullOrEmpty($d.IPAddress))
+    {
+
+    }
+
+    $sheetData.Add($d)
+
+    Write-Host ($d | ConvertTo-CSV -Delimiter "," -NoTypeInformation)[1]
+    $a++
+}
+$sheetData | ConvertTo-CSV -Delimiter "`t" -NoTypeInformation | Set-Clipboard
+
+
+$cifsShares = @(Get-NcCifsShare -Controller @($cdot.Values) | Where-Object { ($_.CifsServer -ne "LAB-SMB01") -and ($_.CifsServer -notmatch "DR\-") -and ($_.ShareName -notin @("admin`$","ipc`$","c`$"))})
+$shareVolumes = [System.Collections.Generic.List[System.Object]]::new()
+$allVolumes = @(Get-NCVol -Controller @($cDot.Values))
+
+$a = 0
+while($a -lt $cifsShares.Length)
+{
+    if(@($shareVolumes | Where-Object { ($_.VServer -eq $cifsShares[$a].VServer) -and ($_.Name -eq $cifsShares[$a].Volume)}).Length -eq 0)
+    {
+        $shareVols = @($allVolumes | Where-Object { ($_.VServer -eq $cifsShares[$a].VServer) -and ($_.Name -eq $cifsShares[$a].Volume)})
+        $b = 0
+        while($b -lt $shareVols.Length)
+        {
+            $shareVolumes.Add($shareVols[$b])
+            $b++
+        }
+    }
+    $a++
+}

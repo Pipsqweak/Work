@@ -1,0 +1,7 @@
+"ShareName"	"Owners"
+"\\ch3fs1\Line"	"POWERENG\FS-CH3FS1-Line-Share-FC, POWERENG\FS-CH3FS1-Line-Share-RW"
+"\\ch3fs1\PD_DistMgmt"	"POWERENG\FS-CH3FS1-PD_DistMgmt-Share-FC, POWERENG\FS-CH3FS1-PD_DistMgmt-Share-RW"
+"\\ch3fs1\Pub_Inv"	"POWERENG\FS-CH3FS1-Pub_Inv-Share-FC, POWERENG\FS-CH3FS1-Pub_Inv-Share-RW"
+"\\ch3fs1\Shares$"	"Everyone"
+"\\ch3fs1\UpdateManager"	"POWERENG\FS-ALL-UpdateManager-Share-FC, POWERENG\FS-ALL-UpdateManager-Share-RW"
+"\\ch3fs1\Xchange"	"Everyone"

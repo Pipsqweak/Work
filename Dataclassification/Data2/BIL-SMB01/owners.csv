@@ -1,0 +1,6 @@
+"ShareName"	"Owners"
+"\\bilfs1\Scada"	"POWERENG\FS-BILFS1-Scada-Share-FC, POWERENG\FS-BILFS1-Scada-Share-RW"
+"\\bilfs1\Shares$"	"Everyone"
+"\\bilfs1\Substation"	"POWERENG\FS-BILFS1-Substation-Share-FC, POWERENG\FS-BILFS1-Substation-Share-RW"
+"\\bilfs1\UpdateManager"	"POWERENG\FS-ALL-UpdateManager-Share-FC, POWERENG\FS-ALL-UpdateManager-Share-RW"
+"\\bilfs1\Xchange"	"POWERENG\FS-ALL-Xchange-Share-FC, POWERENG\FS-ALL-Xchange-Share-RW"

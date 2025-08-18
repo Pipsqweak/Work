@@ -5,13 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "PowerShell Debug t2 failover script",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${file}",
+            "args": ["-SourceVServerName \"LAB-SMB01\" -DRVServerName \"LABDR-SMB01\" -TakeAction"],
+            "cwd": "${cwd}"
+        },
+        {
             "name": "PowerShell 7: Launch Current File",
             "type": "PowerShell",
             "request": "launch",
             "script": "${file}",
             "cwd": "${file}",
             "program": "C:\\Program Files\\PowerShell\\7\\pwsh.exe"
-       },
+        },
         {
             "name": "PowerShell Launch Current File",
             "type": "PowerShell",

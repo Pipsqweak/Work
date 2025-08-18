@@ -67,7 +67,7 @@ function Connect-NetApp
             # Flag to track if the user cancelled the log in attempt.  Only pertinent if user is prompted for credentials
             $userCancelled = $false
 
-            while((-not $userCancelled) -and ($b -eq $null))
+            while((-not $userCancelled) -and ($null -eq $b))
             {
                 # No stored credentials for $name, so prompt for them.
                 # First try to connect using Global prompted credentials, if available
@@ -116,12 +116,12 @@ function Connect-NetApp
                     if($mode -eq "7-MODE")
                     {
                         # Use RPC connection
-                        $connectionArgs.Add("RPC", $true) 
+                        $connectionArgs.Add("RPC", $true)
                     }
                     else
                     {
                         # For cluster mode, use HTTPS
-                        $connectionArgs.Add("HTTPS", $true) 
+                        $connectionArgs.Add("HTTPS", $true)
                     }
 
                     # Try to connect...

@@ -200,7 +200,18 @@ function Collect-IntersightData
         [Log]::Trace("Creating Cisco Intersight API Client.")
         [Log]::Trace("`tAPI Key: {0}" -f @($invCfg.Intersight.APIKey))
         [Log]::Trace("`tPrivate Key File: {0}" -f @($invCfg.Intersight.PrivateKeyFile))
+<#  BROKEN
+        $onprem = @{
+            BasePath = "https://intersight.com"
+            ApiKeyId = "5b51f81e6a636d6d34958477/620a8f0d7564612d33ac47ae/6672033675646133010599b1"
+            ApiKeyFilePath = "C:\\Users\\kbriney-adm\\PSScripts\\Repos\\PEI-IT-OPS\\VirtualInventory\\New Virtual Inventory-SecretKey.txt"
+            HttpSigningHeader =  @("(request-target)", "Host", "Date", "Digest")
+        }
+        Set-IntersightConfiguration @onprem
 
+
+        Set-IntersightConfiguration -BasePath "https://intersight.com" -ApiKeyId $invCfg.Intersight.APIKey -ApiKeyFilePath $invCfg.Intersight.PrivateKeyFile -HttpSigningHeader @("(request-target)", "Host", "Date", "Digest") -Verbose
+#>
         # First, create an Intersight API Client...
         New-IntersightApiClient $invCfg.Intersight.URL $invCfg.Intersight.PrivateKeyFile $invCfg.Intersight.APIKey
         $Global:intersightClientCreated = $true
@@ -1198,7 +1209,7 @@ $haveRequiredModules = $true
 
 # The list of all modules required for this script.
 $requiredModules = @(
-    "LXCAPSTool",
+#    "LXCAPSTool",
     "VMWare.VimAutomation.Core",
     "DataONTAP",
     "Intersight"
@@ -1259,12 +1270,12 @@ if(@([System.AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.FullN
     {
         [Log]::Error("Unable to load MySQL.Data assembly, terminating script.")
         return
-    }
+    } `
     else
     {
         # Nothing
     }
-}
+} `
 else
 {
     # Nothing

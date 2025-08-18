@@ -1,6 +1,49 @@
 $awsCLI = "C:\Program Files\Amazon\AWSCLIV2\aws.exe"
 
 $hostedZones = (& $awsCLI route53 list-hosted-zones) | ConvertFrom-Json
+$allARecords = [System.Collections.Generic.List[System.Object]]::new()
+$allPTRRecords = [System.Collections.Generic.List[System.Object]]::new()
+$allCNAMERecords = [System.Collections.Generic.List[System.Object]]::new()
+
+<# vv Search for IP address vv #>
+$a = 0
+while($a -lt $hostedZones.HostedZones.Count)
+{
+    $zoneID = $hostedZones.HostedZones[$a].Id
+    $awsRRs = (& $awsCLI route53 list-resource-record-sets --hosted-zone-id $zoneID) | ConvertFrom-Json
+    $aRecords = @($awsRRs.ResourceRecordSets | Where-Object { $_.Type -eq "A" })
+    $ptrRecords = @($awsRRs.ResourceRecordSets | Where-Object { $_.Type -eq "PTR" })
+    $cnameRecords = @($awsRRs.ResourceRecordSets | Where-Object { $_.Type -eq "CNAME" })
+
+    $aRecords.ForEach({ $allARecords.Add($_) })
+    $ptrRecords.ForEach({ $allPTRRecords.Add($_) })
+    $cnameRecords.ForEach({ $allCNAMERecords.Add($_) })
+
+    $a++
+}
+$ipStr = "151.122.137.53"
+$ipStrOctets = $ipStr.Split('.')
+[Array]::Reverse($ipStrOctets)
+$ptrSearch = "{0}.in-addr.arpa." -f @(($ipStrOctets -join '.'))
+
+$matchingARecords = [System.Collections.Generic.List[System.Object]]::new()
+$matchingCNameRecords = [System.Collections.Generic.List[System.Object]]::new()
+$matchingPTRRecords = [System.Collections.Generic.List[System.Object]]::new()
+$matchingRecords = [System.Collections.Generic.List[System.Object]]::new()
+
+$allARecords.Where({ $_.ResourceRecords.Where({ $_.Value -match $ipStr })}).ForEach({ $matchingARecords.Add($_)})
+$matchingARecords.ToArray().ForEach({ $n = $_.Name; $allCNAMERecords.Where({ $_.ResourceRecords.Where({ $_.Value -eq $n }) }) }).Foreach({ $matchingCNameRecords.Add($_) })
+$matchingARecords.ToArray().ForEach({ $n = $_.Name; $allPTRRecords.Where({ $_.ResourceRecords.Where({ $_.Value -eq $n })}) }).Foreach({ $matchingPTRRecords.Add($_) })
+$allPTRRecords.Where({ ($_.Name -eq $ptrSearch) -and (@($matchingPTRRecords.Where({ $_.Name -eq $ptrSearch })).Length -eq 0) }).Foreach({ $matchingPTRRecords.Add($_) })
+
+$matchingARecords.ToArray().ForEach({ $matchingRecords.Add($_) })
+$matchingCNameRecords.ToArray().ForEach({ $matchingRecords.Add($_) })
+$matchingPTRRecords.ToArray().ForEach({ $matchingRecords.Add($_) })
+
+$matchingRecords
+
+<# ^^ Search for IP Address ^^ #>
+
 
 $zoneID = ($hostedZones.HostedZones | Where-Object { $_.Name -eq "powereng.com." }).Id.Replace("/hostedzone/", "")
 

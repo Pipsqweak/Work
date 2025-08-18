@@ -1,0 +1,278 @@
+20240618 165119.313: INFO: Loaded configuration:
+{
+  "LogPath": "E:\\Scripts\\VirtualInventory\\Logs",
+  "ExportPath": "E:\\Scripts\\VirtualInventory\\Exports",
+  "Filers": {
+ "CDOT": {
+   "UserName": "POWERENG\\SRVC-AllStorage-RO",
+   "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c000000010000000623e84a8852e6cf84fc4e8c54d35dfcc0000000004800000a000000010000000cc37f476a1bf5f410c16596a6d532d5c280000009af9129ccb07439a6429b2c3f8802bd9c0a2aa044599900b5111274cdb077e59cfeeaa97259513a414000000ee12a53fe98463678a48a1d3dbd1a86613243bc5",
+   "Controllers": [
+  "adc-cdotclst01.powereng.com",
+  "apl-cdotclst01.powereng.com",
+  "ast-cdotclst01.powereng.com",
+  "aus-cdotclst01.powereng.com",
+  "bdc-cdotclst01.powereng.com",
+  "bdcd-cdotclst01.powereng.com",
+  "bil-cdotclst01.powereng.com",
+  "boi-cdotclst01.powereng.com",
+  "cdc-cdotclst01.powereng.com",
+  "clk-cdotclst01.powereng.com",
+  "den-cdotclst01.powereng.com",
+  "fmc-cdotclst01.powereng.com",
+  "fre-cdotclst01.powereng.com",
+  "hou-cdotclst01.powereng.com",
+  "ito-cdotclst01.powereng.com",
+  "lax-cdotclst01.powereng.com",
+  "min-cdotclst01.powereng.com",
+  "opk-cdotclst01.powereng.com",
+  "phx-cdotclst01.powereng.com",
+  "plv-cdotclst01.powereng.com",
+  "ptl-cdotclst01.powereng.com",
+  "san-cdotclst01.powereng.com",
+  "slc-cdotclst01.powereng.com"
+   ]
+ },
+ "SM": {
+   "UserName": "POWERENG\\SRVC-AllStorage-RO",
+   "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c000000010000000505b9e3e48418f9e5e077a010f8e7ffa0000000004800000a0000000100000001a88a6818e2ab7637183cf308517fc262800000035c7e9fc4aec5cba7402e784d4f27415c32f8ebd5fc34916a7c2563d8a34f9df082bf893920beb401400000000b3fc63ca4094695c15a3509ca53c25acb5f7be",
+   "Nodes": [
+  "arbprdnas1.powereng.com",
+  "atlprdnas2.powereng.com",
+  "atlprdnas3.powereng.com",
+  "bosprdnas1.powereng.com",
+  "cinprdnas1.powereng.com",
+  "edpprdnas1.powereng.com",
+  "ftwprdnas1.powereng.com",
+  "hamprdnas1.powereng.com",
+  "hlyprdnas2.powereng.com",
+  "hlyprdnas3.powereng.com",
+  "msnnas1.powereng.com",
+  "mtlprdnas1.powereng.com",
+  "orasan1.powereng.com",
+  "orasan2.powereng.com",
+  "orlprdnas1.powereng.com",
+  "orlprdnas2.powereng.com",
+  "stlprdnas2.powereng.com",
+  "stlprdnas3.powereng.com",
+  "syrnas1.powereng.com",
+  "tdcprdnas1.powereng.com",
+  "vanprdnas1.powereng.com"
+   ]
+ }
+  },
+  "Intersight": {
+ "URL": "https://intersight.com/api/v1",
+ "APIKey": "5b51f81e6a636d6d34958477/5fa321e97564612d33de8994/5fa3256f7564612d33debaad",
+ "PrivateKeyFile": "E:\\Scripts\\VirtualInventory\\srvc-virt-inv.SecretKey.pem"
+  },
+  "vCenter": {
+ "Server": "tdcprdvctr1.powereng.com",
+ "UserName": "POWERENG\\SRVCvCenterReadAll",
+ "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c000000010000000a79caa2b731d139d92bb2a773ee5fae30000000004800000a0000000100000004f9a4b8ae762a86545fabb6f5d64b886200000009027eed10d460c7868f4517991b736246afea51016f593fa04ec32ac69dacfa9140000006350bc73a0cd5c438707960e0020568896593d24"
+  },
+  "xClarity": {
+ "Server": "xclarity.powereng.com",
+ "UserName": "SRVC-VIRT-INV",
+ "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c000000010000000ae2a7dbdbeeb910452d6c860da2f22a10000000004800000a000000010000000d0770282c2f32c4f01398835a436be4628000000294f8c290c4853069a44791d0eac35fb46c7c236ad76510d0cad3d61c04b06c9f1908f642fea305b14000000c8c1ae6735ab0d9a09b7c903498cc565e6f6556c"
+  },
+  "IPAMDB": {
+ "Server": "ipam.powereng.com",
+ "Port": 3306,
+ "Database": "gestioip",
+ "UserName": "gestioip",
+ "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c0000000100000007bae0ded1f55010d6c017098397cb4050000000004800000a00000001000000059be5fb0546c3df7fa5a9677306ef5a618000000f7cb0bd545393d6ca0b6e66846516b0af75287fe0f040bf314000000f2d27b94acb77e82c4fcd8375bd27ee2a95de0f6"
+  },
+  "Statseeker": {
+ "URL": "https://statseeker.powereng.com",
+ "APIBase": "/api/v2.1",
+ "UserName": "SRVC-VIRT-INV",
+ "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c00000001000000065e7e16a58dc11b33cf36b77fe6a23d40000000004800000a000000010000000727cd10196e7406c72abc0b979f2fce32800000097c361cf0b7573400899f6a8262341f7b50eb9efabaad287ffef476a059d23e7d7bdb480fd421a9414000000c5eb7e7905132ce0855a28a37d48311700f8b228"
+  }
+}
+20240618 165139.364: INFO: Logging initialized...
+20240618 165247.279: INFO: MySQLDBConnection class loaded.
+20240618 165300.259: INFO: Successfully connected to IPAM database.
+20240618 165321.351: INFO: Collecting Cisco Intersight data...
+20240618 170141.184: INFO: Loaded configuration:
+{
+  "LogPath": "E:\\Scripts\\VirtualInventory\\Logs",
+  "ExportPath": "E:\\Scripts\\VirtualInventory\\Exports",
+  "Filers": {
+ "CDOT": {
+   "UserName": "POWERENG\\SRVC-AllStorage-RO",
+   "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c000000010000000623e84a8852e6cf84fc4e8c54d35dfcc0000000004800000a000000010000000cc37f476a1bf5f410c16596a6d532d5c280000009af9129ccb07439a6429b2c3f8802bd9c0a2aa044599900b5111274cdb077e59cfeeaa97259513a414000000ee12a53fe98463678a48a1d3dbd1a86613243bc5",
+   "Controllers": [
+  "adc-cdotclst01.powereng.com",
+  "apl-cdotclst01.powereng.com",
+  "ast-cdotclst01.powereng.com",
+  "aus-cdotclst01.powereng.com",
+  "bdc-cdotclst01.powereng.com",
+  "bdcd-cdotclst01.powereng.com",
+  "bil-cdotclst01.powereng.com",
+  "boi-cdotclst01.powereng.com",
+  "cdc-cdotclst01.powereng.com",
+  "clk-cdotclst01.powereng.com",
+  "den-cdotclst01.powereng.com",
+  "fmc-cdotclst01.powereng.com",
+  "fre-cdotclst01.powereng.com",
+  "hou-cdotclst01.powereng.com",
+  "ito-cdotclst01.powereng.com",
+  "lax-cdotclst01.powereng.com",
+  "min-cdotclst01.powereng.com",
+  "opk-cdotclst01.powereng.com",
+  "phx-cdotclst01.powereng.com",
+  "plv-cdotclst01.powereng.com",
+  "ptl-cdotclst01.powereng.com",
+  "san-cdotclst01.powereng.com",
+  "slc-cdotclst01.powereng.com"
+   ]
+ },
+ "SM": {
+   "UserName": "POWERENG\\SRVC-AllStorage-RO",
+   "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c000000010000000505b9e3e48418f9e5e077a010f8e7ffa0000000004800000a0000000100000001a88a6818e2ab7637183cf308517fc262800000035c7e9fc4aec5cba7402e784d4f27415c32f8ebd5fc34916a7c2563d8a34f9df082bf893920beb401400000000b3fc63ca4094695c15a3509ca53c25acb5f7be",
+   "Nodes": [
+  "arbprdnas1.powereng.com",
+  "atlprdnas2.powereng.com",
+  "atlprdnas3.powereng.com",
+  "bosprdnas1.powereng.com",
+  "cinprdnas1.powereng.com",
+  "edpprdnas1.powereng.com",
+  "ftwprdnas1.powereng.com",
+  "hamprdnas1.powereng.com",
+  "hlyprdnas2.powereng.com",
+  "hlyprdnas3.powereng.com",
+  "msnnas1.powereng.com",
+  "mtlprdnas1.powereng.com",
+  "orasan1.powereng.com",
+  "orasan2.powereng.com",
+  "orlprdnas1.powereng.com",
+  "orlprdnas2.powereng.com",
+  "stlprdnas2.powereng.com",
+  "stlprdnas3.powereng.com",
+  "syrnas1.powereng.com",
+  "tdcprdnas1.powereng.com",
+  "vanprdnas1.powereng.com"
+   ]
+ }
+  },
+  "Intersight": {
+ "URL": "https://intersight.com/api/v1",
+ "APIKey": "5b51f81e6a636d6d34958477/620a8f0d7564612d33ac47ae/6672033675646133010599b1",
+ "PrivateKeyFile": "E:\\Scripts\\VirtualInventory\\New Virtual Inventory-SecretKey.txt"
+  },
+  "vCenter": {
+ "Server": "tdcprdvctr1.powereng.com",
+ "UserName": "POWERENG\\SRVCvCenterReadAll",
+ "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c000000010000000a79caa2b731d139d92bb2a773ee5fae30000000004800000a0000000100000004f9a4b8ae762a86545fabb6f5d64b886200000009027eed10d460c7868f4517991b736246afea51016f593fa04ec32ac69dacfa9140000006350bc73a0cd5c438707960e0020568896593d24"
+  },
+  "xClarity": {
+ "Server": "xclarity.powereng.com",
+ "UserName": "SRVC-VIRT-INV",
+ "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c000000010000000ae2a7dbdbeeb910452d6c860da2f22a10000000004800000a000000010000000d0770282c2f32c4f01398835a436be4628000000294f8c290c4853069a44791d0eac35fb46c7c236ad76510d0cad3d61c04b06c9f1908f642fea305b14000000c8c1ae6735ab0d9a09b7c903498cc565e6f6556c"
+  },
+  "IPAMDB": {
+ "Server": "ipam.powereng.com",
+ "Port": 3306,
+ "Database": "gestioip",
+ "UserName": "gestioip",
+ "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c0000000100000007bae0ded1f55010d6c017098397cb4050000000004800000a00000001000000059be5fb0546c3df7fa5a9677306ef5a618000000f7cb0bd545393d6ca0b6e66846516b0af75287fe0f040bf314000000f2d27b94acb77e82c4fcd8375bd27ee2a95de0f6"
+  },
+  "Statseeker": {
+ "URL": "https://statseeker.powereng.com",
+ "APIBase": "/api/v2.1",
+ "UserName": "SRVC-VIRT-INV",
+ "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c00000001000000065e7e16a58dc11b33cf36b77fe6a23d40000000004800000a000000010000000727cd10196e7406c72abc0b979f2fce32800000097c361cf0b7573400899f6a8262341f7b50eb9efabaad287ffef476a059d23e7d7bdb480fd421a9414000000c5eb7e7905132ce0855a28a37d48311700f8b228"
+  }
+}
+20240618 170141.207: ERROR: Intersight private key file E:\Scripts\VirtualInventory\New Virtual Inventory-SecretKey.txt does not exist.
+20240618 170252.429: INFO: Loaded configuration:
+{
+  "LogPath": "E:\\Scripts\\VirtualInventory\\Logs",
+  "ExportPath": "E:\\Scripts\\VirtualInventory\\Exports",
+  "Filers": {
+ "CDOT": {
+   "UserName": "POWERENG\\SRVC-AllStorage-RO",
+   "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c000000010000000623e84a8852e6cf84fc4e8c54d35dfcc0000000004800000a000000010000000cc37f476a1bf5f410c16596a6d532d5c280000009af9129ccb07439a6429b2c3f8802bd9c0a2aa044599900b5111274cdb077e59cfeeaa97259513a414000000ee12a53fe98463678a48a1d3dbd1a86613243bc5",
+   "Controllers": [
+  "adc-cdotclst01.powereng.com",
+  "apl-cdotclst01.powereng.com",
+  "ast-cdotclst01.powereng.com",
+  "aus-cdotclst01.powereng.com",
+  "bdc-cdotclst01.powereng.com",
+  "bdcd-cdotclst01.powereng.com",
+  "bil-cdotclst01.powereng.com",
+  "boi-cdotclst01.powereng.com",
+  "cdc-cdotclst01.powereng.com",
+  "clk-cdotclst01.powereng.com",
+  "den-cdotclst01.powereng.com",
+  "fmc-cdotclst01.powereng.com",
+  "fre-cdotclst01.powereng.com",
+  "hou-cdotclst01.powereng.com",
+  "ito-cdotclst01.powereng.com",
+  "lax-cdotclst01.powereng.com",
+  "min-cdotclst01.powereng.com",
+  "opk-cdotclst01.powereng.com",
+  "phx-cdotclst01.powereng.com",
+  "plv-cdotclst01.powereng.com",
+  "ptl-cdotclst01.powereng.com",
+  "san-cdotclst01.powereng.com",
+  "slc-cdotclst01.powereng.com"
+   ]
+ },
+ "SM": {
+   "UserName": "POWERENG\\SRVC-AllStorage-RO",
+   "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c000000010000000505b9e3e48418f9e5e077a010f8e7ffa0000000004800000a0000000100000001a88a6818e2ab7637183cf308517fc262800000035c7e9fc4aec5cba7402e784d4f27415c32f8ebd5fc34916a7c2563d8a34f9df082bf893920beb401400000000b3fc63ca4094695c15a3509ca53c25acb5f7be",
+   "Nodes": [
+  "arbprdnas1.powereng.com",
+  "atlprdnas2.powereng.com",
+  "atlprdnas3.powereng.com",
+  "bosprdnas1.powereng.com",
+  "cinprdnas1.powereng.com",
+  "edpprdnas1.powereng.com",
+  "ftwprdnas1.powereng.com",
+  "hamprdnas1.powereng.com",
+  "hlyprdnas2.powereng.com",
+  "hlyprdnas3.powereng.com",
+  "msnnas1.powereng.com",
+  "mtlprdnas1.powereng.com",
+  "orasan1.powereng.com",
+  "orasan2.powereng.com",
+  "orlprdnas1.powereng.com",
+  "orlprdnas2.powereng.com",
+  "stlprdnas2.powereng.com",
+  "stlprdnas3.powereng.com",
+  "syrnas1.powereng.com",
+  "tdcprdnas1.powereng.com",
+  "vanprdnas1.powereng.com"
+   ]
+ }
+  },
+  "Intersight": {
+ "URL": "https://intersight.com/api/v1",
+ "APIKey": "5b51f81e6a636d6d34958477/620a8f0d7564612d33ac47ae/6672033675646133010599b1",
+ "PrivateKeyFile": "C:\\Users\\kbriney-adm\\PSScripts\\Repos\\PEI-IT-OPS\\VirtualInventory\\New Virtual Inventory-SecretKey.txt"
+  },
+  "vCenter": {
+ "Server": "tdcprdvctr1.powereng.com",
+ "UserName": "POWERENG\\SRVCvCenterReadAll",
+ "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c000000010000000a79caa2b731d139d92bb2a773ee5fae30000000004800000a0000000100000004f9a4b8ae762a86545fabb6f5d64b886200000009027eed10d460c7868f4517991b736246afea51016f593fa04ec32ac69dacfa9140000006350bc73a0cd5c438707960e0020568896593d24"
+  },
+  "xClarity": {
+ "Server": "xclarity.powereng.com",
+ "UserName": "SRVC-VIRT-INV",
+ "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c000000010000000ae2a7dbdbeeb910452d6c860da2f22a10000000004800000a000000010000000d0770282c2f32c4f01398835a436be4628000000294f8c290c4853069a44791d0eac35fb46c7c236ad76510d0cad3d61c04b06c9f1908f642fea305b14000000c8c1ae6735ab0d9a09b7c903498cc565e6f6556c"
+  },
+  "IPAMDB": {
+ "Server": "ipam.powereng.com",
+ "Port": 3306,
+ "Database": "gestioip",
+ "UserName": "gestioip",
+ "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c0000000100000007bae0ded1f55010d6c017098397cb4050000000004800000a00000001000000059be5fb0546c3df7fa5a9677306ef5a618000000f7cb0bd545393d6ca0b6e66846516b0af75287fe0f040bf314000000f2d27b94acb77e82c4fcd8375bd27ee2a95de0f6"
+  },
+  "Statseeker": {
+ "URL": "https://statseeker.powereng.com",
+ "APIBase": "/api/v2.1",
+ "UserName": "SRVC-VIRT-INV",
+ "Password": "01000000d08c9ddf0115d1118c7a00c04fc297eb0100000076b50ac944d0d445bcf3b5af160550690000000002000000000003660000c00000001000000065e7e16a58dc11b33cf36b77fe6a23d40000000004800000a000000010000000727cd10196e7406c72abc0b979f2fce32800000097c361cf0b7573400899f6a8262341f7b50eb9efabaad287ffef476a059d23e7d7bdb480fd421a9414000000c5eb7e7905132ce0855a28a37d48311700f8b228"
+  }
+}

@@ -24,6 +24,8 @@ $fileAgeKeys = @($sizeByAge.Keys)
 $directoryExceptions = [System.Collections.Generic.List[System.String]]::new()
 $fileExceptions = [System.Collections.Generic.List[System.String]]::new()
 
+$explicitACLRules = [System.Collections.Generic.List[System.Object]]::new()
+
 function ShowStats()
 {
     Write-Host ("Directories: {0}" -f @($Global:totalDirectories))
@@ -47,12 +49,46 @@ function ShowStats()
     }
 }
 
+function CaptureExplicitACLRules($fsi)
+{
+    try
+    {
+        $fsiACL = $fsi.GetAccessControl()
+        $explicitRules = @($fsiACL.Access | Where-Object { -not $_.IsInherited })
+        $a = 0
+        while($a -lt $explicitRules.Length)
+        {
+            $kk = "" | Select-Object Path, FileSystemRights,AccessControlType,IdentityReference,InheritanceFlags,PropagationFlags
+            $kk.Path = $fsi.FullName
+            $kk.FileSystemRights = $fsiACL.Access[$a].FileSystemRights.ToString()
+            $kk.AccessControlType = $fsiACL.Access[$a].AccessControlType.ToString()
+            $kk.IdentityReference = $fsiACL.Access[$a].IdentityReference.ToString()
+            $kk.InheritanceFlags = $fsiACL.Access[$a].InheritanceFlags.ToString()
+            $kk.PropagationFlags = $fsiACL.Access[$a].PropagationFlags.ToString()
+
+            $Global:explicitACLRules.Add($kk)
+
+            $a++
+        }
+    }
+    catch
+    {
+
+    }
+}
+
+function DumpExplicitACLs()
+{
+    $Global:explicitACLRules | Export-Csv -NoTypeInformation -Delimiter "`t" -Path $Global:explicitACLRulesSavePath -Force
+}
+
 function ListDirectory($di)
 {
     if($null -ne $di)
     {
         if($di -is [System.IO.DirectoryInfo])
         {
+            CaptureExplicitACLRules $di
             $Global:totalDirectories++
             #Write-Host $di.FullName
             try
@@ -69,6 +105,9 @@ function ListDirectory($di)
                     $Global:totalFiles += $diFiles.Length
                     $diFiles | ForEach-Object {
                         $fi = $_
+
+                        CaptureExplicitACLRules $fi
+
                         $Global:totalSize += $fi.Length
                         foreach($ageKey in $Global:fileAgeKeys)
                         {
@@ -81,9 +120,20 @@ function ListDirectory($di)
                         # [void] (AddFSIToDB $db $_ $false)
                         if([Console]::KeyAvailable)
                         {
-                            [void] [Console]::ReadKey($false)
-                            Write-Host ("`r`n{0}`t{1}`t{2}" -f @($_.FullName, (Format-StorageNumber $_.Length), $_.CreationTime.ToString("yyyyMMdd hh:mm:ss")))
-                            ShowStats
+                            $keyRead = [Console]::ReadKey($false).Key
+                            if($keyRead -eq [System.ConsoleKey]::A)
+                            {
+                                DumpExplicitACLs
+                            }
+                            elseif ($keyRead -eq [System.ConsoleKey]::S)
+                            {
+                                Write-Host ("`r`n{0}`t{1}`t{2}" -f @($_.FullName, (Format-StorageNumber $_.Length), $_.CreationTime.ToString("yyyyMMdd hh:mm:ss")))
+                                ShowStats
+                            }
+                            elseif ($keyRead -eq [System.ConsoleKey]::C)
+                            {
+                                CopyStats
+                            }
                         }
                     }
                 }
@@ -127,7 +177,10 @@ function LD($di)
     $Global:fileAgeKeys = @($Global:sizeByAge.Keys)
     $Global:directoryExceptions = [System.Collections.Generic.List[System.String]]::new()
     $Global:fileExceptions = [System.Collections.Generic.List[System.String]]::new()
+    $Global:explicitACLRules = [System.Collections.Generic.List[System.Object]]::new()
 
+    $pathParts = $Global:shareName.Split(@('\'), [System.StringSplitOptions]::RemoveEmptyEntries)
+    $Global:explicitACLRulesSavePath = "{0}\{1}_{2}.csv" -f @($env:TEMP, $pathParts[0], $pathParts[1])
     ListDirectory $di
     ShowStats
 }

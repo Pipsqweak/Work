@@ -2,7 +2,7 @@
    I need to build a series of .zip files, but I don't want any single .zip file to exceed $mapZipSize bytes.
 
    Get an array of [System.IO.FileInfo] for all the files that need to be added to the .zip files.
-   
+
    Place each of the [FileInfo] objects into 1 of 2 sorted lists.
         Files  > $maxZipSize -> $largeFiles   -- these will be treated special
         Files <= $maxZipSize -> $listOfFiles
@@ -10,12 +10,12 @@
    Now all the files in $listOfFiles need to be archived
 
    Since the "art" of archiving files cannot be easily predicted, I'm going to get creative.
-   
+
       I'll build a sublist of files from $listOfFiles where the sum of the length of the sublist of files
           is -le to the remaining space in the archive ($zipSpaceLeft).
-          
+
       I'll add the sublist of files to the archive and see how much space is left.  ($maxZipSize - archive size)
-      
+
       I'll then repeat the process of adding more files to the archive and rechecking the archive's size until:
           1. There are no more files to archive
           2. No files remaining in $listOfFiles that will fit in the remaining archive space.
@@ -29,11 +29,11 @@
       Archive files
 
    Archive files:
-        
+
        Build a sublist of files to add to a single .zip archive.
-   
+
        This is done by keeping track of how much space remains in the .zip archive ($zipSpaceLeft) as it is being built.
-   
+
        At first the archive will not exist, so $zipSpaceLeft = $maxZipSize
 
        Search $listOfFiles for a file that is -le $zipSpaceLeft...
@@ -41,7 +41,7 @@
        The search will either.
 
            1. Yield a file that will fit in $zipSpaceLeft
-       
+
                 Add the located file to the sublist of files to add to the next .zip archive
                 Subtract its length from from $zipSpaceLeft
                 Remove it from the over all list of files to be archived.
@@ -62,7 +62,7 @@
 
 $comparer = [ObjComparer3]::new()
 # $l1.BinarySearch("Ben", $comparer)
- 
+
 $pwNumber = "144176"
 $baseFolder = "E:\TMP\LHTMP"
 $folderToAdd = "{0}\{1}" -f @($baseFolder, $pwNumber)
@@ -77,7 +77,7 @@ $a = 0
 while($a -lt $files.Length)
 {
     $listToAddTo = $null
-    
+
     # If the current file is larger than the max zip size...
     if($files[$a].Length -gt $maxZipSize)
     {
@@ -89,7 +89,7 @@ while($a -lt $files.Length)
         # ... add the file to the regular list of files...
         $listToAddTo = $listOfFiles
     }
-    
+
     if($null -ne $listToAddTo)
     {
         $i = $listToAddTo.BinarySearch($files[$a].Length, $comparer)
@@ -127,7 +127,7 @@ while($listOfFiles.Count -gt 0)
     $fileList = @()
     $continueMakingFileList = ($listOfFiles.Count -gt 0)
 
-    while($continueMakingFileList) 
+    while($continueMakingFileList)
     {
         # If we get to this point, then there are more files in $listOfFiles that need to be archived.
 
@@ -167,17 +167,17 @@ while($listOfFiles.Count -gt 0)
             if($fileList.Length -gt 0)
             {
                 # Yes, so run 7-zip to add the files to the archive and start a new list.
-                
+
 
                 # NOTE: RUN 7-Zip here...
-                
+
 
                 $continueMakingFileList = $false
             }
             else
             {
                 # No files found to add to the archive
-                
+
                 if($listOfFiles.Count -gt 0)
                 {
                     # No files found to add to the archive, yet there are still files in the list of files to archive.
@@ -209,7 +209,7 @@ while($listOfFiles.Count -gt 0)
                         $zipFileName                        # name of archive file
                     )
 
-                    & $sevenZipPath $zipCommandArgs        
+                    & $sevenZipPath $zipCommandArgs
                 }
                 else   # No, but it might be because adding the next file to the .zip file would over-flow it...
                 {
@@ -253,7 +253,7 @@ while($listOfFiles.Count -gt 0)
 
             & $sevenZipPath $zipCommandArgs
 
-        
+
         }
         else   # No, but it might be because adding the next file to the .zip file would over-flow it...
         {
@@ -265,4 +265,105 @@ while($listOfFiles.Count -gt 0)
             }
         }
     }
+}
+
+
+$SID = "S-1-543216-0-5-21-1380516296-1705272057-1576261225-513"
+$SID = "S-0-5-21-1380516296-1705272057-1576261225-513"
+Get-ADObject -IncludeDeletedObjects -Filter * -Properties * | where-object {$_.objectSid -eq $SID }
+
+$adObjects = Get-ADObject -IncludeDeletedObjects -Filter * -Properties objectSid
+
+
+$allGroupMembers = [System.Collections.Generic.List[System.Object]]::new()
+
+$a = 0
+$controllers = @($cdot.Values)
+while($a -lt $controllers.Length)
+{
+    $svms = @(Get-NcVserver -Controller $controllers[$a] | Where-Object { $_.VserverType -eq "data" })
+    $b = 0
+    while($b -lt $svms.Length)
+    {
+        try
+        {
+            $grpMbrs = @(Get-NcCifsLocalGroupMember -Controller $controllers[$a] -Vserver $svms[$b] -Name "BUILTIN\Administrators" -ErrorAction Stop)
+            if ($grpMbrs.Length -gt 0)
+            {
+                $fsADM = @($grpMbrs | Where-Object { $_.Member -match "FS-FileServices-ADM" })
+                if ($fsADM.Length -eq 0)
+                {
+                    try
+                    {
+                        Add-NcCifsLocalGroupMember -Controller $controllers[$a] -VserverContext $svms[$b] -Name "BUILTIN\Administrators" -Member "POWERENG\FS-FileServices-ADM" -ErrorAction Stop | Out-Null
+                        Write-Host ("Added POWERENG\FS-FileServices-ADM to {0}\{1}:BUILTIN\Administrators  A:{2}, B:{3}" -f @($controllers[$a].Name, $svms[$b].Vserver, $a, $b))
+                    }
+                    catch
+                    {
+                        Write-Host -ForegroundColor Red ("ERROR: Failed to add POWERENG\FS-FileServices-ADM to {0}\{1}:BUILTIN\Administrators  A:{2}, B:{3}" -f @($controllers[$a].Name, $svms[$b].Vserver, $a, $b))
+                    }
+                } `
+                else # NOT ($fsADM.Length -eq 0)
+                {
+                    # Nothing.
+                }
+            } `
+            else # NOT ($grpMbrs.Length -gt 0)
+            {
+                # Nothing.
+            }
+        }
+        catch
+        {
+            Write-Host -ForegroundColor Red ("Failed to get {0}\{1}:BUILTIN\Administrators" -f @($controllers[$a].Name, $svms[$b].Vserver))
+        }
+        <#
+        $grpMbrs.ForEach({
+            $allGroupMembers.Add($_)
+        })
+        #>
+        $b++
+    }
+    $a++
+}
+
+
+$ctrlr = $yyc01CDOT
+$vserver = "YYC01-SMB01"
+
+$distroLists = [System.Collections.Generic.List[System.String]]::new()
+$shares = @(Get-NcCifsShare -Controller $ctrlr -VserverContext $vserver | Where-Object { $_.ShareName -notin @("c`$", "ipc`$", "Shares`$") })
+$shareGroups = [System.Collections.Generic.List[System.String]]::new()
+$a = 0
+while($a -lt $shares.Length)
+{
+    $sharePath = "\\{0}\{1}" -f @($shares[$a].CifsServer, $shares[$a].ShareName)
+    $grps = @((Get-ACL -Path $sharePath).Access | Where-Object { (-not $_.IdentityReference.ToString().Contains("FS-FileServices-ADM")) -and ($_.AccessControlType -eq "Allow") -and ($_.IdentityReference.ToString().Contains("POWERENG")) } | Select-Object @{N='Grp';E={$_.IdentityReference.ToString()}} | Select-Object -ExpandProperty Grp)
+    $b = 0
+    while($b -lt $grps.Length)
+    {
+        $grp = $grps[$b].Replace("POWERENG\","")
+        $i = $shareGroups.BinarySearch($grp)
+        if($i -lt 0)
+        {
+            $shareGroups.Insert(-bnot $i, $grp)
+        }
+        $b++
+    }
+    $a++
+}
+
+
+
+
+$a = 0
+while($a -lt $u.MemberOf.Count)
+{
+    $q = Get-ADGroup -Identity $u.MemberOf[$a] -Properties mail,groupType | Where-Object { $_.groupType -eq 4 }
+    if($null -ne $q)
+    {
+        $q.mail
+    }
+
+    $a++
 }

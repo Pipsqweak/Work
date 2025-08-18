@@ -47,7 +47,7 @@ if(-not $Global:LoggerClassLoaded)
             if($null -eq $this.buffer)
             {
                 throw "Unable to create log buffer!"
-            }
+            } `
             else
             {
                 # Nothing, we have setup the logging buffer
@@ -77,12 +77,12 @@ if(-not $Global:LoggerClassLoaded)
                     if(Test-Path -Path $this.logFileName)
                     {
                         Remove-Item -Path $this.logFileName -Confirm:$false -Force | Out-Null
-                    }
+                    } `
                     else
                     {
                         # Nothing, log doesn't exist...
                     }
-                }
+                } `
                 else
                 {
                     # Nothing, CreateFolderPath would have logged an error...
@@ -91,7 +91,7 @@ if(-not $Global:LoggerClassLoaded)
                 if($null -eq $this.buffer)
                 {
                     $this.buffer = [System.Collections.Generic.List[String]]::new()
-                }
+                } `
                 else
                 {
                     # Nothing, the buffer has already been initialized.
@@ -100,7 +100,7 @@ if(-not $Global:LoggerClassLoaded)
                 if($null -eq $this.buffer)
                 {
                     throw "Unable to create log buffer!"
-                }
+                } `
                 else
                 {
                     # Nothing, we have setup the logging buffer
@@ -111,12 +111,12 @@ if(-not $Global:LoggerClassLoaded)
                 if(-not $this.logDumpingEnabled)
                 {
                     throw "Unable to initialize the logging buffer."
-                }
+                } `
                 else
                 {
                     # Nothing, all is well
                 }
-            }
+            } `
             else
             {
                 throw "No path supplied for logging."
@@ -145,12 +145,12 @@ if(-not $Global:LoggerClassLoaded)
                             Start-Sleep -Milliseconds 25
                         }
                     }
-                }
+                } `
                 else
                 {
                     # Nothing, no buffer setup...
                 }
-            }
+            } `
             else
             {
                 # Nothing, until this.logDumpingEnabled is set to $true, just keep building the buffer...
@@ -171,12 +171,12 @@ if(-not $Global:LoggerClassLoaded)
                 if($this.buffer.Count -ge $this.bufferSize)
                 {
                     $this.Dump()
-                }
+                } `
                 else
                 {
                     # No worries, only dump the log every $this.bufferSize lines...
                 }
-            }
+            } `
             else
             {
                 # Nothing, no need to waste space with empty messages.
@@ -193,7 +193,7 @@ if(-not $Global:LoggerClassLoaded)
             if($this.buffer.Count -gt 0)
             {
                 $retval = [String]::Join("`r`n", $this.buffer)
-            }
+            } `
             else
             {
                 # Nothing to return...
@@ -324,7 +324,7 @@ if(-not $Global:LoggerClassLoaded)
                     {
                         # Nothing, only WARNING, ERROR, and ALERT go to the alertLog
                     }
-                }
+                } `
                 else
                 {
                     # Nothing, message level not high enough to output.
@@ -333,12 +333,12 @@ if(-not $Global:LoggerClassLoaded)
                 if([Log]::Me().level -ge [LogLevel]::DEBUG)
                 {
                     Write-Host $formattedMessage
-                }
+                } `
                 else
                 {
                     # Nothing
                 }
-            }
+            } `
             else
             {
                 # Nothing, no message, no logging it.
@@ -378,7 +378,7 @@ if(-not $Global:LoggerClassLoaded)
                             # Purge logs older than $logAge days.
                             $oldLogs = @(Get-ChildItem -Path $logPath | Where-Object { (-not $_.PSIsContainer) -and ($_.BaseName.Contains($logName)) -and ($_.CreationTime -le [DateTime]::Now.AddDays(-1 * $maxLogAge)) })
                             $oldLogs | Remove-Item -Confirm:$false | Out-Null
-                        }
+                        } `
                         else
                         {
                             # Nothing, can't delete old logs if there aren't any...
@@ -395,7 +395,7 @@ if(-not $Global:LoggerClassLoaded)
                         if($logFileName.StartsWith("\"))
                         {
                             $logFileName = "\{0}" -f @($logFileName)
-                        }
+                        } `
                         else
                         {
                             # Nothing
@@ -411,24 +411,24 @@ if(-not $Global:LoggerClassLoaded)
                             $startLog | ForEach-Object { [Log]::Must(("   {0}" -f @($_))) }
                             [Log]::Separator()
                             $startLog.Clear()
-                        }
+                        } `
                         else
                         {
                             # Nothing, not start log provided
                         }
 
                         [Log]::Me().initialized = $true
-                    }
+                    } `
                     else
                     {
                         # Nothing, CreateFolderPath would have logged an error...
                     }
-                }
+                } `
                 else
                 {
                     throw "Missing log root path in logging facility"
                 }
-            }
+            } `
             else
             {
                 throw "Missing log name in logging facility"
@@ -450,12 +450,12 @@ if(-not $Global:LoggerClassLoaded)
                 if($null -ne [Log]::Me().log)
                 {
                     [Log]::Me().log.Dump()
-                }
+                } `
                 else
                 {
                     # Nothing, no log to dump yet
                 }
-            }
+            } `
             else
             {
                 [Log]::Info("Cannot dump logs prior to log initialization.")
@@ -492,32 +492,32 @@ if(-not $Global:LoggerClassLoaded)
                                     $anonCredentials = New-Object System.Management.Automation.PSCredential($anonUsername, $anonPassword)
 
                                     Send-MailMessage -From $fromAddress -To $recipients -SmtpServer $smtpRelay -Subject $subject -Body $alertMessage -Credential $anonCredentials
-                                }
+                                } `
                                 else
                                 {
                                     [Log]::Info("No alert message to send.")
                                 }
-                            }
+                            } `
                             else
                             {
                                 [Log]::Error("No recipients supplied {0}." -f $MyInvocation.MyCommand)
                             }
-                        }
+                        } `
                         else
                         {
                             [Log]::Error("Missing value for recipients in {0}." -f $MyInvocation.MyCommand)
                         }
-                    }
+                    } `
                     else
                     {
                         [Log]::Error("Missing value for smtp relay in {0}." -f $MyInvocation.MyCommand)
                     }
-                }
+                } `
                 else
                 {
                     [Log]::Error("Missing value for smtp relay in {0}." -f $MyInvocation.MyCommand)
                 }
-            }
+            } `
             else
             {
                 [Log]::Info("Cannot send email alert prior to log initialization.")
@@ -590,12 +590,12 @@ if(-not $Global:LoggerClassLoaded)
                     if(-not [String]::IsNullOrEmpty($Error[0].Exception.Message))
                     {
                         $msgStrings += $Error[$e].Exception.Message
-                    }
+                    } `
                     else
                     {
                         # Nothing
                     }
-                }
+                } `
                 else
                 {
                     # Nothing
@@ -605,7 +605,7 @@ if(-not $Global:LoggerClassLoaded)
             if(-not [String]::IsNullOrEmpty($extraMessage))
             {
                 $msgStrings += $extraMessage
-            }
+            } `
             else
             {
                 # Nothing
@@ -635,12 +635,12 @@ if(-not $Global:LoggerClassLoaded)
 
                     # Flush logs to disk
                     [Log]::DumpLog()
-                }
+                } `
                 else
                 {
                     # Nothing
                 }
-            }
+            } `
             else
             {
                 # Nothing, caller did not ask to dump the stack
@@ -650,7 +650,7 @@ if(-not $Global:LoggerClassLoaded)
 
     # Once again, check to make sure the [log] class was defined.
     try { $Global:LoggerClassLoaded = ($null -ne [Log]) } catch { }
-}
+} `
 else
 {
     # No need to re-define class/functions...

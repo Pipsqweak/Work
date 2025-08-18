@@ -8,6 +8,10 @@ Param(
     [Switch]
     $NoDBUpdates
 )
+<#
+    2024-08-28: KLB
+        Added columns GPUProfile, vCPU, MemoryMB, UsedSpaceGB, and Host to the VirtualMachineData datamap and database.
+#>
 
 <#
     SPECIAL NOTE:
@@ -21,7 +25,7 @@ Param(
                 $dataElements
                 $dataMap
             Used in functions:
-                BuildDatamapExpressionStatements, UpdateDBFirstPass
+                BuildDatamapExpressionStatements, UpdateDatatableFromDatamapFirstPass
 
         $customStatements.RowSearchStatement
             Variables:
@@ -29,7 +33,7 @@ Param(
                 $dt
                 $dataElement
             Used in functions:
-                BuildDatamapExpressionStatements, UpdateDBSecondPass
+                BuildDatamapExpressionStatements, UpdateDatatableFromDatamapSecondPass
 #>
 
 function CollectvServerNFSLIFs([NetAppVServer] $vServer)
@@ -874,13 +878,14 @@ function AddDataMap
         # Get the table schema
         $cmd = $conn.CreateCommand()
         $cmd.CommandType = [System.Data.CommandType]::Text
+        #  The following line looks funny, but I don't want any data, just the columns...
         $cmd.CommandText = "SELECT * FROM [{0}] WHERE (1=0);" -f @($tableName)
         $tableSchemaReader = $cmd.ExecuteReader()
         $dtTableSchema = $tableSchemaReader.GetSchemaTable()
         $tableSchemaReader.Close()
 
         # If the connection was opened in the function, then close it.  (Leave it like it was when the function started)
-        if($connectionWasClosed-and ($conn.State -ne [System.Data.ConnectionState]::Closed))
+        if($connectionWasClosed -and ($conn.State -ne [System.Data.ConnectionState]::Closed))
         {
             $conn.Close()
         }
@@ -1105,11 +1110,11 @@ function CreateDataMaps
                     @{N="VServerUUID";E={$_.VServer.UUID}},
                     @{N="AggregateUUID";E={$_.Aggregate.UUID}},
                     IsSnaplockProtected,
-                    IsEncrypted,
+                    @{N="IsEncrypted";E={if($_.Source.EncryptSpecified) { $_.Source.Encrypt } else { $false }}},
                     Size,
                     Used,
                     Available,
-                    SnapshotCount
+                    @{N="SnapshotCount";E={if($_.Source.VolumeSnapshotAttributes.SnapshotCountSpecified) { $_.Source.VolumeSnapshotAttributes.SnapshotCount } else { 0 }}}
             }
         } `
         | Sort-Object VolumeUUID) $dataMaps
@@ -1188,6 +1193,7 @@ function CreateDataMaps
         | Sort-Object VolumeUUID,DatastoreID) $dataMaps
 
     # Data map for VirtualMachineData:
+    #   20240903: Added | Group-Object -Property VirtualMachineID | Foreach-Object { $_.Group[0] } to the statement to reduce the array of virtual machines to unique VMs.
     AddDataMap $conn "VirtualMachineData" @("VirtualMachineID","RunID") `
         @($storageInformation | ForEach-Object {
             $_.Aggregates | Foreach-Object {
@@ -1196,12 +1202,18 @@ function CreateDataMaps
                         $_.VirtualMachines | Select-Object `
                             @{N="RunID";E={$runID}},
                             @{N="VirtualMachineID";E={$_.ID}},
-                            @{N="PowerState";E={$_.PowerState}}
+                            @{N="PowerState";E={$_.PowerState}},
+                            @{N="vCPU";E={$_.NumCPU}},
+                            @{N="MemoryMB";E={$_.MemoryMB}},
+                            @{N="UsedSpaceGB";E={$_.UsedStorageGB}},
+                            @{N="Host";E={ $_.Source.VMHost.Name -replace ".powereng.COM","" }},   # Need to add this to the underlying class "VMWareVirtualMachine"
+                            @{N='GPUProfile';E={$p = $_.Source.ExtensionData.Config.Hardware.Device | Where-Object { $_.Backing.vgpu } | Select-Object -ExpandProperty DeviceInfo | Select-Object -ExpandProperty Summary; if($null -ne $p) { $p = $p -replace "NVIDIA", "" -replace "grid","" -replace "vgpu",""; $p = $p.Trim(@(' ','_')) }; $p }}
                     }
                 }
             }
         } `
-        | Sort-Object VirtualMachineID) $dataMaps
+        | Sort-Object VirtualMachineID | Group-Object -Property VirtualMachineID | Foreach-Object { $_.Group[0] }) $dataMaps
+
 
     # Data map for VirtualMachine_DatastoreData:
     AddDataMap $conn "VirtualMachine_DatastoreData" @("VirtualMachineID","DatastoreID","RunID","Used") `
@@ -1340,15 +1352,6 @@ function UpdateRowFromDataMapSource($tableName, $row, $dataMapColumnNames, $data
         $oldValue = $row.$($columnName)
         $newValue = $dataElement.$($columnName)
 
-        if ($null -eq $newValue)
-        {
-            $newValue = [System.DBNull]::Value
-        } `
-        else # NOT ($null -eq $newValue)
-        {
-            # Nothing.
-        }
-
         # If $row is new or the column value is changing...
         if(($row.RowState -eq [System.Data.DataRowState]::Detached) -or ($newValue -ne $oldValue))
         {
@@ -1361,10 +1364,22 @@ function UpdateRowFromDataMapSource($tableName, $row, $dataMapColumnNames, $data
                     $row.$($columnName) = $dataElement.$($columnName)
 
                 Finally, I came up with the following to "dynamically" cast the source element...
-                    If someone finds a better way, great, fix this and remove the comment.
             #>
-            $stmt = "`$row.{0} = [{1}]`$newValue" -f @($columnName, $newValue.GetType().FullName)
 
+            # Create a powershell statement to assign the source data element with casting to the new row's column, then invoke the statement...
+            $castType = $null
+
+            if($null -ne $newValue)
+            {
+                $castType = "[{0}]" -f @($newValue.GetType().FullName)
+            }
+            else
+            {
+                # The following handles converting null to DBNull so the DB server doesn't reject the statements.
+                $newValue = [System.DBNull]::Value
+            }
+
+            $stmt = "`$row.{0} = {1}`$newValue" -f @($columnName, $castType)
             try
             {
                 Invoke-Expression $stmt -ErrorAction Stop
@@ -1379,16 +1394,9 @@ function UpdateRowFromDataMapSource($tableName, $row, $dataMapColumnNames, $data
 }
 
 <#
-    PASS 1: Compare existing DB data to collected data.
-        Enumerates the rows retrieved from the database, comparing them to collected data.
-            while($a -lt $dt.Rows.Count)
-            {
-                ...
-            }
-
-    DOES NOT WRITE CHANGES TO THE DATABASE...
+    PASS 1: Enumerate existing DB data comparing to collected data.
 #>
-function UpdateDataTableFirstPass($datamap, $dt, $customStatements)
+function UpdateDatatableFromDatamapFirstPass($datamap, $dt, $customStatements)
 {
     # Create an array of column names to make enumerating the .Columns collection easier.
     $dataMapColumnNames = @($dataMap.Columns.Keys)
@@ -1432,16 +1440,9 @@ function UpdateDataTableFirstPass($datamap, $dt, $customStatements)
 }
 
 <#
-    PASS 2: Compare collected data to existing DB data
-        Enumerates the collected data comparing it to rows retrieved from the database:
-            while($a -lt $dataMap.DataSource.Length)
-            {
-                ...
-            }
-
-    DOES NOT WRITE CHANGES TO THE DATABASE...
+    PASS 2: Enumerate collected data to existing DB data
 #>
-function UpdateDataTableSecondPass($dataMap, $dt, $customStatements, $isAllNewData)
+function UpdateDatatableFromDatamapSecondPass($dataMap, $dt, $customStatements, $isAllNewData)
 {
     # Create an array of column names to make enumerating the .Columns collection easier.
     $dataMapColumnNames = @($dataMap.Columns.Keys)
@@ -1459,7 +1460,6 @@ function UpdateDataTableSecondPass($dataMap, $dt, $customStatements, $isAllNewDa
         if(-not $isAllNewData)
         {
             # Invoke $customStatements.RowSearchStatement to find all rows that match all of the $datamap.DataSource KeyColumns...
-            #  Example:  $rows = @($dt.Rows | Where-Object { ($_.UUID -eq $dataElement.UUID) })
             Invoke-Expression $customStatements.RowSearchStatement
         }
 
@@ -1494,7 +1494,7 @@ function UpdateDataTableSecondPass($dataMap, $dt, $customStatements, $isAllNewDa
     }
 }
 
-function UpdateDataTableFromDataMap($conn, $dataMap)
+function UpdateDatatableFromDataMap($conn, $dataMap)
 {
     $cmd = $conn.CreateCommand()
     $cmd.CommandType = [System.Data.CommandType]::Text
@@ -1520,10 +1520,10 @@ function UpdateDataTableFromDataMap($conn, $dataMap)
     # If the datamap represents only point-in-time data, then no need to update existing data...
     if(-not $isAllNewData)
     {
-        UpdateDataTableFirstPass $datamap $dt $customStatements
+        UpdateDatatableFromDatamapFirstPass $datamap $dt $customStatements
     }
 
-    UpdateDataTableSecondPass $datamap $dt $customStatements $isAllNewData
+    UpdateDatatableFromDatamapSecondPass $datamap $dt $customStatements $isAllNewData
 
     $dataMap.NewRows = $dt.GetChanges([System.Data.DataRowState]::Added)
     $dataMap.ModifiedRows = $dt.GetChanges([System.Data.DataRowState]::Modified)
@@ -1583,12 +1583,11 @@ function MakeParameter($dataMap, $columnName, $row, $rowNumber)
             SqlCommand: https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand?view=dotnet-plat-ext-5.0
             SqlParameter: https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlparameter?view=dotnet-plat-ext-5.0
 
-        The maximum number of parameters is hard capped at 2100 (https://learn.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server?redirectedfrom=MSDN&view=sql-server-ver15).
+        The maximum number of parameters is hard capped at 2100 (https://docs.microsoft.com/en-us/sql/sql-server/maximum-capacity-specifications-for-sql-server?redirectedfrom=MSDN&view=sql-server-ver15).
            To deal with this, I make sure the current number of parameters + the number of parameters the next row will add does not exceed 2000.  If it does, the SQL statement is completed and
            sent to the SQL server, and I start the process over.
 #>
 
-# DOES UPDATE THE DATABASE
 function UpdateDBInsertNewRows($conn, $dataMap)
 {
     # Create an array of column names to make enumerating the .Columns collection easier.
@@ -1669,8 +1668,9 @@ function UpdateDBInsertNewRows($conn, $dataMap)
 
             $r = $cmd.ExecuteNonQuery()
             $totalInserts += $r
+#            LogInfo ("{0}:" -f @($cmd.CommandText))
 
-            # Clear $querySB and reseed it with $insertQuery so it's read for any remaining rows (if the query got too large)...
+            # Clear $querySB and reseed it with $insertQuery so it's read for any remaining rows (if the query got to large)...
             [void] $querySB.Clear()
             [void] $querySB.AppendLine($insertQuery)
             $cmd.Parameters.Clear()
@@ -1679,7 +1679,6 @@ function UpdateDBInsertNewRows($conn, $dataMap)
     LogInfo ("    Added {0} rows" -f @($totalInserts))
 }
 
-# DOES UPDATE THE DATABASE
 function UpdateDBUpdateModifiedRows($conn, $dataMap)
 {
     <#
@@ -1699,8 +1698,7 @@ function UpdateDBUpdateModifiedRows($conn, $dataMap)
 
         # Get a list of all column names that need to be updated, excluding key columns as these should never change.
         #  NOTE: Ensure the result is an array of string.  Without the enclosing @(), if a single column has to be updated, then the single column name gets treated
-        #        like an array of characters and the update statement ends up looking like when the column name is "NAME":
-        #                   UPDATE [TABLE] SET [N] = @N0, [A] = @A, [M] = @M0, [E] = @E0 WHERE ([ID] = @ID0);
+        #        like an array of characters and the update statement ends up looking like: UPDATE [TABLE] SET [N] = @N0, [A] = @A, [M] = @M0, [E] = @E0 WHERE ([ID] = @ID0);
         $updateColumns = @(($dataMap.ModifiedRows.Columns | Select-Object -ExpandProperty COLUMNNAME) | Where-Object { $_ -notin $dataMap.KeyColumns })
 
         # Array of strings used to create the SET clause in the UPDATE query using SQL parameter values:
@@ -1764,7 +1762,7 @@ function UpdateDBUpdateModifiedRows($conn, $dataMap)
 <# Main Function below #>
 
 <#
-    $JSONArgsFile = "C:\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\StorageInformation\StorageData-Config-kbriney-adm.json"
+    $JSONArgsFile = "SnaplockReporter-kbriney-adm.json"
     $NoDBUpdates = $true
 #>
 
@@ -1779,6 +1777,7 @@ $requiredFiles = @(
     "LoadConfigurationData.ps1",                 # Loads and verifies the contents of $JSONArgsFile
     "StorageInfoClasses.ps1",                    # Loads C# classes
     "StorageInfoClasses\StorageInfoClasses.cs",  # C# source code to define classes used in this script
+#    "LocalDB.ps1",                              # Defines a class providing SQL connectivity via LocalDB (https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb?view=sql-server-ver15)
     "Connect-NetApp.ps1"                         # Script to connect to NetApp Clusters and 7-mode filers
 )
 
@@ -1789,21 +1788,11 @@ if([String]::IsNullOrEmpty($scriptRoot))
     $scriptRoot = (Get-Location).Path
 }
 
-[System.IO.Directory]::SetCurrentDirectory($scriptRoot)
-
 # Make sure all the files required to make this script functional are available.
 foreach($requiredFile in $requiredFiles)
 {
-    try
-    {
-        $testFile = [System.IO.Path]::GetFullPath($requiredFile)
-        if(-not (Test-Path -Path $testFile))
-        {
-            Write-Error ("Missing required file: {0}." -f @($testFile))
-            $requiredFilesAvailable = $false
-        }
-    }
-    catch
+    $testFile = "{0}\{1}" -f @($scriptRoot, $requiredFile)
+    if(-not (Test-Path -Path $testFile))
     {
         Write-Error ("Missing required file: {0}." -f @($testFile))
         $requiredFilesAvailable = $false
@@ -1914,7 +1903,7 @@ if (($null -ne $myConn) -and ($myConn.State -eq [System.Data.ConnectionState]::O
             while($j -lt $dataMaps.Length)
             {
                 LogInfo ("Updating table: {0}" -f @($dataMaps[$j].TableName))
-                UpdateDataTableFromDataMap $myConn $datamaps[$j]
+                UpdateDatatableFromDataMap $myConn $datamaps[$j]
 
                 if(($null -ne $dataMaps[$j].NewRows) -and ($dataMaps[$j].NewRows.Rows.Count -gt 0))
                 {
