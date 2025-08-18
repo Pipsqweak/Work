@@ -17,3 +17,5 @@ Utilities/VirtualInventory/invCfg - Copy.json
 Utilities/VirtualInventory/invCfg.json
 Utilities/VirtualInventory/srvc-virt-inv.apikey.txt
 Utilities/VirtualInventory/srvc-virt-inv.SecretKey.pem
+obj/
+bin/
