@@ -3885,10 +3885,21 @@ function CreateLDAPProvider
 
     $ldapProviders = [System.Collections.Generic.List[Object]]::new()
     $a = 0
-    while($success -and ($a -lt $ldapConfig.providerNames.Length))
+    while($success -and ($a -lt $ldapConfig.providers.Length))
     {
         # 1. Create the LDAP Provider...
         ReportNotice ("`t`tCreating LDAP Provider: {0}..." -f @($ldapConfig.providerNames[$a]))
+        $cmdParams = @{
+            Ucs = $ucs;
+            Name = $ldapConfig.providers[$a].Name;
+            Basedn = $ldapConfig.baseDN;
+            Rootdn = $ldapConfig.rootDN;
+            EnableSSL = "yes";
+            FilterValue = "sAMAccountName=`$userid";
+            Vendor = "MS-AD";
+            Order = $ldapConfig.providers[$a].Order;
+            Key = $ldapConfig.bindKey
+        }
         $success, $ldapProvider = InvokeUCSFunction -functionName "Add-UcsLdapProvider" -failureMsg "Failed to create LDAP provider." -cmdParams @{ Ucs = $ucs; Name = $ldapConfig.providerNames[$a]; Basedn = $ldapConfig.baseDN; Rootdn = $ldapConfig.rootDN; EnableSSL = "yes"; FilterValue = "sAMAccountName=`$userid"; Vendor = "MS-AD"; Order = ($a + 1); Key = $ldapConfig.bindKey }
 
         if($success)

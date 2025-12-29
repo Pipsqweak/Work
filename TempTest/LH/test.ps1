@@ -226,3 +226,217 @@ $secondTry.ForEach({
         $d
     }
 })
+
+$adUsers = Get-ADuser -LDAPFilter "(&(objectClass=user)(mail=*))" -Property physicalDeliveryOfficeName,mail
+$kk = Get-NcCifsSession -Controller $yyc01CDOT
+$wu = @($kk | Select-Object -Unique -ExpandProperty WindowsUser)
+
+$yyc01Emails = @(
+    $wu.ForEach({
+        $u = $_
+        $m = $adUsers | Where-Object { $_.SamAccountName -eq $u.Replace("POWERENG\","").Replace("-adm","")} | Select-Object -ExpandProperty mail
+        if($null -eq $m)
+        {
+            $m = "{0} not found." -f @($u)
+        }
+        $m
+    }) | Select-Object -Unique | Sort-Object
+)
+$yyc01Emails | Set-Clipboard
+
+
+$adUsers | Where-Object { $_.physicalDeliveryOfficeName -eq "Syracuse" } | Select-Object -ExpandProperty mail | Sort-Object | Set-Clipboard
+$allGroups = @(Get-ADGroup -Filter *)
+$locUsers = [System.Collections.Generic.SortedDictionary[System.String, [System.Collections.Generic.List[System.String]]]]::new()
+
+$users = [System.Collections.Generic.List[System.String]]::new()
+
+$searchData = @(
+    @{"FS" = "-AUGFS1-"; "Off" = "Augusta"},
+    @{"FS" = "-BOSFS1-"; "Off" = "Boston"},
+    @{"FS" = "-FREFS1-"; "Off" = "Freeport"},
+    @{"FS" = "-HAMFS1-"; "Off" = "Hamilton"},
+    @{"FS" = "-MTLFS1-"; "Off" = "Mount Laurel"},
+    @{"FS" = "-ORAFS1-"; "Off" = "Oradell"},
+    @{"FS" = "-RICFS1-"; "Off" = "Richmond"},
+    @{"FS" = "-SYRFS1-"; "Off" = "Syracuse"}
+)
+
+$fsSearch = "-BOSFS1-"
+$oSearch = "Augusta"
+
+$s = 0
+while($s -lt $searchData.Length)
+{
+    $fsSearch = $searchData[$s].FS
+    $oSearch = $searchData[$s].Off
+
+    $locUsers.Add($oSearch, [System.Collections.Generic.List[System.String]]::new())
+    $s++
+}
+$users.Clear()
+$groups = @($allGroups | Where-Object { $_.Name -match $fsSearch })
+
+$groups.ForEach({
+    $g = $_
+    $grpMbrs = @(Get-ADGroupMember -Identity $g.DistinguishedName | Where-Object { $_.objectClass -eq "user"})
+    $grpMbrs.ForEach({
+        $m = $_
+        $u = $adUsers | Where-Object { $_.DistinguishedName -eq $m.DistinguishedName }
+        if($null -eq $u)
+        {
+            $mail = "{0} not found" -f @($m.DistinguishedName)
+        } `
+        else
+        {
+            $mail = $u.mail
+        }
+
+        $i = $users.BinarySearch($mail)
+        if($i -lt 0)
+        {
+            $users.Insert(-bnot $i, $mail)
+        }
+    })
+})
+
+@($adUsers | Where-Object { $_.physicalDeliveryOfficeName -eq $oSearch } | Select-Object -ExpandProperty mail).ForEach({
+    $mail = $_
+    $i = $users.BinarySearch($mail)
+    if($i -lt 0)
+    {
+        $users.Insert(-bnot $i, $mail)
+    }
+})
+
+$users | Set-Clipboard
+
+
+$userList = Import-CSV -Path C:\TEMP\userlist.csv -Delimiter "`t"
+$userList.ForEach({ $_.InDL = $false })
+
+$sites = @(
+    @{Identity = "zAll Airdrie";                 SiteName = "Airdrie"; SiteEmail = "zAllAirdrie@powereng.com" },
+    @{Identity = "zAll Airdrie Manual Members";  SiteName = "Airdrie"; SiteEmail = "zAllAirdrie@powereng.com" },
+
+    @{Identity = "zAll Augusta";                 SiteName = "Augusta"; SiteEmail = "zAllAugusta@powereng.com" },
+    @{Identity = "zAll Augusta Manual Members";  SiteName = "Augusta"; SiteEmail = "zAllAugusta@powereng.com" },
+
+    @{Identity = "zAll Boston";                  SiteName = "Boston"; SiteEmail = "zAllBostonOffice@powereng.com" },
+    @{Identity = "zAll Boston Manual Members";   SiteName = "Boston"; SiteEmail = "zAllBostonOffice@powereng.com" },
+
+    @{Identity = "zAll Freeport";                SiteName = "Freeport"; SiteEmail = "zAllFreeportOffice@powereng.com" },
+    @{Identity = "zAll Freeport Manual Members"; SiteName = "Freeport"; SiteEmail = "zAllFreeportOffice@powereng.com" },
+
+    @{Identity = "zAll Mount Laurel";                 SiteName = "Mount Laurel"; SiteEmail = "zAllMountLaurel@powereng.com" },
+    @{Identity = "zAll Mount Laurel Manual Members";  SiteName = "Mount Laurel"; SiteEmail = "zAllMountLaurel@powereng.com" },
+
+    @{Identity = "zAll Oradell";                 SiteName = "Oradell"; SiteEmail = "zAllOradellOffice@powereng.com" },
+    @{Identity = "zAll Oradell Manual Members";  SiteName = "Oradell"; SiteEmail = "zAllOradellOffice@powereng.com" },
+
+    @{Identity = "zAll Richmond";                 SiteName = "Richmond"; SiteEmail = "zAllRichmond@powereng.com" },
+    @{Identity = "zAll Richmond Manual Members";  SiteName = "Richmond"; SiteEmail = "zAllRichmond@powereng.com" },
+
+    @{Identity = "zAll Syracuse";                 SiteName = "Syracuse"; SiteEmail = "zAllSyracuse@powereng.com" },
+    @{Identity = "zAll Syracuse Manual Members";  SiteName = "Syracuse"; SiteEmail = "zAllSyracuse@powereng.com" },
+
+    @{Identity = "zAll Edmonton";                 SiteName = "Edmonton"; SiteEmail = "zAllEdmonton@powereng.com" },
+    @{Identity = "zAll Edmonton Manual Members";  SiteName = "Edmonton"; SiteEmail = "zAllEdmonton@powereng.com" }
+)
+
+$b = 0
+while($b -lt $sites.Length)
+{
+    $siteName = $sites[$b].SiteName
+    $siteUsers = [System.Collections.Generic.List[System.String]]::new()
+
+    $siteInfo = $null
+    @($userList | Where-Object { $_.SiteName -eq $sitename }).ForEach({
+        $i = $siteUsers.BinarySearch($_.User)
+        if($i -lt 0)
+        {
+            $siteUsers.Insert(-bnot $i, $_.User)
+        }
+
+        if($null -eq $siteInfo)
+        {
+            $siteInfo = $_
+        }
+    })
+
+    try
+    {
+        $adGroup = @(Get-ADGroup -Identity $sites[$b].Identity -Properties members -ErrorAction Stop)
+
+        $adGrpMembers = [System.Collections.Generic.List[System.String]]::new()
+        $missingMembers = [System.Collections.Generic.List[System.String]]::new()
+        $a = 0
+        while($a -lt $adGroup.Members.Count)
+        {
+            try
+            {
+                $adUser = Get-ADUser -Identity $adGroup.Members[$a] -Properties mail -ErrorAction Stop
+                if($null -ne $adUser)
+                {
+                    $i = $adGrpMembers.BinarySearch($adUser.Mail)
+                    if($i -lt 0)
+                    {
+                        $adGrpMembers.Insert(-bnot $i, $adUser.Mail)
+                    }
+
+                    $siteUser = @($userList | Where-Object { ($_.SiteName -eq $siteName) -and ($_.User -eq $adUser.Mail) })
+                    $siteUser.Foreach({ $_.InDL = $true })
+
+                    $x = $siteUsers.BinarySearch($adUser.Mail)
+                    if($x -lt 0)
+                    {
+                        if($null -ne $siteInfo)
+                        {
+                            $d = "" | Select-Object SiteCode,SiteName,OfficeAddress,User,InDL
+                            $d.SiteCode = $siteInfo.SiteCode
+                            $d.SiteName = $siteInfo.SiteName
+                            $d.OfficeAddress = $siteInfo.OfficeAddress
+                            $d.User = $adUser.Mail
+                            $d.InDL = $true
+
+                            $userList += $d
+                        }
+                        $i = $missingMembers.BinarySearch($adUser.Mail)
+                        if($i -lt 0)
+                        {
+                            $missingMembers.Insert(-bnot $i, $adUser.Mail)
+                        }
+                    } `
+                    else
+                    {
+                        do
+                        {
+                            $siteUsers.RemoveAt($x)
+                            $x = $siteUsers.BinarySearch($adUser.Mail)
+                        } while($x -ge 0)
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+
+            $a++
+        }
+    }
+    catch
+    {
+
+    }
+    $b++
+}
+
+
+
+$a = 0
+while($a -lt $adGrpMembers.Count)
+{
+    $i = $siteUsers.BinarySearch($adGrpMembers[$a])
+    $a++
+}

@@ -1,0 +1,10 @@
+General flow of things:
+
+1) I will not export a file from ProjectWise, instead, I can use .ProjectID and .VersionSequence to determine a document's location on storage.
+2) When a document is uploaded to SharePoint, ALL versions of the document are uploaded in reverse .VersionSequence order.  This will leave the current version
+   of the file as the last one uploaded.  All other versions will be available via Version History in Sharepoint.  The default is 500 versions.
+3) When I upload a document, I populate the DocumentVersion field in Sharepoint with the .Version value from ProjectWise.
+   If there is no value for .Version, I will substitute "NoVersion"
+4) Whenever an error occurs, the script will terminate.  An attempt will be made to save the current progress so the upload can be restarted from the point of
+   error (the document which caused the issue).
+5) If a file is 0 bytes long, I will substitute a generic file with the contents "No contents" so there is something there.  This will preserve documents used as placeholder.

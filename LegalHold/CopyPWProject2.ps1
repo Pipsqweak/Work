@@ -35,6 +35,9 @@ Param(
 <#
     Must be ran with administrator privileges.  As of 2025/1/28, this is the one to use.
 
+    Command ran on 8/26/2025:
+        C:\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\LegalHold\CopyPWProject2.ps1 -pwProjectNumber 167008 -sourceLocationListFile C:\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\LegalHold\Jobs\167008.txt -projectWiseDiscoveryFolder \\cdcfs1\Discovery\167008_Sherwin_Williams_Miller_Road\PW -maxRobocopyProcesses 8 -maxRobocopyThreads 8 -logFolder C:\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\LegalHold\Logs
+
     Given a set of command line parameters:
 
         1. Copy various ProjectWise files and folder into a temporary folder.

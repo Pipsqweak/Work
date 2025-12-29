@@ -9,6 +9,13 @@ $BaseWorkingFolder = "C:\Temp\T2"
 [switch] $CheckPF2PW = $true
 
 
+$p = "cleartext_password"
+$ss = ConvertTo-SecureString -String $p -AsPlainText -Force | ConvertFrom-SecureString
+
+# $ss = encrypted password
+
+
+
 InitializeExporter
 SetEntryIDPrefix
 
