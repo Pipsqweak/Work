@@ -2953,8 +2953,8 @@ function BuildViablePathsDictionary
 
     <#
         Builds the viable path dictionary to the new standard.
-        .Paths[0] = Document Library
-        .Paths[1] = First folder Name  this could also be the file name if a file exists in the root of a project folder.
+        .Paths[0] = Document Library (or folder)
+        .Paths[1] = First folder Name (if [0] is a document library) - this could also be the file name if a file exists in the root of a project folder.
         .Paths[-1] = File name if the source object is a ProjectWiseDocument, other wise it's the final piece of the complete folder.
     #>
 
@@ -7130,8 +7130,8 @@ function VerifiedComplete
 function main
 {
     $me = $MyInvocation.MyCommand
-    Init
     $projectVerified = $false
+    Init
     if(-not $Script:HaveError)
     {
         # Only connect to ProjectWise if we are not restarting.

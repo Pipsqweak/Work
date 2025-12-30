@@ -51,22 +51,41 @@ do
                     $myProposal.Status = "discovering"
                     $myProposal.Discovered = "processing"
                     $updateList = $true
+
+                    # $Script:restart needs to be set if the proposal has already been discovered.  Not having $restart set sparks the discovery process.
+                    [Switch] $Script:restart = $false
+
+                    # $Script:DoExport also needs to be set to do any work...
+                    [Switch] $Script:DoExport = $true
                 } `
                 elseif (-not $myProposal.Exported)
                 {
                     $myProposal.Status = "exporting"
                     $myProposal.Exported = "processing"
                     $updateList = $true
+
+                    # $Script:restart needs to be set if the proposal has already been discovered.  Not having $restart set sparks the discovery process.
+                    [Switch] $Script:restart = $true
+
+                    # $Script:DoExport also needs to be set to do any work...
+                    [Switch] $Script:DoExport = $true
                 } `
                 elseif (($myProposal.Uploaded) -and (-not $myProposal.FlatSetProcessed))
                 {
                     $myProposal.Status = "processingFS"
                     $myProposal.FlatSetProcessed = "processing"
                     $updateList = $true
+
+                    # $Script:restart needs to be set if the proposal has already been discovered.  Not having $restart set sparks the discovery process.
+                    [Switch] $Script:restart = $true
+
+                    # $Script:DoExport also needs to be set to do any work...
+                    [Switch] $Script:DoExport = $true
                 } `
                 else
                 {
                     LogWarning ("Nothing to do for proposal {0}" -f @($myProposal.Name))
+                    $myProposal = $null
                 }
             } `
             else
@@ -135,9 +154,12 @@ do
         $Script:pwDataSource = "pw_prod_pw01"
         [Switch] $Script:dbgOut = $true
         [Switch] $Script:DoExport = $false
+
+
+        # $restart needs to be set if the proposal has already been discovered.  Not having $restart set sparks the discovery process.
         [Switch] $Script:restart = $false
 
-        InitProposals
+        Init
         $host.UI.RawUI.WindowTitle = ("{0}-{1}" -f @($PID, $myProposal.Name))
 
         if(-not $Script:HaveError)
@@ -224,7 +246,7 @@ do
                                 LogError ("Missing full path for {0}." -f @($myProposal.Name))
                             }
                         } `
-                        else
+                        elseif($export.IsPresent)
                         {
                             LogInfo ("Getting {0} subfolders..." -f @($pwFolder.Name))
                             try
@@ -331,7 +353,12 @@ do
                             {
                                 # Nothing, already logged an error.
                             }
+                        } `
+                        else
+                        {
+                            # What next...
                         }
+
                     } `
                     else
                     {
