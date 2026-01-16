@@ -2057,5 +2057,70 @@
             "Type": "Text",
             "CreateWithNewLibrary": false
         }
+    ],
+    "attributeSets": [
+        {
+            "Name": "Default",
+            "Attributes": []
+        },
+        {
+            "Name": "Project",
+            "Attributes": [
+                "PROJECT_cad_coordinator",
+                "PROJECT_crm_opportunity_number",
+                "PROJECT_customer_name",
+                "PROJECT_destruction_date",
+                "PROJECT_federal_government_work",
+                "PROJECT_legal_hold",
+                "PROJECT_project_name",
+                "PROJECT_proj_nbr",
+                "PROJECT_nuclear",
+                "PROJECT_p6_program_name",
+                "PROJECT_program_manager",
+                "PROJECT_pma",
+                "PROJECT_proj_close_date",
+                "PROJECT_proj_nbr",
+                "PROJECT_proj_open_date",
+                "PROJECT_project_cleanup",
+                "PROJECT_project_country",
+                "PROJECT_project_distribution",
+                "PROJECT_project_engineer",
+                "PROJECT_project_manager",
+                "PROJECT_project_name",
+                "PROJECT_project_state",
+                "PROJECT_project_status",
+                "PROJECT_proposal_project_number",
+                "PROJECT_proposal_task_number",
+                "PROJECT_psa",
+                "PROJECT_retention_permanent",
+                "PROJECT_retention_special",
+                "PROJECT_retention_standard",
+                "PROJECT_sec_prj",
+                "PROJECT_workarea_notes"
+            ]
+        },
+        {
+            "Name": "Proposal",
+            "Attributes": [
+                "DocumentVersion",
+                "FileDescription",
+                "a_attrno",
+                "copies",
+                "doc_class",
+                "doc_no",
+                "folder_description",
+                "folder_name",
+                "interface",
+                "keywords",
+                "pmo_pm",
+                "pmo_proj_startdate",
+                "project_client",
+                "project_nbr",
+                "project_pm",
+                "project_pma",
+                "project_psa",
+                "revision"
+            ]
+        }
     ]
 }

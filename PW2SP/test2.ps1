@@ -8140,7 +8140,7 @@ function ExportPW2SP_20251123_2013
 
     if(-not $Script:HaveError)
     {
-        CreateSharePointProjectSubFolders -pwData $pwData -viablePathsDict $viablePathsDict
+        CreateSharePointSubFolders -pwData $pwData -viablePathsDict $viablePathsDict
     } `
     else
     {
@@ -9236,7 +9236,7 @@ function ExportPW2SP_20251126_1748
 
     if(-not $Script:HaveError)
     {
-        CreateSharePointProjectSubFolders -pwData $pwData -viablePathsDict $viablePathsDict
+        CreateSharePointSubFolders -pwData $pwData -viablePathsDict $viablePathsDict
     } `
     else
     {

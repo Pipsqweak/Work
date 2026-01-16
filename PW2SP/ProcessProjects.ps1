@@ -275,11 +275,12 @@ do
 
             $uploadTimer.Reset()
             $uploadTimer.Start()
-            $verified = main
+
+            $projectData = main
             if(-not $discover.IsPresent)
             {
-                $myProject.Verified = $verified
-                $myProject.checked = $myProject.verified
+                $myProject.Verified = $projectData.Verified
+                $myProject.checked = $myProject.Verified
             }
 
             try

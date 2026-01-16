@@ -5,17 +5,17 @@ Import-Module pwps_dab
     Per: https://support.microsoft.com/en-us/office/restrictions-and-limitations-in-onedrive-and-sharepoint-64883a5d-228e-48f5-b3d2-eb39e07630fa#filenamepathlengths
 #>
 
-$MAX_SP_DOC_PATH_LEN = 390  # Actual Number is 400.  I'm using 200 to force some issues.
+$Script:MAX_SP_DOC_PATH_LEN = 390  # Actual Number is 400.  I'm using 200 to force some issues.
 
 $Script:IlegalCharactersInFoldersAndFilesRegEx = "([\t\`"\*\:\<\>\?\/\\\|])"
 
-$COUNTER_CHARACTERS = @("0".."9") + @("A".."Z")
+$Script:COUNTER_CHARACTERS = @("0".."9") + @("A".."Z")
 
-$MAXFPSTRLEN = 75
+$Script:MAXFPSTRLEN = 75
 
 $Script:MaxUploadetries = 3
 
-$Script:uploadProgressFMTStr = "Uploading file {{0:N0}} of {{1:N0}} {{2,-{0}}}  ({{3,10}})" -f @($MAXFPSTRLEN + 3)
+$Script:uploadProgressFMTStr = "Uploading file {{0:N0}} of {{1:N0}} {{2,-{0}}}  ({{3,10}})" -f @($Script:MAXFPSTRLEN + 3)
 
 $Script:fieldsToCreateForExistingProjects = @(
     "_update_toggle", "_xfer_to_pw02", "a_attrno", "appendix", "approval_id_QAQC", "calc_type1", "calc_type2", "confidential", "contract_agreement_type01",
@@ -51,6 +51,8 @@ $Script:IgnoredDocumentLibraryNames = @(
     "List Template Gallery", "Maintenance Log Library", "Master Page Gallery", "Pursuit Collaboration", "Sharing Links", "Site Assets", "Site Pages", "Solution Gallery",
     "Style Library", "TaxonomyHiddenList", "Template Extensions", "Theme Gallery", "User Information List", "Web Part Gallery", "ZUsers"
 )
+
+$Script:initialized = $false
 
 function InitializeReport
 {
@@ -216,6 +218,33 @@ function LoadConnectionDataFromFile
         {
             # Nothing, already logged an error.
         }
+
+        if(-not $Script:HaveError)
+        {
+            $attrSets = [System.Collections.Generic.SortedDictionary[String,Object]]::new()
+            $a = 0
+            while((-not $Script:HaveError) -and ($a -lt $Script:connData.attributeSets.Length))
+            {
+                if(-not $attrSets.ContainsKey($Script:connData.attributeSets[$a].Name))
+                {
+                    $attrSets.Add($Script:connData.attributeSets[$a].Name, $Script:connData.attributeSets[$a].Attributes)
+                } `
+                else
+                {
+                    LogError ("Duplicate attribute set name: {0} in {1}." -f @($Script:connData.attributeSets[$a].Name, $me.Name))
+                }
+                $a++
+            }
+
+            if(-not $Script:HaveError)
+            {
+                $Script:connData.attributeSets = $attrSets
+            } `
+            else
+            {
+                # Nothing, already logged an error.
+            }
+        }
     } `
     else # NOT ([System.IO.Directory]::Exists())
     {
@@ -347,63 +376,102 @@ function Init
 {
     $me = $MyInvocation.MyCommand
 
-    $Script:itemsVerified = 0
-
-    # Global error indicator.
-    $Script:HaveError = $false
-    $Error.Clear()
-
-    # Changing the script to only connect to ProjectWise if I need to.
-    $Script:connectedToPW = $false
-
-    # Reset the data export path
-    $Script:pwDataExportPath = [String]::Empty
-
-    # Reset the viable path export path
-    $Script:viablePathExportPath = [String]::Empty
-
-    # Reset the viable paths verification lookup dictionary
-    $Script:viablePathsLookupDict = $null
-
-    # Used to name the export files for $pwData and $viablePathsDict
-    $Script:exportDateTime = [DateTime]::Now.ToString("yyyyMMdd-HHmmss")
-
-    $missingParams = [System.Collections.Generic.List[String]]::new()
-    $Script:requiredParams.ForEach({
-        $pn = $_
-        try
-        {
-            $null = Get-Variable -Scope Script -Name $_ -ErrorAction Stop
-        }
-        catch
-        {
-            $missingParams.Add($pn)
-        }
-    })
-
-    if($missingParams.Count -gt 0)
+    if(-not $Script:initialized)
     {
-        Write-Host -ForegroundColor Red ("Missing required variables:`r`n`t`$Script:{0}" -f @(($missingParams -join "`r`n`t`$Script:")))
-        Write-Host "`tAnd you might want to check on these switches: DoExport, restart, and dbgOut"
-        $Script:HaveError = $true
-    }
+        $Script:itemsVerified = 0
 
-    if(-not $Script:HaveError)
-    {
-        $Script:DoDebugging = $Script:dbgOut.IsPresent
+        # Global error indicator.
+        $Script:HaveError = $false
+        $Error.Clear()
 
-        if(-not [String]::IsNullOrEmpty($Script:localPath))
+        # Changing the script to only connect to ProjectWise if I need to.
+        $Script:connectedToPW = $false
+
+        # Reset the data export path
+        $Script:pwDataExportPath = [String]::Empty
+
+        # Reset the viable path export path
+        $Script:viablePathExportPath = [String]::Empty
+        Write-Host ("`t`t`tViable Path Export Path: [{0}]" -f @($Script:viablePathExportPath))
+
+        # Reset the viable paths verification lookup dictionary
+        $Script:viablePathsLookupDict = $null
+
+        # Used to name the export files for $pwData and $viablePathsDict
+        $Script:exportDateTime = [DateTime]::Now.ToString("yyyyMMdd-HHmmss")
+
+        $missingParams = [System.Collections.Generic.List[String]]::new()
+        $Script:requiredParams.ForEach({
+            $pn = $_
+            try
+            {
+                $null = Get-Variable -Scope Script -Name $_ -ErrorAction Stop
+            }
+            catch
+            {
+                $missingParams.Add($pn)
+            }
+        })
+
+        if($missingParams.Count -gt 0)
         {
-            $Script:LogFolder = "{0}\Logs" -f @($Script:localPath)
-            if(-not [System.IO.Directory]::Exists($Script:LogFolder))
+            Write-Host -ForegroundColor Red ("Missing required variables:`r`n`t`$Script:{0}" -f @(($missingParams -join "`r`n`t`$Script:")))
+            Write-Host "`tAnd you might want to check on these switches: DoExport, restart, and dbgOut"
+            $Script:HaveError = $true
+        }
+
+        if(-not $Script:HaveError)
+        {
+            $Script:DoDebugging = $Script:dbgOut.IsPresent
+
+            if(-not [String]::IsNullOrEmpty($Script:localPath))
+            {
+                $Script:LogFolder = "{0}\Logs" -f @($Script:localPath)
+                if(-not [System.IO.Directory]::Exists($Script:LogFolder))
+                {
+                    try
+                    {
+                        $null = New-Item -ItemType Directory -Path $Script:LogFolder -ErrorAction Stop
+                    }
+                    catch
+                    {
+                        Write-Error ("Unable to create log folder: {0}." -f @($Script:LogFolder))
+                        $Script:HaveError = $true
+                    }
+                } `
+                else
+                {
+                    # Nothing, $Script:localPath already exists.
+                }
+            } `
+            else
+            {
+                Write-Host -ForegroundColor Red ("Missing local path.")
+                $Script:HaveError = $true
+            }
+
+            if(-not $Script:HaveError)
+            {
+                # Reset the log file name...
+                $Script:LogFileName = [String]::Empty
+                $Script:LogFileNamePrefix = $Script:projectName
+                $Script:LogFileName = "{0}\{1}-{2}.log" -f @($Script:LogFolder, $Script:LogFileNamePrefix, [DateTime]::Now.ToString("yyyyMMdd-HHmmssfff"))
+            } `
+            else
+            {
+                # Nothing, already displayed an error.
+            }
+
+            InitializeReport
+            if(-not [System.IO.Directory]::Exists($Script:localPath))
             {
                 try
                 {
-                    $null = New-Item -ItemType Directory -Path $Script:LogFolder -ErrorAction Stop
+                    $null = New-Item -ItemType Directory -Path $Script:localPath -ErrorAction Stop
                 }
                 catch
                 {
-                    Write-Error ("Unable to create log folder: {0}." -f @($Script:LogFolder))
+                    Write-Error ("Unable to create local folder: {0}." -f @($Script:localPath))
                     $Script:HaveError = $true
                 }
             } `
@@ -411,78 +479,47 @@ function Init
             {
                 # Nothing, $Script:localPath already exists.
             }
-        } `
-        else
-        {
-            Write-Host -ForegroundColor Red ("Missing local path.")
-            $Script:HaveError = $true
-        }
 
-        if(-not $Script:HaveError)
-        {
-            # Reset the log file name...
-            $Script:LogFileName = [String]::Empty
-            $Script:LogFileNamePrefix = $Script:projectName
-            $Script:LogFileName = "{0}\{1}-{2}.log" -f @($Script:LogFolder, $Script:LogFileNamePrefix, [DateTime]::Now.ToString("yyyyMMdd-HHmmssfff"))
-        } `
-        else
-        {
-            # Nothing, already displayed an error.
-        }
-
-        InitializeReport
-        if(-not [System.IO.Directory]::Exists($Script:localPath))
-        {
-            try
+            $projectExportFolder = "{0}\{1}" -f @($Script:localPath, $Script:pwProjectPath)
+            if(-not [System.IO.Directory]::Exists($projectExportFolder))
             {
-                $null = New-Item -ItemType Directory -Path $Script:localPath -ErrorAction Stop
-            }
-            catch
-            {
-                Write-Error ("Unable to create local folder: {0}." -f @($Script:localPath))
-                $Script:HaveError = $true
-            }
-        } `
-        else
-        {
-            # Nothing, $Script:localPath already exists.
-        }
-
-        $projectExportFolder = "{0}\{1}" -f @($Script:localPath, $Script:pwProjectPath)
-        if(-not [System.IO.Directory]::Exists($projectExportFolder))
-        {
-            try
-            {
-                $null = New-Item -ItemType Directory -Path $projectExportFolder -ErrorAction Stop
-            }
-            catch
-            {
-                Write-Error ("Unable to create project export folder: {0}." -f @($projectExportFolder))
-                $Script:HaveError = $true
-            }
-        } `
-        else
-        {
-            # Nothing, $Script:localPath already exists.
-        }
-
-        LogInfo ("PID: {0}`r`nLog file: {1}" -f @($PID, $Script:LogFileName))
-        if(-not $Script:HaveError)
-        {
-            # From here, we are able to use the log functions...
-
-            $PSStyle.Progress.View = 'Minimal'
-            $PSStyle.Progress.MaxWidth = [Console]::WindowWidth - 10
-            $Error.Clear()
-            LoadConnectionDataFromFile
-            LogInfo ("Processing {0}" -f @($Script:projectName))
-
-            if($null -ne $Script:connData)
-            {
-                if(ConnectToSPOL)
+                try
                 {
-                    LogInfo "Connected to SharePoint Online"
-                    BuildDocumentLibraryDictionary
+                    $null = New-Item -ItemType Directory -Path $projectExportFolder -ErrorAction Stop
+                }
+                catch
+                {
+                    Write-Error ("Unable to create project export folder: {0}." -f @($projectExportFolder))
+                    $Script:HaveError = $true
+                }
+            } `
+            else
+            {
+                # Nothing, $Script:localPath already exists.
+            }
+
+            LogInfo ("PID: {0}`r`nLog file: {1}" -f @($PID, $Script:LogFileName))
+            if(-not $Script:HaveError)
+            {
+                # From here, we are able to use the log functions...
+
+                $PSStyle.Progress.View = 'Minimal'
+                $PSStyle.Progress.MaxWidth = [Console]::WindowWidth - 10
+                $Error.Clear()
+                LoadConnectionDataFromFile
+                LogInfo ("Processing {0}" -f @($Script:projectName))
+
+                if($null -ne $Script:connData)
+                {
+                    if(ConnectToSPOL)
+                    {
+                        LogInfo "Connected to SharePoint Online"
+                        BuildDocumentLibraryDictionary
+                    } `
+                    else
+                    {
+                        # Nothing, already displayed an error.
+                    }
                 } `
                 else
                 {
@@ -493,15 +530,33 @@ function Init
             {
                 # Nothing, already displayed an error.
             }
+
+            if(-not $Script:HaveError)
+            {
+                $Script:AttributeSetName = "Default"
+                if($Script:isProposal.IsPresent)
+                {
+                    $Script:AttributeSetName = "Proposal"
+                } `
+                else
+                {
+                    # Nothing
+                }
+            } `
+            else
+            {
+                # Nothing, already logged an error
+            }
         } `
         else
         {
-            # Nothing, already displayed an error.
+            # Nothing, already logged/displayed an error.
         }
+        $Script:initialized = $true
     } `
     else
     {
-        # Nothing, already logged/displayed an error.
+        # Nothing, already initialized.
     }
 }
 
@@ -1689,6 +1744,125 @@ function GetLibraryDefinedFieldsList
     }
 }
 
+<#
+    Given $propertyName, return the document field name corresponding to the property.
+        If there is no defined field for the property create a new "text" document field for it.
+#>
+function GetSharePointDocumentFieldNameForProperty
+{
+    [CmdLetBinding()]
+    Param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
+        [ValidateNotNullOrEmpty()]
+        [System.String] $libraryName,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=1)]
+        [ValidateNotNullOrEmpty()]
+        [System.String] $propertyName
+    )
+
+    if($null -eq $Script:DefinedFieldTranslationDict)
+    {
+        $Script:DefinedFieldTranslationDict = [System.Collections.Generic.SortedDictionary[String,String]]::new()
+    } `
+    else
+    {
+        # Nothing, already created the dictionary.
+    }
+    $retval = [String]::Empty
+
+    if($Script:DefinedFieldTranslationDict.ContainsKey($propertyName))
+    {
+        $retval = $Script:DefinedFieldTranslationDict[$propertyName]
+    } `
+    else
+    {
+        if(($null -eq $Script:connData.DefinedFields) -or ($libraryName -ne $Script:projectName))
+        {
+            GetLibraryDefinedFieldsList -libraryName $libraryName
+        } `
+        else
+        {
+            # Nothing, already have the defined fields...
+        }
+
+        if(-not $Script:HaveError)
+        {
+            if($Script:connData.documentFields.ContainsKey($propertyName))
+            {
+                $spFieldDef = $Script:connData.documentFields[$propertyName]
+            } `
+            else
+            {
+                $spFieldDef = $null
+            }
+
+            if($null -ne $spFieldDef)
+            {
+                # Fake the first pass at the loop if there is a .UseField value...
+                $spFieldDef2 = $spFieldDef
+
+                while((-not [String]::IsNullOrEmpty($spFieldDef.UseField)) -and ($null -ne $spFieldDef2))
+                {
+                    if($Script:connData.documentFields.ContainsKey($spFieldDef.UseField))
+                    {
+                        $spFieldDef2 = $Script:connData.documentFields[$spFieldDef.UseField]
+                    } `
+                    else
+                    {
+                        $spFieldDef2 = $null
+                    }
+
+                    if($null -ne $spFieldDef2)
+                    {
+                        $spFieldDef = $spFieldDef2
+                    } `
+                    else
+                    {
+                        # Nothing, $spFieldDef2 -eq $null will stop the loop
+                    }
+                }
+
+                if(-not [String]::IsNullOrEmpty($spFieldDef.InternalName))
+                {
+                    $retval = $spFieldDef.InternalName
+                } `
+                else
+                {
+                    LogError ("Missing .InternalName for properties: {0} in {1}." -f @($propertyName, $me.Name))
+                }
+            } `
+            else
+            {
+                # We'll have to create a new document field for this property, so just return the property's name.
+                $retval = $propertyName
+            }
+        } `
+        else
+        {
+            # Nothing, already logged an error.
+        }
+
+        if(-not $Script:HaveError)
+        {
+            if(-not [String]::IsNullOrEmpty($retval))
+            {
+                $Script:DefinedFieldTranslationDict.Add($propertyName, $retval)
+            } `
+            else
+            {
+                LogError ("Missing property to document field translation for {0} in {1}." -f @($propertyName, $me.Name))
+            }
+        } `
+        else
+        {
+            # Nothing, already logged an error.
+        }
+    }
+
+    return $retval
+}
+
 function TestForSPDocumentLibraryField
 {
     [CmdLetBinding()]
@@ -2253,7 +2427,7 @@ function AddPWDocumentToPathDict
                     # When I know, I'll fix this.
                 }
 
-                if(($fullPathParts.Length -gt 1) -and (-not [String]::IsNullOrEmpty($fullPathParts[1])))
+                if((-not $Script:isProposal.IsPresent) -and ($fullPathParts.Length -gt 1) -and (-not [String]::IsNullOrEmpty($fullPathParts[1])))
                 {
                     # This is for the project name document library
                     if(-not $Script:connData.ConnectionInformation.SharePointDocumentLibraries.ContainsKey($fullPathParts[1]))
@@ -2275,7 +2449,7 @@ function AddPWDocumentToPathDict
                 } `
                 else
                 {
-                    # Nothing, this is just the pwProjectPath folder...
+                    # Nothing, this is just the pwProjectPath folder...or we are processing proposals
                 }
 
                 if(-not $Script:HaveError)
@@ -2696,7 +2870,7 @@ function FixLongPaths
 
     if(-not $Script:HaveError)
     {
-        # GetPathsTooLongFromDictionary -fromNode $pathDict -parentPath "" -pathsTooLong $pathsTooLong -maxLength ($MAX_SP_DOC_PATH_LEN - $spLimitPrefixLength + 1)
+        # GetPathsTooLongFromDictionary -fromNode $pathDict -parentPath "" -pathsTooLong $pathsTooLong -maxLength ($Script:MAX_SP_DOC_PATH_LEN - $spLimitPrefixLength + 1)
         $pathsTooLong = @($pathsTooLong | Sort-Object Length -Descending)
         # $pathsTooLong is now an array....
 
@@ -2710,7 +2884,7 @@ function FixLongPaths
                 $originalPath = $pathTooLongToOriginalPath[$pathsTooLong[0]]
                 $originalPathPieces = @($originalPath -split "/")
 
-                if(($pathsTooLong[0].Length + 1) -gt $MAX_SP_DOC_PATH_LEN)
+                if(($pathsTooLong[0].Length + 1) -gt $Script:MAX_SP_DOC_PATH_LEN)
                 {
                     $pathPieces = $pathsTooLong[0].Split("/", [System.StringSplitOptions]::RemoveEmptyEntries)
 
@@ -2801,9 +2975,9 @@ function FixLongPaths
 
                                         if($x -gt 1)
                                         {
-                                            $longestPiece += $COUNTER_CHARACTERS[$i]
+                                            $longestPiece += $Script:COUNTER_CHARACTERS[$i]
                                             $i++
-                                            if($i -eq $COUNTER_CHARACTERS.Length)
+                                            if($i -eq $Script:COUNTER_CHARACTERS.Length)
                                             {
                                                 $i = 0
                                                 $x++
@@ -2835,7 +3009,7 @@ function FixLongPaths
                                         }
                                     }
                                     $isDuplicate = @(@($node.Values) | Where-Object { ($_.ShortenedName -eq $longestPiece) -or ($_.OriginalName -eq $longestPiece) }).Length -gt 0
-                                } while((-not $Script:HaveError) -and ($x -lt ($originalLP.Length - 3)) -and ($i -lt $COUNTER_CHARACTERS.Length) -and ($longestPiece.Length -gt $lpMinLength) -and ($isDuplicate))
+                                } while((-not $Script:HaveError) -and ($x -lt ($originalLP.Length - 3)) -and ($i -lt $Script:COUNTER_CHARACTERS.Length) -and ($longestPiece.Length -gt $lpMinLength) -and ($isDuplicate))
 
                                 # Found a substitute name...
                                 if(-not $Script:HaveError)
@@ -2878,7 +3052,7 @@ function FixLongPaths
                                             LogError ("Missing node for {0}" -f @($originalPathPieces[$c]))
                                         }
                                         # Sort $pathsTooLong, putting the longest one on top and removing any paths which are now viable....
-                                        $pathsTooLong = @($pathsTooLong | Sort-Object Length -Descending | Where-Object { ($_.Length + 1) -gt $MAX_SP_DOC_PATH_LEN })
+                                        $pathsTooLong = @($pathsTooLong | Sort-Object Length -Descending | Where-Object { ($_.Length + 1) -gt $Script:MAX_SP_DOC_PATH_LEN })
                                     } `
                                     else
                                     {
@@ -3840,7 +4014,7 @@ function CreateLinkInFolder
     }
 }
 
-function CreateProjectDocumentLibraryLink
+function CreateProjectLink
 {
     [CmdLetBinding()]
     Param(
@@ -4206,134 +4380,164 @@ function BuildDocumentProperties
             Modified = $td.FileUpdateDate
         }
 
-        if(-not $Script:isProposal.IsPresent)
+        if($obj2Upload.SPData.FileName.Trim('.',' ') -ne $td.Name)
         {
-            if($obj2Upload.SPData.FileName.Trim('.',' ') -ne $td.Name)
+            $spDocValues.Add("OriginalName", $td.Name)
+        } `
+        else
+        {
+            # Nothing.
+        }
+
+        $attributeSet = $null
+        if($Script:AttributeSetName -ne "Default")
+        {
+            if($Script:connData.attributeSets.ContainsKey($Script:AttributeSetName))
             {
-                $spDocValues.Add("OriginalName", $td.Name)
+                $attributeSet = $Script:connData.attributeSets[$Script:AttributeSetName]
             } `
             else
             {
-                # Nothing.
+                LogError ("Missing attribute set {0} in {1}." -f @($Script:AttributeSetName, $me.Name))
             }
+        } `
+        else
+        {
+            # Nothing -- use the default attribute set... which is everything.
+        }
 
-            $fields = @("DocumentOwnerName","Status","DocumentCreatorName","FileUpdaterName", "FileUpdateDate", "DocumentOutToName", "WorkFlow", "WorkFlowState", "DocumentUpdaterName", "DocumentUpdateDate")
+        $fields = @("DocumentOwnerName","Status","DocumentCreatorName","FileUpdaterName", "FileUpdateDate", "DocumentOutToName", "WorkFlow", "WorkFlowState", "DocumentUpdaterName", "DocumentUpdateDate")
 
-            $fields.Foreach({
-                if(-not [String]::IsNullOrEmpty($td.$_))
-                {
-                    $spdocValues.Add($_, $td.$_)
-                } `
-                else
-                {
-                    # Nothing, don't add the property
-                }
-            })
+        $a = 0
+        while((-not $Script:HaveError) -and ($a -lt $fields.Length))
+        {
+            $setAttribute = ($null -eq $attributeSet) -or ($attributeSet.Contains($fields[$a]))
 
-            if(-not [String]::IsNullOrEmpty($td.Status))
+            if(($setAttribute) -and (-not [String]::IsNullOrEmpty($td.$fields[$a])))
             {
-                $status = $td.Status
-                switch($td.Status)
-                {
-                    "I"  { $status = "Checked In"}
-                    "IF" { $status = "Final" }
-                    "O"  { $status = "Checked Out" }
-                    "OX" { $status = "Exported" }
-                    "CI" { $status = "Coming In (no file in storage)" }
-                    "GO" { $status = "Going Out (check out or export got interupted) "}
-                }
-
-                $spdocValues.Status = $status
+                $spdocValues.Add($fields[$a], $td.$fields[$a])
             } `
             else
             {
                 # Nothing, don't add the property
             }
+            $a++
+        }
 
-            if((-not [String]::IsNullOrEmpty($td.Description)) -and ($td.Description -ne $td.Name))
+        if((-not $Script:isProposal.IsPresent) -and (-not [String]::IsNullOrEmpty($td.Status)))
+        {
+            $status = $td.Status
+            switch($td.Status)
             {
-                $spDocValues.Add("FileDescription", $td.Description)
-            } `
-            else
-            {
-                # Nothing, no file description.
+                "I"  { $status = "Checked In"}
+                "IF" { $status = "Final" }
+                "O"  { $status = "Checked Out" }
+                "OX" { $status = "Exported" }
+                "CI" { $status = "Coming In (no file in storage)" }
+                "GO" { $status = "Going Out (check out or export got interupted) "}
             }
 
-            if(-not [String]::IsNullOrEmpty($td.Version))
+            $spdocValues.Status = $status
+        } `
+        else
+        {
+            # Nothing, don't add the property
+        }
+
+        if((-not [String]::IsNullOrEmpty($td.Description)) -and ($td.Description -ne $td.Name))
+        {
+            $spDocValues.Add("FileDescription", $td.Description)
+        } `
+        else
+        {
+            # Nothing, no file description.
+        }
+
+        if(-not [String]::IsNullOrEmpty($td.Version))
+        {
+            $spDocValues.Add("DocumentVersion", $td.Version)
+        } `
+        else
+        {
+            $spDocValues.Add("DocumentVersion", "NoVersion")
+        }
+
+        @($spdocValues.Keys).ForEach({
+            $null = TestForSPDocumentLibraryField -libraryName $libInfo.LibraryName -fieldName $_
+
+            if($Script:HaveError)
             {
-                $spDocValues.Add("DocumentVersion", $td.Version)
-            } `
-            else
-            {
-                $spDocValues.Add("DocumentVersion", "NoVersion")
+                break
             }
+        })
 
-            @($spdocValues.Keys).ForEach({
-                $null = TestForSPDocumentLibraryField -libraryName $libInfo.LibraryName -fieldName $_
-
-                if($Script:HaveError)
-                {
-                    break
-                }
-            })
-
-            if(-not $Script:HaveError)
+        if(-not $Script:HaveError)
+        {
+            if($null -ne $td.Attributes)
             {
-                if($null -ne $td.Attributes)
+                $listKeys = @($td.Attributes.Keys)
+                $c = 0
+                while((-not $Script:HaveError) -and ($c -lt $listKeys.Length))
                 {
-                    $listKeys = @($td.Attributes.Keys)
-                    $c = 0
-                    while((-not $Script:HaveError) -and ($c -lt $listKeys.Length))
+                    if(-not [String]::IsNullOrEmpty($td.Attributes[$listKeys[$c]]))
                     {
-                        if(-not [String]::IsNullOrEmpty($td.Attributes[$listKeys[$c]]))
+                        $spDocFieldName = GetSharePointDocumentFieldNameForProperty -libraryName $libInfo.LibraryName -propertyName $listKeys[$c]
+                        if(-not $Script:HaveError)
                         {
-                            $fld = TestForSPDocumentLibraryField -libraryName $libInfo.LibraryName -fieldName $listKeys[$c]
-
-                            if(-not $Script:HaveError)
+                            if(($null -eq $attributeSet) -or ($attributeSet.Contains($spDocFieldName)))
                             {
-                                if(($null -ne $fld) -and (-not $fld.Ignore))
+                                $fld = TestForSPDocumentLibraryField -libraryName $libInfo.LibraryName -fieldName $spDocFieldName
+
+                                if(-not $Script:HaveError)
                                 {
-                                    $spdocValues.Add($fld.InternalName, $td.Attributes[$listKeys[$c]])
+                                    if(($null -ne $fld) -and (-not $fld.Ignore))
+                                    {
+                                        $spdocValues.Add($fld.InternalName, $td.Attributes[$listKeys[$c]])
+                                    } `
+                                    else
+                                    {
+                                        # Nothing, ignore the property
+                                    }
                                 } `
                                 else
                                 {
-                                    # Nothing, ignore the property
+                                    # Nothing, already displayed an error.
                                 }
                             } `
                             else
                             {
-                                # Nothing, already displayed an error.
+                                # Nothing, skip it
                             }
                         } `
                         else
                         {
-                            # Nothing, the attribute value is empty
+                            # Nothing, already logged an error.
                         }
-                        $c++
+                    } `
+                    else
+                    {
+                        # Nothing, the attribute value is empty
                     }
-                } `
-                else
-                {
-                    # Nothing, no attributes to add...
-                }
-
-                if($Script:HaveError)
-                {
-                    $spdocValues = $null
-                } `
-                else
-                {
-                    # # Nothing.
+                    $c++
                 }
             } `
             else
             {
-                # Nothing, already logged an error
+                # Nothing, no attributes to add...
+            }
+
+            if($Script:HaveError)
+            {
+                $spdocValues = $null
+            } `
+            else
+            {
+                # # Nothing.
             }
         } `
         else
         {
-            # Not worried about the attributes for proposals.
+            # Nothing, already logged an error
         }
     } `
     else
@@ -4813,7 +5017,7 @@ function CheckDocumentVersions
     return @($deleteAndReupload, $spDocVer)
 }
 
-function CheckProjectObjectsInSharePoint
+function CheckObjectsInSharePoint
 {
     [CmdLetBinding()]
     Param(
@@ -4939,7 +5143,16 @@ function CheckProjectObjectsInSharePoint
             }
             catch
             {
-                LogError ("Failed to retrieve folders and files for {0} in {1}." -f @($lib.RealName, $me.Name))
+                if(($Script:isProposal.IsPresent) -and ($Error.Count -gt 0) -and ($Error[0].Exception.Message -match "File Not Found"))
+                {
+                    $Error.Clear()
+
+                    LogInfo ("`tProposal folder not found")
+                } `
+                else
+                {
+                    LogError ("Failed to retrieve folders and files for {0} in {1}." -f @($lib.RealName, $me.Name))
+                }
             }
 
             $a = 0
@@ -4949,7 +5162,7 @@ function CheckProjectObjectsInSharePoint
                 #   $folderItem = $foldersAndFiles[$a]
                 #   Yes, use $docLibName here vs $lib.RealName because the doc library dictionary still uses it.
                 #   $folderItem = $foldersAndFiles[$a]
-                $null = CheckProjectObjectsInSharePoint -viablePathsDict $viablePathsDict -viablePathsLookupDict $viablePathsLookupDict -docLibName $docLibName -folderItem $foldersAndFiles[$a] -checkedGuids $checkedGuids -extraObjects $extraObjects -needToUploadGuids $needToUploadGuids -doRemoval:$doRemoval
+                $null = CheckObjectsInSharePoint -viablePathsDict $viablePathsDict -viablePathsLookupDict $viablePathsLookupDict -docLibName $docLibName -folderItem $foldersAndFiles[$a] -checkedGuids $checkedGuids -extraObjects $extraObjects -needToUploadGuids $needToUploadGuids -doRemoval:$doRemoval
                 $a++
             }
         } `
@@ -4961,7 +5174,7 @@ function CheckProjectObjectsInSharePoint
     else
     {
         # What are we looking for??
-        #LogInfo ("Checking {0}" -f @($folderItem.ServerRelativeURL))
+        # LogInfo ("Checking {0}" -f @($folderItem.ServerRelativeURL))
         ShowProgress -progressID 1 -activity "Checking objects" -counter ($checkedGuids.Count + $extraObjects.Count) -counterMax $viablePathsDict.Count -statusSuffix $folderItem.ServerRelativeURL
 
         $pathPieces = $folderItem.ServerRelativeURL -split "/"
@@ -5166,7 +5379,7 @@ function CheckProjectObjectsInSharePoint
                             {
                                 # Don't need the results here... only need them at the original caller.
                                 #    $folderItem = $foldersAndFiles[$b]
-                                $null = CheckProjectObjectsInSharePoint -viablePathsDict $viablePathsDict -viablePathsLookupDict $viablePathsLookupDict -docLibName $docLibName -folderItem $foldersAndFiles[$b] -checkedGuids $checkedGuids -extraObjects $extraObjects -needToUploadGuids $needToUploadGuids -doRemoval:$doRemoval
+                                $null = CheckObjectsInSharePoint -viablePathsDict $viablePathsDict -viablePathsLookupDict $viablePathsLookupDict -docLibName $docLibName -folderItem $foldersAndFiles[$b] -checkedGuids $checkedGuids -extraObjects $extraObjects -needToUploadGuids $needToUploadGuids -doRemoval:$doRemoval
 
                                 $b++
                             }
@@ -5207,17 +5420,21 @@ function AddSharePointFolder
     Param(
         [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
         [ValidateNotNullOrEmpty()]
-        [System.String] $parentFolder,
+        [System.String] $libraryName,
 
         [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=1)]
         [ValidateNotNullOrEmpty()]
+        [System.String] $parentFolder,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=2)]
+        [ValidateNotNullOrEmpty()]
         [System.String] $newFolderName,
 
-        [Parameter(Mandatory=$false, ValueFromPipeline=$false, Position=2)]
+        [Parameter(Mandatory=$false, ValueFromPipeline=$false, Position=3)]
         [AllowEmptyString()]
         [System.String] $description = [String]::Empty,
 
-        [Parameter(Mandatory=$false, ValueFromPipeline=$false, Position=3)]
+        [Parameter(Mandatory=$false, ValueFromPipeline=$false, Position=4)]
         [AllowEmptyString()]
         [System.String] $originalName = [String]::Empty
     )
@@ -5255,40 +5472,103 @@ function AddSharePointFolder
     {
         if($null -ne $nf)
         {
-            if(-not $Script:isProposal.IsPresent)
+            $setDocFields = $false
+
+            if((-not [String]::IsNullOrEmpty($originalName)) -and ($originalName -ne $newFolderName))
             {
-                if(-not [String]::IsNullOrEmpty($description))
+                $spDocFieldName = GetSharePointDocumentFieldNameForProperty -libraryName $libraryName -propertyName "OriginalName"
+                if(-not $Script:HaveError)
                 {
-                    if($description -ne $newFolderName)
+                    if(-not [String]::IsNullOrEmpty($spDocFieldName))
                     {
-                        if((-not [String]::IsNullOrEmpty($originalName)) -and ($originalName -ne $newFolderName))
+                        $null = TestForSPDocumentLibraryField -libraryName $libraryName -fieldName $spDocFieldName
+                        if(-not $Script:HaveError)
                         {
-                            $nf.ListItemAllFields["OriginalName"] = $originalName
+                            $nf.ListItemAllFields[$spDocFieldName] = $originalName
+                            $setDocFields = $true
                         } `
                         else
                         {
-                            # Nothing.
+                            # Nothing, already logged an error.
                         }
-                        $nf.ListItemAllFields["FileDescription"] = $description
-                        try
-                        {
-                            $nf.ListItemAllFields.Update()
-                            Invoke-PnPQuery
-                        }
-                        catch
-                        {
-                            LogError ("Failed to apply description `"{0}`" to folder {1}/{2} in {3}." -f @($description, $parentFolder, $newFolderName, $me.Name))
-                        }
+                    } `
+                    else
+                    {
+                        LogError("Missing document field name for attribute OriginalName in {0}." -f @(me.Name))
                     }
                 } `
                 else
                 {
-                    # Nothing, no description.
+                    # Nothing, already logged an error
                 }
             } `
             else
             {
-                # Nothing, don't worry about file description and original name for proposals.
+                # Nothing.
+            }
+
+            if(-not [String]::IsNullOrEmpty($description))
+            {
+                if($description -ne $newFolderName)
+                {
+                    $spDocFieldName = GetSharePointDocumentFieldNameForProperty -libraryName $libraryName -propertyName "FileDescription"
+                    if(-not $Script:HaveError)
+                    {
+                        if(-not [String]::IsNullOrEmpty($spDocFieldName))
+                        {
+                            $null = TestForSPDocumentLibraryField -libraryName $libraryName -fieldName $spDocFieldName
+                            if(-not $Script:HaveError)
+                            {
+                                $nf.ListItemAllFields[$spDocFieldName] = $description
+                                $setDocFields = $true
+                            } `
+                            else
+                            {
+                                # Nothing, already logged an error.
+                            }
+                        } `
+                        else
+                        {
+                            LogError("Missing document field name for attribute FileDescription in {0}." -f @(me.Name))
+                        }
+                    } `
+                    else
+                    {
+                        # Nothing, already logged an error
+                    }
+                } `
+                else
+                {
+                    # Nothing, don't set the description to the name of the folder.
+                }
+            } `
+            else
+            {
+                # Nothing, no description.
+            }
+
+            if(-not $Script:HaveError)
+            {
+                if($setDocFields)
+                {
+                    try
+                    {
+                        $nf.ListItemAllFields.Update()
+                        Invoke-PnPQuery
+                    }
+                    catch
+                    {
+                        LogError ("Failed to apply description `"{0}`" to folder {1}/{2} in {3}." -f @($description, $parentFolder, $newFolderName, $me.Name))
+                    }
+                } `
+                else
+                {
+                    # Nothing...
+                }
+            } `
+            else
+            {
+                # Nothing, already logged an error.
             }
         } `
         else
@@ -5304,7 +5584,7 @@ function AddSharePointFolder
     return @(, $nf)
 }
 
-function CreateSharePointProjectSubFolders
+function CreateSharePointSubFolders
 {
     [CmdLetBinding()]
     Param(
@@ -5379,7 +5659,7 @@ function CreateSharePointProjectSubFolders
             LogInfo ("Creating folder {0}/{1}" -f @($parentFolder, $folderName))
 
             #  $newFolderName = $folderName
-            $spFolder = AddSharePointFolder -parentFolder $parentFolder -newFolderName $folderName -description $description -originalName $originalName
+            $spFolder = AddSharePointFolder -libraryName $libInfo.LibraryName -parentFolder $parentFolder -newFolderName $folderName -description $description -originalName $originalName
 
             if(-not $Script:HaveError)
             {
@@ -5388,6 +5668,7 @@ function CreateSharePointProjectSubFolders
                     $foldersCreated++
                     $fo.SPData.SPFile.ServerRelativeURL = $spFolder.ServerRelativeURL
                     $fo.SPData.Processed = $true
+                    $fo.SPData.Verified = $true
                     $fo.SPData.WhenUploaded = [DateTime]::Now.ToString()
                 } `
                 else
@@ -6276,9 +6557,9 @@ function ProcessFlatSets
                 {
                     # Yup, create the folder...
 
-                    # Create a new folder .... HEY!!!!  I can create "flat set" folders when I create the rest of the folders.... Hrm.... next version.
+                    # TODO: Create a new folder .... HEY!!!!  I can create "flat set" folders when I create the rest of the folders.... Hrm.... next version.
                     LogInfo ("Creating 'flat set' [{0}] in {1}." -f @($fs.SPData.FileName, $libInfo.FolderURL))
-                    $fsFolder = AddSharePointFolder -parentFolder $libInfo.FolderURL -newFolderName $fs.SPData.FileName -description $fs.SourceObject.Description -originalName (($fs.SourceObject.FullPath -split "\\")[-1])
+                    $fsFolder = AddSharePointFolder -libraryName $libInfo.LibraryName -parentFolder $libInfo.FolderURL -newFolderName $fs.SPData.FileName -description $fs.SourceObject.Description -originalName (($fs.SourceObject.FullPath -split "\\")[-1])
                     $fsVerified = $false
                 } `
                 else
@@ -6633,7 +6914,7 @@ function ProcessFlatSets
     ShowProgress -progressID 1 -complete
 }
 
-function BuildVerificationLookupDictionary
+function BuildVerificationLookupDictionary_old
 {
     [CmdLetBinding()]
     Param(
@@ -6649,7 +6930,7 @@ function BuildVerificationLookupDictionary
     {
         $Script:viablePathsLookupDict = [System.Collections.Generic.SortedDictionary[String,[System.Collections.Generic.List[Object]]]]::new()
 
-        # First add unverified documents...
+        # First add unverified objects...
         $b = 0
         $viablePathKeys = @($viablePathsDict.Keys)
         while((-not $Script:HaveError) -and ($b -lt $viablePathKeys.Length))
@@ -6675,6 +6956,112 @@ function BuildVerificationLookupDictionary
                             # Nothing, don't want dups...
                         }
                         $Script:viablePathsLookupDict[$pathToCheck].Add($vp)
+                    } `
+                    else
+                    {
+                        LogError("Empty paths for {0} in {1}." -f @((SourceObjectIdentity -srcObj $vp), $me.Name))
+                        break
+                    }
+                } `
+                else
+                {
+                    # Nothing, ignoring the pwProjectPath folder.
+                }
+            } `
+            else
+            {
+                # Already verified... skip it.
+            }
+
+            $b++
+        }
+
+        ShowProgress -progressID 1 -complete
+    } `
+    else
+    {
+        # Nothing, already built it.
+    }
+}
+
+function BuildVerificationLookupDictionary
+{
+    [CmdLetBinding()]
+    Param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
+        [ValidateNotNullOrEmpty()]
+        [System.Collections.Generic.SortedDictionary[[Guid],[Object]]] $viablePathsDict,
+
+        [Parameter(Mandatory=$false, ValueFromPipeline=$false, Position=1)]
+        [Switch] $rebuild
+    )
+
+    $viablePathsDictValues = @($viablePathsDict.Values)
+
+    if(($null -eq $Script:viablePathsLookupDict) -or ($rebuild.IsPresent))
+    {
+        $Script:viablePathsLookupDict = [System.Collections.Generic.SortedDictionary[String,[System.Collections.Generic.List[Object]]]]::new()
+
+        # First add unverified objects...
+        $b = 0
+        $viablePathKeys = @($viablePathsDict.Keys)
+        while((-not $Script:HaveError) -and ($b -lt $viablePathKeys.Length))
+        {
+            $vp = $viablePathsDict[$viablePathKeys[$b]]
+            ShowProgress -progressID 1 -activity "Building verification lookup dictionary" -counter $b -counterMax $viablePathKeys.Length
+
+            if(-not $vp.SPData.Verified)
+            {
+                $vp.SPData.Processed = $false
+                # Ignore the pwProjectPath and project folder...
+                if($vp.Paths.Length -ge 1)
+                {
+                    $pathToCheck = $vp.Paths -join "/"
+                    if(-not [String]::IsNullOrEmpty($pathToCheck))
+                    {
+                        if(-not $Script:viablePathsLookupDict.ContainsKey($pathToCheck))
+                        {
+                            $Script:viablePathsLookupDict.Add($pathToCheck, [System.Collections.Generic.List[Object]]::new())
+                            $Script:viablePathsLookupDict[$pathToCheck].Add($vp)
+                        } `
+                        else
+                        {
+                            # Nothing, don't want dups...
+                            $existing = @($Script:viablePathsLookupDict[$pathToCheck].Where({ ($_.SourceObject.MyType -eq $vp.SourceObject.MyType) -and ($_.SourceObject.DocumentGUID -eq $vp.SourceObject.DocumentGUID)}))
+                            if($existing.Length -eq 0)
+                            {
+                                $Script:viablePathsLookupDict[$pathToCheck].Add($vp)
+                            } `
+                            else
+                            {
+                                # No, really, don't want dups.
+                            }
+                        }
+
+                        # Now add all parent folders for the object to the dictionary
+                        $p = $vp.Paths.Length - 2
+                        while($p -gt 0)
+                        {
+                            # Get a smaller list of folder objects to look at.
+                            $folderVPs = @($viablePathsDictValues | Where-Object { ($_.Paths.Length -eq ($p + 1)) -and ($_.SourceObject.MyType -eq "ProjectWiseFolder") })
+                            $folderPathToMatch = $vp.Paths[0..$p] -join "/"
+
+                            # Narrow the list even more.
+                            $folderVPs = @($folderVPs | Where-Object { ($_.Paths[0..$p] -join "/") -eq $folderPathToMatch })
+
+                            $folderVPs.ForEach({
+                                if(-not $Script:viablePathsLookupDict.ContainsKey($folderPathToMatch))
+                                {
+                                    $Script:viablePathsLookupDict.Add($folderPathToMatch, [System.Collections.Generic.List[Object]]::new())
+                                    $Script:viablePathsLookupDict[$folderPathToMatch].Add($_)
+                                } `
+                                else
+                                {
+                                    # Nothing, don't want dups...
+                                }
+                            })
+                            $p--
+                        }
                     } `
                     else
                     {
@@ -6772,7 +7159,7 @@ function ExportPW2SP
 
         if(-not $Script:HaveError)
         {
-            CreateProjectDocumentLibraryLink -pwData $pwData -viablePathsDict $viablePathsDict
+            CreateProjectLink -pwData $pwData -viablePathsDict $viablePathsDict
         } `
         else
         {
@@ -6781,7 +7168,8 @@ function ExportPW2SP
     } `
     else
     {
-        # Nothing, don't mess with document libraries for Proposals.
+        # Don't mess with document libraries for Proposals, but we do need to verify there is a folder for the proposal.
+
     }
 
     if(-not $Script:HaveError)
@@ -6801,11 +7189,11 @@ function ExportPW2SP
                         <#
                             Continue proposal checks here.
                         #>
-                        $checked = CheckProjectObjectsInSharePoint -viablePathsDict $viablePathsDict -viablePathsLookupDict $Script:viablePathsLookupDict -docLibName $documentLibrariesName[$a] -doRemoval
+                        $checked = CheckObjectsInSharePoint -viablePathsDict $viablePathsDict -viablePathsLookupDict $Script:viablePathsLookupDict -docLibName $documentLibrariesName[$a] -doRemoval
                     } `
                     else
                     {    #     $docLibName = $documentLibrariesName[$a]; $checkedGuids = $checked.CheckedGUIDs; $extraObjects = $checked.ExtraSPObjects; $needToUploadGuids = $checked.ReuploadGUIDs
-                        $checked = CheckProjectObjectsInSharePoint -viablePathsDict $viablePathsDict -viablePathsLookupDict $Script:viablePathsLookupDict -docLibName $documentLibrariesName[$a] -checkedGuids $checked.CheckedGUIDs -extraObjects $checked.ExtraSPObjects -needToUploadGuids $checked.ReuploadGUIDs -doRemoval
+                        $checked = CheckObjectsInSharePoint -viablePathsDict $viablePathsDict -viablePathsLookupDict $Script:viablePathsLookupDict -docLibName $documentLibrariesName[$a] -checkedGuids $checked.CheckedGUIDs -extraObjects $checked.ExtraSPObjects -needToUploadGuids $checked.ReuploadGUIDs -doRemoval
                     }
 
                     $a++
@@ -6817,7 +7205,7 @@ function ExportPW2SP
                 {
                     LogInfo ("Checked {0} objects" -f @($checked.CheckedGUIDs.Count))
                     # $unchecked are all the objects not found in SharePoint.
-                    # $checked.ReuploadGUIDs are all the objects we need to remove and reupload -- once I verify this script is functioning correctly, I'll just have CheckProjectObjectsInSharePoint do the removal.
+                    # $checked.ReuploadGUIDs are all the objects we need to remove and reupload -- once I verify this script is functioning correctly, I'll just have CheckObjectsInSharePoint do the removal.
                     # $checked.ExtraSPObjects are stuff I can't explain and probably need to remove.
                     $checked.CheckedGUIDs | ForEach-Object {
                         $viablePathsDict[$_].SPData.Processed = $true
@@ -6857,7 +7245,7 @@ function ExportPW2SP
                     # Create unchecked folders.
                     if($foldersToCreate.Length -gt 0)
                     {
-                        CreateSharePointProjectSubFolders -pwData $pwData -foldersToCreate $foldersToCreate
+                        CreateSharePointSubFolders -pwData $pwData -foldersToCreate $foldersToCreate
                     } `
                     else
                     {
@@ -7060,53 +7448,56 @@ function VerifiedComplete
         }
 
         $spFolders = @(@($viablePathsDict.Values).Where({ ($_.SourceObject.MyType -eq "ProjectWiseFolder") -and (-not [String]::IsNullOrEmpty($_.SPData.FolderName)) }) | Select-Object @{N='Name';E={$_.SPData.FolderName}},@{N='GUID'; E={ $_.SourceObject.DocumentGUID }} | Sort-Object Name)
-        $unverifiedFoldersCount = 0
+        $unverifiedDocumentsInFoldersCount = 0
+        $unverifiedFoldersInFoldersCount = 0
         $a = 0
-        $spFolders.ForEach({
-            $spFolder = $_
+        while($a -lt $spFolders.Length)
+        {
+            $spFolder = $spFolders[$a]
             ShowProgress -progressID 1 -activity "Verifying folders" -counter $a -counterMax $spFolders.Length -statusSuffix $viablePathsDict[$spFolder.GUID].SPData.FolderName
             $vp = $viablePathsDict[$spFolder.GUID]
 
-                if($vp.Paths.Length -ge 1)
+            if($vp.Paths.Length -ge 1)
+            {
+                $pathToCheck = $vp.Paths -join "/"
+                if(-not [String]::IsNullOrEmpty($pathToCheck))
                 {
-                    $pathToCheck = $vp.Paths -join "/"
-                    if(-not [String]::IsNullOrEmpty($pathToCheck))
+                    if($Script:viablePathsLookupDict.ContainsKey($pathToCheck))
                     {
-                        if($Script:viablePathsLookupDict.ContainsKey($pathToCheck))
-                        {
-                            $unverifiedFoldersCount += $Script:viablePathsLookupDict[$pathToCheck].Where({ $_.SourceObject.MyType -eq "ProjectWiseDocument" }).Count
-                        } `
-                        else
-                        {
-                            # Nothing, looks like this path didn't have any documents that were unverified... :)
-                        }
+                        $unverifiedDocumentsInFoldersCount += $Script:viablePathsLookupDict[$pathToCheck].Where({ ($_.SourceObject.MyType -eq "ProjectWiseDocument") -and (-not $_.SPData.Verified)}).Count
+                        $unverifiedFoldersInFoldersCount += $Script:viablePathsLookupDict[$pathToCheck].Where({ ($_.SourceObject.MyType -eq "ProjectWiseFolder") -and (-not $_.SPData.Verified)}).Count
                     } `
                     else
                     {
-                        LogError("Empty paths for {0} in {1}." -f @((SourceObjectIdentity -srcObj $vp), $me.Name))
-                        break
+                        # Nothing, looks like this path didn't have any documents that were unverified... :)
                     }
                 } `
                 else
                 {
-                    # Nothing, ignoring the pwProjectPath folder.
+                    LogError("Empty paths for {0} in {1}." -f @((SourceObjectIdentity -srcObj $vp), $me.Name))
+                    break
                 }
+            } `
+            else
+            {
+                # Nothing, ignoring the pwProjectPath folder.
+            }
 <#
             $unverifiedSPFolderDocs = @(@($viablePathsDict.Values).Where({ ($_.SourceObject.MyType -eq "ProjectWiseDocument") -and ($_.SPData.FolderName -eq $spFolder.Name) -and (-not $_.SPData.Verified) }))
             $viablePathsDict[$spFolder.GUID].SPData.Verified = ($unverifiedSPFolderDocs.Length -eq 0)
             $unverifiedFoldersCount += ($unverifiedSPFolderDocs.Length -eq 0) ? 0 : 1
 #>
             $a++
-        })
+        }
         ShowProgress -progressID 1 -complete
 
-        if($unverifiedFoldersCount -eq 0)
+        if($unverifiedFoldersInFoldersCount -eq 0)
         {
-            LogInfo ("All folders ({0:N0}) verified ({1:N0})." -f @($spFolders.Length, ($spFolders.Length - $unverifiedFoldersCount)))
+            LogInfo ("All folders ({0:N0}) verified ({1:N0})." -f @($spFolders.Length, ($spFolders.Length - $unverifiedDocumentsInFoldersCount)))
         } `
         else
         {
-            LogWarning ("All folders ({0:N0}), verified ({1:N0}), remaining unverified ({2:N0})." -f @($spFolders.Length, ($spFolders.Length - $unverifiedFoldersCount), $unverifiedFoldersCount))
+            LogWarning ("All folders ({0:N0}), verified ({1:N0}), remaining unverified ({2:N0})." -f @($spFolders.Length, ($spFolders.Length - $unverifiedDocumentsInFoldersCount), $unverifiedDocumentsInFoldersCount))
             $projectVerified = $false
         }
 
@@ -7130,7 +7521,19 @@ function VerifiedComplete
 function main
 {
     $me = $MyInvocation.MyCommand
-    $projectVerified = $false
+    $projectData = [PSCustomObject]@{
+        Folders = 0
+        Documents = 0
+        FlatSets = 0
+        Size = 0
+        Discovered = $false
+        Exported = $false
+        Uploaded = $false
+        FlatSetProcessed = $false
+        Verified = $false
+        HaveError = $false
+    }
+    $Script:initialized = $false
     Init
     if(-not $Script:HaveError)
     {
@@ -7152,8 +7555,6 @@ function main
 
                     if($Script:HaveError)
                     {
-                        # Redo this after getting -restart to function... shouldn't need this anymore...Actually, I do... since I need to rediscover active projects...
-
                         LogInfo ("Failed to reload latest ProjectWise data from file.  Proceeding to getting it from ProjectWise.")
                         $Script:HaveError = $false
                         $Error.Clear()
@@ -7162,6 +7563,11 @@ function main
                         {
                             if($null -ne $pwData)
                             {
+                                $projectData.Discovered = $true
+                                $projectData.Folders = @($pwData.ProjectWiseObjects.Values).Where({ $_.MyType -eq "ProjectWiseFolder" }).Count
+                                $projectData.Documents = @($pwData.ProjectWiseObjects.Values).Where({ $_.MyType -eq "ProjectWiseDocument" }).Count
+                                $projectData.FlatSets = @($pwData.ProjectWiseObjects.Values).Where({ ($_.MyType -eq "ProjectWiseDocument") -and ($_.IsSet) }).Count
+                                $projectData.Size = (@($pwData.ProjectWiseObjects.Values).Where({ $_.MyType -eq "ProjectWiseDocument" }) | Measure-Object -Sum -Property FileSize).Sum
                                 ExportPWDataToJSON
                             } `
                             else
@@ -7176,7 +7582,11 @@ function main
                     } `
                     else
                     {
-                        # Nothing, have good data...
+                        $projectData.Discovered = $true
+                        $projectData.Folders = @($pwData.ProjectWiseObjects.Values).Where({ $_.MyType -eq "ProjectWiseFolder" }).Count
+                        $projectData.Documents = @($pwData.ProjectWiseObjects.Values).Where({ $_.MyType -eq "ProjectWiseDocument" }).Count
+                        $projectData.FlatSets = @($pwData.ProjectWiseObjects.Values).Where({ ($_.MyType -eq "ProjectWiseDocument") -and ($_.IsSet) }).Count
+                        $projectData.Size = (@($pwData.ProjectWiseObjects.Values).Where({ $_.MyType -eq "ProjectWiseDocument" }) | Measure-Object -Sum -Property FileSize).Sum
                     }
                 } `
                 else
@@ -7187,6 +7597,12 @@ function main
                     {
                         if($null -ne $pwData)
                         {
+                            $projectData.Discovered = $true
+                            $projectData.Folders = @($pwData.ProjectWiseObjects.Values).Where({ $_.MyType -eq "ProjectWiseFolder" }).Count
+                            $projectData.Documents = @($pwData.ProjectWiseObjects.Values).Where({ $_.MyType -eq "ProjectWiseDocument" }).Count
+                            $projectData.FlatSets = @($pwData.ProjectWiseObjects.Values).Where({ ($_.MyType -eq "ProjectWiseDocument") -and ($_.IsSet) }).Count
+                            $projectData.Size = (@($pwData.ProjectWiseObjects.Values).Where({ $_.MyType -eq "ProjectWiseDocument" }) | Measure-Object -Sum -Property FileSize).Sum
+
                             ExportPWDataToJSON
                         } `
                         else
@@ -7267,16 +7683,29 @@ function main
                                     {
                                         if(-not $Script:HaveError)
                                         {
-                                            $projectVerified = VerifiedComplete -viablePathsDict $viablePathsDict
-                                            if(-not $projectVerified)
+                                            $projectData.Verified = VerifiedComplete -viablePathsDict $viablePathsDict
+                                            if(-not $projectData.Verified)
                                             {
                                                 ExportPW2SP -pwData $pwData -viablePathsDict $viablePathsDict
+
+                                                if(-not $Script:HaveError)
+                                                {
+                                                    $projectData.FlatSetProcessed = $true
+                                                    $projectData.Exported = $true
+                                                    $projectData.Uploaded = $true
+                                                } `
+                                                else
+                                                {
+                                                    # Nothing.
+                                                }
                                                 ExportViablePathsStructure -viablePathsDict $viablePathsDict
-                                                $projectVerified = VerifiedComplete -viablePathsDict $viablePathsDict
+                                                $projectData.Verified = VerifiedComplete -viablePathsDict $viablePathsDict
                                             } `
                                             else
                                             {
-                                                # Nothing, already logged the info
+                                                $projectData.FlatSetProcessed = $true
+                                                $projectData.Exported = $true
+                                                $projectData.Uploaded = $true
                                             }
                                         } `
                                         else
@@ -7286,30 +7715,7 @@ function main
                                     } `
                                     else
                                     {
-                                        <#
-
-                                        For go this until I know I've got an accurate count.
-
-
-                                        LogInfo ("Folders: {0}" -f @($Script:reportData.Folders.InProject))
-                                        LogInfo ("Files: {0}" -f @($Script:reportData.Documents.InProject))
-                                        LogInfo ("File size: {0}" -f @((Format-StorageNumber $Script:reportData.Size.InProjectWise)))
-                                        $projInfo = [PSCustomObject]@{
-                                            DateTime = [DateTime]::Now.ToString("yyyyMMdd-HHmmss")
-                                            DataSource = $Script:pwDatasource
-                                            ProjectName = $Script:projectName
-                                            Folders = $Script:reportData.Folders.InProject
-                                            FoldersReportedFromPW = $Script:reportData.Folders.ReportedFromProjectWise
-                                            Documents = $Script:reportData.Documents.InProject
-                                            DocumentsReportedFromPW = $Script:reportData.Documents.ReportedFromProjectWise
-                                            DuplicateDocuments = $Script:reportData.Documents.DuplicatesFound
-                                            DocumentSets = $Script:reportData.DocumentSets.InProject
-                                            DocumentLinks = $Script:reportData.DocumentLinks.InProject
-                                            FileSize = $Script:reportData.Size.InProjectWise
-                                            FileSizeA = (Format-StorageNumber $Script:reportData.Size.InProjectWise)
-                                        }
-                                        $projInfo | Export-CSV -Append -Delimiter "`t" -Path ("{0}\projInfo.csv" -f @($Script:localPath)) -NoTypeInformation
-                                        #>
+                                        # TODO: Nothing, I suppose...   really makes DoExport non-functional.
                                     }
                                 } `
                                 else
@@ -7353,7 +7759,8 @@ function main
         # Nothing, already displayed an error.
     }
 
-    return $projectVerified
+    $projectData.HaveError = $Script:HaveError
+    return @(, $projectData)
 }
 
 function BasicSPOLConnection
