@@ -9965,3 +9965,201 @@ function CreateNewDocumentLibrary
         # Nothing, already logged an error.
     }
 }
+
+$pp = @(GCI -Path "E:\PWProposals\Test" -Filter "*_PWData.json" -File)
+$uniqueProjects = [System.Collections.Generic.List[String]]::new()
+$Script:dupPWObjects = [System.Collections.Generic.List[Guid]]::new()
+$pw = $null
+$pw2 = $null
+$a = 0
+while($a -lt $pp.Length)
+{
+    if($pp[$a].Name -match "([\d]{8}\-[\d]{6})")
+    {
+        $pName = $pp[$a].Name.Replace($Matches[1],"").Replace("__PWData.json","")
+        $i = $uniqueProjects.BinarySearch($pName)
+        if($i -lt 0)
+        {
+            $uniqueProjects.Insert(-bnot $i, $pName)
+
+            if($null -eq $pw)
+            {
+                $pw = LoadPWDataFromJSON -filePath $pp[$a].FullName
+            } `
+            else
+            {
+                $pw2 = LoadPWDataFromJSON -filePath $pp[$a].FullName
+                MergePWData -pwData $pw -pwData2 $pw2
+            }
+
+            Write-Host ("Unique: {0}, A: {1}, PWObjects: {2}, Dups: {3}" -f @($uniqueProjects.Count, $a, $pw.ProjectWiseObjects.Count, $Script:dupPWObjects.Count))
+        }
+    } `
+    else
+    {
+        Write-Host -ForegroundColor Red ("Funky name: {0}" -f @($pp[$a].FullName))
+    }
+
+    $a++
+}
+
+$vpKeys = @(($viablePathsDict.Keys).Where({$viablePathsDict[$_].SourceObject.MyType -eq "ProjectWiseDocument" }))
+$notFound = [System.Collections.Generic.List[Guid]]::new()
+$a = 0
+$sw = [System.Diagnostics.StopWatch]::new()
+$sw.Start()
+while($a -lt $vpKeys.Length)
+{
+    $vp = $viablePathsDict[$vpKeys[$a]]
+
+    if($vp.SourceObject.MyType -eq "ProjectWiseDocument")
+    {
+        $url = "Proposal Archives/" + $vp.SPData.FolderName + "/" + $vp.SPData.FileName
+        #Write-Host -NoNewline ("Checking {0}) {1}..." -f @($a, $url))
+        if(-not $vp.SourceObject.IsSet)
+        {
+            try
+            {
+                $file = Get-PnPFile -URL $url -ErrorAction Stop
+            }
+            catch
+            {
+                #Write-Host -ForegroundColor Red "not found"
+                $i = $notFound.BinarySearch($vpKeys[$a])
+                if($i -lt 0)
+                {
+                    $notFound.Insert(-bnot $i, $vpKeys[$a])
+                }
+            }
+        } `
+        else
+        {
+            try
+            {
+                $folder = Get-PnPFolder -URL $url -ErrorAction Stop
+            }
+            catch
+            {
+                #Write-Host -ForegroundColor Red "not found"
+                $i = $notFound.BinarySearch($vpKeys[$a])
+                if($i -lt 0)
+                {
+                    $notFound.Insert(-bnot $i, $vpKeys[$a])
+                }
+            }
+        }
+        $a++
+
+        $statusSuffix = [String]::Empty
+        if($a -gt 0)
+        {
+            $elapsedStr = $sw.Elapsed.ToString("d\.hh\:mm\:ss")
+            $elapsedTicks = $sw.ElapsedTicks
+            $ticksPerFile = $elapsedTicks / $a
+            $totalETATicks = $ticksPerFile * $vpKeys.Length
+            $remainingETATicks = $totalETATicks - $elapsedTicks
+            $etaTS = [TimeSpan]::new($remainingETATicks)
+            $etaDT = [DateTime]::Now.Add($etaTS)
+            $statusSuffix = "Not found: {0} | Elapsed: {1} | Est Remaining: {2} | ETC: {3} | {4}" -f @($notFound.Count, $elapsedStr, $etaTS.ToString("d\.hh\:mm\:ss"), $etaDT.ToString("yyyyMMdd-HH:mm:ss"), $url)
+        }
+        ShowProgress -progressID 1 -activity "Checking files" -counter $a -counterMax $vpKeys.Length -statusSuffix $statusSuffix
+    }
+}
+$sw.Stop()
+ShowProgress -progressID 1 -activity "Checking files" -complete
+
+$urlsNotFound = [System.Collections.Generic.List[Object]]::new()
+$a = 0
+while($a -lt $notFound.Count)
+{
+    $vp = $viablePathsDict[$notFound[$a].Guid]
+    $url = "Proposal Archives/" + $vp.SPData.FolderName + "/" + $vp.SPData.FileName
+    $d = [PSCustomObject]@{
+        DocumentGUID = $notFound[$a].Guid
+        URL = $url
+        IsSet = $vp.SourceObject.IsSet
+        IsFlatSetReference = $vp.SourceObject.IsFlatSetReference
+    }
+    $urlsNotFound.Add($d)
+    $a++
+}
+
+$urlsNotFound | ConvertTo-CSV -Delimiter "`t" | scb
+
+$uncheckedOrReUpload = @(
+    @($notFound).ForEach({
+        if($viablePathsDict.ContainsKey($_))
+        {
+            if(($viablePathsDict[$_].SourceObject.MyType -eq "ProjectWiseDocument") -and ($viablePathsDict[$_].Paths.Length -gt 0))
+            {
+                $viablePathsDict[$_]
+            }
+        }
+    })
+)
+
+
+function GetProposalFlatSetReferences
+{
+    [CmdLetBinding()]
+    Param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
+        [ValidateNotNullOrEmpty()]
+        [System.Object] $pwData,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=1)]
+        [ValidateNotNullOrEmpty()]
+        [System.Collections.Generic.SortedDictionary[[Guid],[Object]]] $viablePathsDict,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=2)]
+        [ValidateNotNullOrEmpty()]
+        [String] $propName
+    )
+
+    $retval = [System.Collections.Generic.SortedDictionary[Guid,Object]]::new()
+    $pNameMatch = "Proposals - Archive\{0}\" -f @($propName)
+    $proposalSets = @(@($pwData.ProjectWiseObjects.Values).Where({ ($_.FullPath.StartsWith($pNameMatch)) -and ($_.IsSet) }))
+    $proposalSets.ForEach({
+        @($_.FlatSetReferences).ForEach({
+            if($pwData.ProjectWiseObjects.ContainsKey($_))
+            {
+                if(-not $retval.ContainsKey($_))
+                {
+                    $retval.Add($_, $pwData.ProjectWiseObjects[$_])
+                } `
+                else
+                {
+                    # Nothing, no dupes
+                }
+            } `
+            else
+            {
+                Write-Host -ForegroundColor Red ("Missing ProjectWiseObject for GUID: {0}" -f @($_))
+            }
+        })
+    })
+
+    return @( ,$retval)
+}
+
+function GetProposalFlatSetReferenceSources
+{
+    [CmdLetBinding()]
+    Param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
+        [ValidateNotNullOrEmpty()]
+        [System.Object] $pwData,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=1)]
+        [ValidateNotNullOrEmpty()]
+        [System.Collections.Generic.SortedDictionary[[Guid],[Object]]] $viablePathsDict,
+
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=2)]
+        [ValidateNotNullOrEmpty()]
+        [Guid] $docGuid
+    )
+
+    $retval = @(@($pwData.ProjectWiseObjects.Values).Where({ $_.FlatSetReferences -contains $docGuid }))
+
+    return @( ,$retval)
+}
