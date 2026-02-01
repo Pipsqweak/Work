@@ -937,9 +937,8 @@ function MergePWData
             {
                 # Nothing, no dups please.
             }
-
-            $a++
         }
+        $a++
     }
 
     $i = $pwData.PWFolders.BinarySearch($pwData2.PWFolder.DocumentGUID)
@@ -3952,7 +3951,14 @@ function CreateLinkInFolder
     try
     {
         $existingLink = Get-PnPFile -Url $docLink -AsListItem -ErrorAction Stop
-        LogInfo ("Link {0} in {1} already exists." -f @($linkName, $folderURL))
+        if($null -ne $existingLink)
+        {
+            LogInfo ("Link {0} in {1} already exists." -f @($linkName, $folderURL))
+        } `
+        else
+        {
+            # Nothing, not there, so we need to create it.
+        }
     }
     catch
     {

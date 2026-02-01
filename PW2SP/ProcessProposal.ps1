@@ -31,8 +31,8 @@ Param(
 [Switch] $isProposal = $true
 $proposalListFile = "E:\PW2SPProd\proposalList.csv"
 $Script:localPath = "E:\PWProposals"
-#$Script:connDataJSONFile = "C:\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\PW2SP\connDataProposals.json"
-$Script:connDataJSONFile = "C:\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\PW2SP\connDataProposalsKLB.json"
+$Script:connDataJSONFile = "C:\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\PW2SP\connDataProposals.json"
+#$Script:connDataJSONFile = "C:\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\PW2SP\connDataProposalsKLB.json"
 $Script:pwDatasource = "pw_prod_pw01"
 $Script:pwPassword = "tX2NPfAK92DhM2"
 $Script:TraceLevel = 1

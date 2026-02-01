@@ -9967,6 +9967,7 @@ function CreateNewDocumentLibrary
 }
 
 $pp = @(GCI -Path "E:\PWProposals\Test" -Filter "*_PWData.json" -File)
+$Script:projectName = "master"
 $uniqueProjects = [System.Collections.Generic.List[String]]::new()
 $Script:dupPWObjects = [System.Collections.Generic.List[Guid]]::new()
 $pw = $null
@@ -9974,32 +9975,34 @@ $pw2 = $null
 $a = 0
 while($a -lt $pp.Length)
 {
-    if($pp[$a].Name -match "([\d]{8}\-[\d]{6})")
+    if($pp[$a].Name -notmatch "master")
     {
-        $pName = $pp[$a].Name.Replace($Matches[1],"").Replace("__PWData.json","")
-        $i = $uniqueProjects.BinarySearch($pName)
-        if($i -lt 0)
+        if($pp[$a].Name -match "([\d]{8}\-[\d]{6})")
         {
-            $uniqueProjects.Insert(-bnot $i, $pName)
+            $pName = $pp[$a].Name.Replace($Matches[1],"").Replace("__PWData.json","")
+            $i = $uniqueProjects.BinarySearch($pName)
+            if($i -lt 0)
+            {
+                $uniqueProjects.Insert(-bnot $i, $pName)
 
-            if($null -eq $pw)
-            {
-                $pw = LoadPWDataFromJSON -filePath $pp[$a].FullName
-            } `
-            else
-            {
-                $pw2 = LoadPWDataFromJSON -filePath $pp[$a].FullName
-                MergePWData -pwData $pw -pwData2 $pw2
+                if($null -eq $pw)
+                {
+                    $pw = LoadPWDataFromJSON -filePath $pp[$a].FullName
+                } `
+                else
+                {
+                    $pw2 = LoadPWDataFromJSON -filePath $pp[$a].FullName
+                    MergePWData -pwData $pw -pwData2 $pw2
+                }
+
+                Write-Host ("Unique: {0}, A: {1}, PWObjects: {2}, Dups: {3}" -f @($uniqueProjects.Count, $a, $pw.ProjectWiseObjects.Count, $Script:dupPWObjects.Count))
             }
-
-            Write-Host ("Unique: {0}, A: {1}, PWObjects: {2}, Dups: {3}" -f @($uniqueProjects.Count, $a, $pw.ProjectWiseObjects.Count, $Script:dupPWObjects.Count))
+        } `
+        else
+        {
+            Write-Host -ForegroundColor Red ("Funky name: {0}" -f @($pp[$a].FullName))
         }
-    } `
-    else
-    {
-        Write-Host -ForegroundColor Red ("Funky name: {0}" -f @($pp[$a].FullName))
     }
-
     $a++
 }
 
@@ -10159,7 +10162,311 @@ function GetProposalFlatSetReferenceSources
         [Guid] $docGuid
     )
 
-    $retval = @(@($pwData.ProjectWiseObjects.Values).Where({ $_.FlatSetReferences -contains $docGuid }))
+    $retval = @(@($viablePathsDict.Values).Where({ $_.SourceObject.FlatSetReferences -contains $docGuid }))
 
     return @( ,$retval)
+}
+
+<#
+    Make a function to get a link for a documentversion of a projectwisedocument.
+    If I have this, then I should be able to easily build a "flatset" reference link...
+
+    Basically, $t = GetSPDocumentVersions -docUrl "xyz"
+
+    $verData = $t.SPDocument.Versions | Where-Object { $_.FieldValues["DocumentVersion"] -eq "A" } | Select-Object -First 1
+#>
+
+$pathKeys = @($Script:viablePathsLookupDict.Keys)
+$pathToUpload = $pathKeys[$a]
+
+$uncheckedOrReUpload = @($viablePathsDict.Values).Where({ ($_.Paths.Length -gt 0) -and (($_.SourceObject.DocumentGUID -notin $checked.CheckedGUIDs) -or ($_.SourceObject.DocumentGUID -in $checked.ReuploadGUIDs)) -and (-not $_.SPData.Verified)})
+$allFilesToUpload = $uncheckedOrReUpload.Where({ ($_.SourceObject.MyType -eq "ProjectWiseDocument") })
+$stdFilesToUpload = @($allFilesToUpload.Where({ -not $_.SourceObject.IsSet }))
+$documentsToUpload = @($stdFilesToUpload.Where({ ($_.Paths -join "/") -eq $pathToUpload }) | Sort-Object @{ E={ $_.SourceObject.VersionSequence } })
+
+
+$guidStr = "255f0f9b-51ea-4eff-89c8-83a6ccf2dec6"
+& $scriptBlock
+
+$scriptBlock = {
+    if($viablePathsDict.ContainsKey($guidStr))
+    {
+        $vp = $viablePathsDict[$guidStr]
+        if($null -ne $vp)
+        {
+            $pathToUpload = $vp.Paths -join "/"
+            $documentsToUpload = @($viablePathsDict.Values).Where({ ($_.Paths -join "/") -eq $pathToUpload }) | Sort-Object @{ E={ $_.SourceObject.VersionSequence } }
+
+            if($documentsToUpload.Length -gt 0)
+            {
+                UploadDocumentsToSharePoint -pwData $pwData -docsToUpload $documentsToUpload  # $docsToUpload = $documentsToUpload
+            }
+        }
+    }
+}
+
+
+
+
+
+$flatSets = @(@($viablePathsDict.Values).Where( { $_.SourceObject.IsSet } ))
+$brokenFlatSets = [System.Collections.Generic.List[Object]]::new()
+
+$referencesToCheck = 0
+$referencesChecked = 0
+$flatSets.ForEach({ $referencesToCheck += $_.SourceObject.FlatSetReferences.Count })
+
+$sw = [System.Diagnostics.StopWatch]::new()
+$sw.Start()
+
+$a = 0
+while($a -lt $flatSets.Length)
+{
+    $fs = $flatSets[$a]
+    $fsPath = $fs.Paths -join "/"
+    $fsRefs = [System.Collections.Generic.List[Object]]::new()
+    @($fs.SourceObject.FlatSetReferences).ForEach({
+        $fsRefs.Add($viablePathsDict[$_])
+    })
+
+
+    $b = 0
+    while($b -lt $fsRefs.Count)
+    {
+        $url = "{0}/{1}.url" -f @(($fs.Paths -join "/"), $fsRefs[$b].SPData.FileName)
+        $d = $null
+
+        try
+        {
+            $matchingLine = [String]::Empty
+            $file = Get-PnPFile -Url $url -AsString -ErrorAction Stop
+            $contentLines = @($file -split "`n")
+            $matchingLine = @($contentLines -match "^URL=(.*)$") | Select-Object -First 1
+            if($matchingLine -match "^URL=(.*)$")
+            {
+                $linkURL = $Matches[1]
+                try
+                {
+                    $file = Get-PnPFile -Url $linkURL -ErrorAction Stop
+                }
+                catch
+                {
+                    $d = [PSCustomObject]@{
+                        FlatSet = $fsPath
+                        FlatSetGUID = $fs.SourceObject.DocumentGUID
+                        FlatSetURL = $url
+                        MissingReferenceGUID = $fsRefs[$b].SourceObject.DocumentGUID
+                        MissingReferenceURL = $linkURL
+                        Issue = "Missing flatset original reference file"
+                    }
+                }
+            } `
+            else
+            {
+                $d = [PSCustomObject]@{
+                    FlatSet = $fsPath
+                    FlatSetGUID = $fs.SourceObject.DocumentGUID
+                    FlatSetURL = $url
+                    MissingReferenceGUID = $fsRefs[$b].SourceObject.DocumentGUID
+                    MissingReferenceURL = $linkURL
+                    Issue = "Missing URL = '' in file"
+                }
+            }
+        }
+        catch
+        {
+            $d = [PSCustomObject]@{
+                FlatSet = $fsPath
+                FlatSetGUID = $fs.SourceObject.DocumentGUID
+                FlatSetURL = $url
+                MissingReferenceGUID = $fsRefs[$b].SourceObject.DocumentGUID
+                MissingReferenceURL = $linkURL
+                Issue = "Missing flatset reference URL"
+            }
+        }
+
+        if($null -ne $d)
+        {
+            $brokenFlatSets.Add($d)
+            $brokenFlatSets | ConvertTo-Csv -Delimiter "`t" -NoTypeInformation | scb
+        }
+
+        $b++
+
+        $referencesChecked++
+
+        $statusSuffix = [String]::Empty
+        $elapsedStr = $sw.Elapsed.ToString("d\.hh\:mm\:ss")
+        $elapsedTicks = $sw.ElapsedTicks
+        $ticksPerFile = $elapsedTicks / $referencesChecked
+        $totalETATicks = $ticksPerFile * $referencesToCheck
+        $remainingETATicks = $totalETATicks - $elapsedTicks
+        $etaTS = [TimeSpan]::new($remainingETATicks)
+        $etaDT = [DateTime]::Now.Add($etaTS)
+        $statusSuffix = "Issues: {0} | E: {1} | R: {2} | ETC: {3} | {4}:{5}" -f @($brokenFlatSets.Count, $elapsedStr, $etaTS.ToString("d\.hh\:mm\:ss"), $etaDT.ToString("dd-HH:mm:ss"), $fsPath, $linkURL)
+        ShowProgress -progressID 1 -activity "Checking flatsets/references" -counter $referencesChecked -counterMax $referencesToCheck -statusSuffix $statusSuffix
+    }
+
+    $a++
+}
+$sw.Stop()
+
+$docGUID = "d819f0a0-1fd0-42cc-b07f-3f598643a989"
+
+$missingDocGUIDs = @(
+	"8ad85b53-af77-4568-a430-9ae42f0ba34c",
+	"a2e65514-ec6d-453d-b373-b1a4e1a8da8a",
+	"7b9a666e-5b4c-4bce-8352-4077f3f7880b"
+)
+
+$takeAction = $true
+$q = 0
+$Error.Clear()
+$Script:HaveError = $false
+while($q -lt $missingDocGUIDs.Length)
+{
+    $docGUID = $missingDocGUIDs[$q]
+
+    if($viablePathsDict.ContainsKey($docGUID))
+    {
+        # $vp is the file that needs to be reference.  So it needs to be uploaded.
+        $vp = $viablePathsDict[$docGUID]
+
+        if($vp.SourceObject.FullPath -notmatch ("^Active Projects"))
+        {
+            # Get all the broken links that reference the uploaded document.
+            $bknFS = @($brokenFlatSets.Where({ $_.MissingReferenceGUID -eq $vp.SourceObject.DocumentGUID}))
+
+            # $refSources are all the vp objects which reference $docToUpload.  -- They are all the FlatSets which contain $docToUpload
+            $refSources = GetProposalFlatSetReferenceSources -pwData $pwData -viablePathsDict $viablePathsDict -docGuid $vp.SourceObject.DocumentGUID
+
+            LogInfo ("`r`nProcessing {0}:{1} Version {2}" -f @($vp.SourceObject.DocumentGUID, $vp.SourceObject.FullPath, $vp.SourceObject.Version))
+            # $documentsToUpload are all the versions of $vp...
+            $documentsToUpload = @(@($viablePathsDict.Values).Where({ $_.SourceObject.FullPath -eq $vp.SourceObject.FullPath })) | Sort-Object @{E={ $_.SourceObject.VersionSequence }}
+
+            if($documentsToUpload.Length -gt 0)
+            {
+                if($takeAction)
+                {
+                    $documentsToUpload.ForEach({
+                        $_.SPData.Processed = $false
+                        $null = GetLibraryDataFromObj -obj2Upload $_
+                    })
+                    UploadDocumentsToSharePoint -pwData $pwData -docsToUpload $documentsToUpload  # $docsToUpload = $documentsToUpload
+                } `
+                else
+                {
+                    $documentsToUpload.ForEach({
+                        LogInfo ("  Uploading {0}:{1}:{2}" -f @($_.SourceObject.DocumentGUID, $_.SourceObject.FullPath, $_.SourceObject.Version))
+                    })
+                }
+
+                LogInfo ("  Checking Doc 2 Upload: {0}:{1} Version: {2}" -f @($vp.SourceObject.DocumentGUID, $vp.SourceObject.FullPath, $vp.SourceObject.Version))
+
+                # One at time, remove the broken link and create a new working link.
+                $b = 0
+                while($b -lt $bknFS.Length)
+                {
+                    try
+                    {
+                        $file = Get-PnPFile -Url $bknFS[$b].MissingReferenceURL -ErrorAction Stop
+                        LogInfo ("    URL Not broken: [{0}]" -f @($bknFS[$b].MissingReferenceURL))
+                    }
+                    catch
+                    {
+                        if($Error[0].Exception.Message -match "File Not Found.")
+                        {
+                            $Error.Clear();
+                            $Script:HaveError = $false
+
+                            LogInfo ("    Removing broken link: [{0}]" -f @($bknFS[$b].FlatSetURL))
+
+                            if($takeAction)
+                            {
+                                try
+                                {
+                                    Remove-PnpFile -SiteRelativeUrl $bknFS[$b].FlatSetURL -Force -ErrorAction Stop
+                                }
+                                catch
+                                {
+                                    if($Error[0].Exception.Message -match "does not exist")
+                                    {
+                                        $Error.Clear()
+                                        $Script:HaveError = $false
+                                    } `
+                                    else
+                                    {
+                                        LogWarning ("Failed to remove broken URL [{0}]" -f @($bknFS[$b].FlatSetURL))
+                                        LogWarning $Error[0].Exception.Message
+                                    }
+                                }
+                            }
+
+                            if(-not $Script:HaveError)
+                            {
+                                $refSrc = $refSources.Where({ $_.SourceObject.DocumentGUID -eq $bknFS[$b].FlatSetGUID }) | Select-Object -First 1
+                                if($null -ne $refSrc)
+                                {
+                                    $vpLib = GetLibraryDataFromObj -obj2Upload $vp
+                                    if((-not $Script:HaveError) -and ($null -ne $vpLib))
+                                    {
+                                        $refLib = GetLibraryDataFromObj -obj2Upload $refSrc
+                                        if((-not $Script:HaveError) -and ($null -ne $refLib))
+                                        {
+                                            $linkParts = $bknFS[$b].FlatSetURL -split "/"
+                                            $linkName = $linkParts[-1]
+                                            $linkURL = $vp.LibInfo.FileURL
+                                            $folderURL = $refLib.FileURL
+                                            $linkParams = BuildDocumentProperties -obj2Upload $vp
+
+                                            if ($takeAction)
+                                            {
+                                                CreateLinkInFolder -linkName $linkName -linkURL $linkURL -folderURL $folderURL -linkParams $linkParams
+                                            } `
+                                            else # NOT ($takeAction)
+                                            {
+                                                LogInfo ("    Creating link [{0}] in [{1}] to [{2}]" -f @($linkName, $folderURL, $linkURL))
+                                            }
+                                        } `
+                                        else
+                                        {
+                                            # Nothing, already logged an error
+                                        }
+                                    } `
+                                    else
+                                    {
+                                        # Nothing, already logged an error
+                                    }
+                                } `
+                                else
+                                {
+                                    LogWarning ("No references sources for {0}" -f @($bknFS[$b].FlatSetGUID))
+                                }
+                            } `
+                            else
+                            {
+                                # Nothing, already logged an error.
+                            }
+                        } `
+                        else
+                        {
+                            LogWarning $Error[0].Exception.Message
+                        }
+                    }
+                    $b++
+                }
+            } `
+            else
+            {
+                LogWarning ("No documents to upload for [{0}]" -f @($docGUID))
+            }
+        } `
+        else
+        {
+            LogWarning ("Skipping external reference: {0}:{1} Version {2}" -f @($vp.SourceObject.DocumentGUID, $vp.SourceObject.FullPath, $vp.SourceObject.Version))
+        }
+    }
+
+    $q++
+
 }
