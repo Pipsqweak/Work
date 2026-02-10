@@ -4345,7 +4345,7 @@ function GetLibraryDataFromObj
 
         if(-not $Script:HaveError)
         {
-            Add-Member -InputObject $obj2Upload -MemberType NoteProperty -Name LibInfo -Value $retval
+            Add-Member -InputObject $obj2Upload -MemberType NoteProperty -Name LibInfo -Value $retval -Force
         } `
         else
         {

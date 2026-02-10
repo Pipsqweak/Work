@@ -59,6 +59,19 @@ function CollectURLLinks
 
                                         if($urlMatch -match "^URL=(.*)$")
                                         {
+                                            try
+                                            {
+                                                $urlObject = [System.Uri] $Matches[1]
+                                                $segStart = $urlObject.Segments.IndexOf("sites/")
+                                                $newURL = [System.Web.HttpUtility]::UrlDecode($urlObject.Segments[$segStart..($urlObject.Segments.Length-1)] -join "")
+                                                $newURL = "/" + $newURL.Replace("SP-GovernmentServices-Projects","WSPFED-SP-GVSProjects0241907_0001and0250215_0000/Shared Documents").Replace("0250215_0000","0250215")
+                                            }
+                                            catch
+                                            {
+
+                                            }
+
+
                                             $d.LinkURL = $Matches[1]
                                             Write-Host -ForegroundColor Green ("`t`t`tgetting document properties from: [{0}]" -f @($d.LinkURL))
                                             try
@@ -157,6 +170,8 @@ function CheckSite
 
     try
     {
+        $folderItems = @(Get-PnPFolderItem -Identity $topFolder -ErrorAction Stop).Where({ $_.Name -ne "Forms" })
+        <#
         if($topFolder -eq "Proposal Archives")
         {
             $folderItems = @(Get-PnPFolderItem -Identity $topFolder -ErrorAction Stop).Where({ 1 -eq 1})
@@ -165,6 +180,7 @@ function CheckSite
         {
             $folderItems = @(Get-PnPFolderItem -Identity $topFolder -ErrorAction Stop).Where({ $_.Name -match "\.url$" })
         }
+        #>
         $projectLinks = [System.Collections.Generic.List[Object]]::new()
         $a = 0
         while($a -lt $folderItems.Count)
@@ -232,6 +248,7 @@ function CheckSite
                     {
                         if($projectFilesAndFolders[$b] -is [Microsoft.SharePoint.Client.Folder])
                         {
+                            # $folder = $projectFilesAndFolders[$b]
                             CollectURLLinks -folder $projectFilesAndFolders[$b] -projectLinks $projectLinks
                         }
                         $b++
@@ -252,8 +269,23 @@ function CheckSite
     }
 }
 
-CheckSite -topFolder "Shared Documents" -saveFile "E:\PW2SP\linkdata1.json"
+CheckSite -topFolder "Shared Documents" -saveFile "E:\PW2SP\templinkdata1.json"
 
 CheckSite -topFolder "Closed Projects" -saveFile "E:\PW2SP\linkdata2.json"
 
 CheckSite -topFolder "Proposal Archives" -saveFile "E:\PW2SP\linkdata3.json"
+
+
+Connect-PnPOnline -Url $siteURL -ClientId "5bd66128-adff-40e5-b9cf-5ed139ccf821" -Thumbprint "8CA9FD2F2B6F57C288E3665CE2BF729A68EF8973" -Tenant "0f3cfa5e-1c7a-46dc-b39c-fbe2e805c797" -AzureEnvironment USGovernmentHigh
+
+# Fed Projects
+$siteURL = "https://wspusa.sharepoint.us/sites/WSPFED-SP-GVS-Projects"
+
+# Fed Proposals..
+$siteURL = "https://wspusa.sharepoint.us/sites/WSPFED-SP-GVS-PursuitCollaboration"
+
+# Temp Fed Projects
+$siteURL = "https://wspusa.sharepoint.us/sites/WSPFED-SP-GVSProjects0241907_0001and0250215_0000"
+
+$topFolder = "Shared Documents"
+$saveFile = "E:\PW2SP\templinkdata1.json"

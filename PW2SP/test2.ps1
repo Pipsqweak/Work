@@ -10220,6 +10220,7 @@ $sw = [System.Diagnostics.StopWatch]::new()
 $sw.Start()
 
 $a = 0
+$Error.Clear()
 while($a -lt $flatSets.Length)
 {
     $fs = $flatSets[$a]
@@ -10229,25 +10230,19 @@ while($a -lt $flatSets.Length)
         $fsRefs.Add($viablePathsDict[$_])
     })
 
-
     $b = 0
     while($b -lt $fsRefs.Count)
     {
         $url = "{0}/{1}.url" -f @(($fs.Paths -join "/"), $fsRefs[$b].SPData.FileName)
         $d = $null
 
-        try
+        if($url -notmatch "powereng0\.sharepoint\.com")
         {
-            $matchingLine = [String]::Empty
-            $file = Get-PnPFile -Url $url -AsString -ErrorAction Stop
-            $contentLines = @($file -split "`n")
-            $matchingLine = @($contentLines -match "^URL=(.*)$") | Select-Object -First 1
-            if($matchingLine -match "^URL=(.*)$")
+            if($url -notmatch "SP-GVSPursuitCollaboration")
             {
-                $linkURL = $Matches[1]
                 try
                 {
-                    $file = Get-PnPFile -Url $linkURL -ErrorAction Stop
+                    $file = Get-PnPFile -Url $url -AsString -ErrorAction Stop
                 }
                 catch
                 {
@@ -10256,9 +10251,80 @@ while($a -lt $flatSets.Length)
                         FlatSetGUID = $fs.SourceObject.DocumentGUID
                         FlatSetURL = $url
                         MissingReferenceGUID = $fsRefs[$b].SourceObject.DocumentGUID
-                        MissingReferenceURL = $linkURL
-                        Issue = "Missing flatset original reference file"
+                        MissingReferenceURL = [String]::Empty
+                        Issue = "Missing flatset reference URL"
                     }
+                    $Error.Clear()
+                }
+
+                if($null -eq $d)
+                {
+                    $contentLines = @($file -split "`n")
+                    $matchingLine = [String]::Empty
+                    $matchingLine = @($contentLines -match "^URL=(.*)$") | Select-Object -First 1
+                    if($matchingLine -match "^URL=(.*)$")
+                    {
+                        $linkURL = $Matches[1]
+                        if($linkURL -notmatch "powereng0\.sharepoint\.com")
+                        {
+                            if($linkURL -notmatch "SP-GVSPursuitCollaboration")
+                            {
+                                try
+                                {
+                                    $file = Get-PnPFile -Url $linkURL -ErrorAction Stop
+                                }
+                                catch
+                                {
+                                    $d = [PSCustomObject]@{
+                                        FlatSet = $fsPath
+                                        FlatSetGUID = $fs.SourceObject.DocumentGUID
+                                        FlatSetURL = $url
+                                        MissingReferenceGUID = $fsRefs[$b].SourceObject.DocumentGUID
+                                        MissingReferenceURL = $linkURL
+                                        Issue = "Missing flatset original reference file"
+                                    }
+                                    $Error.Clear()
+                                }
+                            } `
+                            else
+                            {
+                                $d = [PSCustomObject]@{
+                                    FlatSet = $fsPath
+                                    FlatSetGUID = $fs.SourceObject.DocumentGUID
+                                    FlatSetURL = $url
+                                    MissingReferenceGUID = $fsRefs[$b].SourceObject.DocumentGUID
+                                    MissingReferenceURL = $linkURL
+                                    Issue = "Wrong SharePoint site reference link URL found"
+                                }
+                            }
+                        } `
+                        else
+                        {
+                            $d = [PSCustomObject]@{
+                                FlatSet = $fsPath
+                                FlatSetGUID = $fs.SourceObject.DocumentGUID
+                                FlatSetURL = $url
+                                MissingReferenceGUID = $fsRefs[$b].SourceObject.DocumentGUID
+                                MissingReferenceURL = $linkURL
+                                Issue = "POWERENG absolute reference link URL found"
+                            }
+                        }
+                    } `
+                    else
+                    {
+                        $d = [PSCustomObject]@{
+                            FlatSet = $fsPath
+                            FlatSetGUID = $fs.SourceObject.DocumentGUID
+                            FlatSetURL = $url
+                            MissingReferenceGUID = $fsRefs[$b].SourceObject.DocumentGUID
+                            MissingReferenceURL = [String]::Empty
+                            Issue = "Missing URL='' in file"
+                        }
+                    }
+                } `
+                else
+                {
+                    # Nothing, already handled the error.
                 }
             } `
             else
@@ -10268,20 +10334,20 @@ while($a -lt $flatSets.Length)
                     FlatSetGUID = $fs.SourceObject.DocumentGUID
                     FlatSetURL = $url
                     MissingReferenceGUID = $fsRefs[$b].SourceObject.DocumentGUID
-                    MissingReferenceURL = $linkURL
-                    Issue = "Missing URL = '' in file"
+                    MissingReferenceURL = [String]::Empty
+                    Issue = "Wrong SharePoint site flatset link URL found"
                 }
             }
-        }
-        catch
+        } `
+        else
         {
             $d = [PSCustomObject]@{
                 FlatSet = $fsPath
                 FlatSetGUID = $fs.SourceObject.DocumentGUID
                 FlatSetURL = $url
                 MissingReferenceGUID = $fsRefs[$b].SourceObject.DocumentGUID
-                MissingReferenceURL = $linkURL
-                Issue = "Missing flatset reference URL"
+                MissingReferenceURL = [String]::Empty
+                Issue = "POWERENG flatset link URL found"
             }
         }
 
@@ -10289,6 +10355,8 @@ while($a -lt $flatSets.Length)
         {
             $brokenFlatSets.Add($d)
             $brokenFlatSets | ConvertTo-Csv -Delimiter "`t" -NoTypeInformation | scb
+            $tt = $d | ConvertTo-Csv -Delimiter "`t" -NoTypeInformation -NoHeader | Out-String
+            Write-Host $tt
         }
 
         $b++
@@ -10469,4 +10537,219 @@ while($q -lt $missingDocGUIDs.Length)
 
     $q++
 
+}
+
+
+Connect-PnPOnline -Url $siteURL -ClientId "5bd66128-adff-40e5-b9cf-5ed139ccf821" -Thumbprint "8CA9FD2F2B6F57C288E3665CE2BF729A68EF8973" -Tenant "0f3cfa5e-1c7a-46dc-b39c-fbe2e805c797" -AzureEnvironment USGovernmentHigh
+
+# Fed Projects
+$siteURL = "https://wspusa.sharepoint.us/sites/WSPFED-SP-GVS-Projects"
+
+# Fed Proposals..
+$siteURL = "https://wspusa.sharepoint.us/sites/WSPFED-SP-GVS-PursuitCollaboration"
+
+
+function FixMissingFSReferenceLink
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true, Position=0)]
+        [Object] $bfs
+    )
+
+    # First, if the flatset is broken due to a missing flatset reference URL, that means there is no link for a referenced document in the flatset folder.
+    #   Basically, I need to create a link in the folder....
+
+    # Double check that the link is indeed missing.
+    $file = $null
+    try
+    {
+        $file = Get-PnPFile -Url $bfs.FlatSetURL -AsString -ErrorAction Stop
+        LogWarning ("FlatSet: {0}:{1} reference {2} link IS NOT missing." -f @($bfs.FlatSet, $bfs.FlatSetGUID, $bfs.MissingReferenceGUID))
+    }
+    catch
+    {
+        if($Error[0].Exception.Message -notmatch "File Not Found")
+        {
+            LogWarning ("Exception retrieving flatset reference link: {0}:{1} reference {2}.  Exception: {3}" -f @($bfs.FlatSet, $bfs.FlatSetGUID, $bfs.MissingReferenceGUID, $Error[0].Exception.Message))
+            $file = ""   #  Anything but null so we don't try to create a new link...
+        } `
+        else
+        {
+            # All good, the file is missing.
+        }
+    }
+
+    if($null -eq $file)
+    {
+        # This file was indeed missing...
+
+        if($Script:viablePathsDict.ContainsKey($bfs.FlatSetGUID))
+        {
+            $fsVP = $Script:viablePathsDict[$bfs.FlatSetGUID]
+
+            # Make sure we get fresh library info for $fsVP...
+            if($null -ne $fsVP.LibInfo)
+            {
+                $fsVP.LibInfo = $null
+            } `
+            else
+            {
+                # Nothing, don't have to reset $fsVP.LibInfo
+            }
+
+            $null = GetLibraryDataFromObj -obj2Upload $fsVP
+            if(-not $Script:HaveError)
+            {
+                if($null -ne $fsVP.LibInfo)
+                {
+                    if($Script:viablePathsDict.ContainsKey($bfs.MissingReferenceGUID))
+                    {
+                        $vp = $Script:viablePathsDict[$bfs.MissingReferenceGUID]
+
+                        # Make sure we get fresh library info for $vp...
+                        if($null -ne $vp.LibInfo)
+                        {
+                            $vp.LibInfo = $null
+                        } `
+                        else
+                        {
+                            # Nothing, don't have to reset $vp.LibInfo
+                        }
+                        $linkParams = BuildDocumentProperties -obj2Upload $vp
+
+                        if(-not $Script:HaveError)
+                        {
+                            # Test to see if the original referenced file exists.
+                            $refDocFile = $null
+                            try
+                            {
+                                $refDocFile = Get-PnPFile -Url $vp.LibInfo.FileURL -ErrorAction Stop
+                            }
+                            catch
+                            {
+                                LogWarning ("Missing flatset {0} reference original document: {1}:{2}" -f @($bfs.FlatSetGUID, $vp.SourceObject.DocumentGUID, $vp.LibInfo.FileURL))
+                                $Error.Clear()
+                            }
+
+                            if($null -ne $refDocFile)
+                            {
+                                # The original referenced file exists, do create a link to it.
+                                $linkName = $vp.SPData.FileName
+                                $linkURL = $vp.LibInfo.FileURL
+                                $folderURL = $fsVP.LibInfo.FileURL
+                                CreateLinkInFolder -linkName $linkName -linkURL $linkURL -folderURL $folderURL -linkParams $linkParams
+                            } `
+                            else
+                            {
+                                # Nothing, already logged an error
+                            }
+                        } `
+                        else
+                        {
+                            # Nothing, already logged an error.
+                        }
+                    } `
+                    else
+                    {
+                        LogWarning ("viablePathsDict does not contain an object for MissingReferenceGUID: {0}" -f @($bfs.MissingReferenceGUID))
+                    }
+                } `
+                else
+                {
+                    LogWarning ("Failed to retrieve LibInfo for {0}:{1}" -f @($fsVP.SourceObject.DocumentGUID, $fsVP.SourceObject.FullPath))
+                }
+            } `
+            else
+            {
+                # Nothing, already logged an error
+            }
+        } `
+        else
+        {
+            LogWarning ("viablePathsDict does not contain an object for FlatSetGUID: {0}" -f @($bfs.FlatSetGUID))
+        }
+    } `
+    else
+    {
+        # Nothing, already logged an error.
+    }
+}
+
+function FixBrokenFSLink
+{
+
+    $a = 0
+    $Error.Clear()
+    while($a -lt $brokenFlatSets.Count)
+    {
+        $Error.Clear()
+        $Script:HaveError = $false
+        $bfs = $brokenFlatSets[$a]
+        switch($bfs.Issue)
+        {
+            { ($_ -eq "Wrong SharePoint site reference link URL found") -or ($_ -eq "POWERENG absolute reference link URL found") }
+            {
+                $file = $null
+                try
+                {
+                    $file = Get-PnPFile -Url $bfs.FlatSetURL -AsListItem -ErrorAction Stop
+                }
+                catch
+                {
+                    if($Error[0].Exception.Message -notmatch "File Not Found")
+                    {
+                        LogWarning ("Exception retrieving flatset reference link: {0}:{1} reference {2}.  Exception: {3}" -f @($bfs.FlatSet, $bfs.FlatSetGUID, $bfs.MissingReferenceGUID, $Error[0].Exception.Message))
+                        $file = ""   #  Anything but null so we don't try to create a new link...
+                    } `
+                    else
+                    {
+                        # All good, the file is missing, so I don't have to delete it first.
+                    }
+                }
+
+                if($null -ne $file)
+                {
+                    if($file.FieldValues.ContainsKey("FileRef"))
+                    {
+                        try
+                        {
+                            Remove-PnpFile -ServerRelativeUrl $file.FieldValues["FileRef"] -Force -ErrorAction Stop
+                            $file = $null   # Flag it's ok to make a new link
+                        }
+                        catch
+                        {
+                            LogWarning ("Failed to remove {0}." -f @($bfs.FlatSetURL))
+                        }
+                    } `
+                    else
+                    {
+                        LogWarning ("{0} is missing FileRef." -f @($bfs.FlatSetURL))
+                    }
+                } `
+                else
+                {
+                    # Nothing, don't have to delete a non-existing file.
+                }
+
+                # Safe to create a new link?
+                if($null -eq $file)
+                {
+                    # Now, treat it like a missing flatset reference URL
+                    FixMissingFSReferenceLink -bfs $bfs
+                } `
+                else
+                {
+                    # Nothing, not safe to create a new link...
+                }
+            }
+
+            "Missing flatset reference URL"
+            {
+                FixMissingFSReferenceLink -bfs $brokenFlatSets[$a]
+            }
+        }
+
+        $a++
+    }
 }
