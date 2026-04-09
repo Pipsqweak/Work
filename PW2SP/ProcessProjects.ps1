@@ -238,11 +238,18 @@ do
         $Error.Clear()
         $Script:HaveError = $false
         $Script:connDataJSONFile = "C:\Users\kbriney-adm\PSScripts\Repos\PEI-IT-OPS\PW2SP\connDataProd.json"
-        $Script:pwDatasource = $myProject.pwDatasource
+
+        # $Script:pwProjectPath = $myProject.pwProjectPath
+        # $Script:projectName = $myProject.projectName
+        # $Script:pwDatasource = $myProject.pwDatasource
+
+        $Script:pwProjectPath = "GovtServices projects for deletion"
+        $Script:projectName = "127327"
+        $Script:pwDatasource = "pw_prod_pw01"
+
+
         $Script:pwPassword = "tX2NPfAK92DhM2"
-        $Script:pwProjectPath = $myProject.pwProjectPath
-        $Script:projectName = $myProject.projectName
-        $Script:localPath = "E:\PW2SPProd"
+        $Script:localPath = "E:\PWDelete"
         $Script:TraceLevel = 1
 
         [Switch] $Script:dbgOut = $true

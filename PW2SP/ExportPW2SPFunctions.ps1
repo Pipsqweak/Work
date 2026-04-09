@@ -560,6 +560,93 @@ function Init
     }
 }
 
+function Init4Delete
+{
+    $me = $MyInvocation.MyCommand
+
+    if(-not $Script:initialized)
+    {
+        # Global error indicator.
+        $Script:HaveError = $false
+        $Error.Clear()
+
+        $PSStyle.Progress.View = 'Minimal'
+        $PSStyle.Progress.MaxWidth = [Console]::WindowWidth - 10
+
+        # Changing the script to only connect to ProjectWise if I need to.
+        $Script:connectedToPW = $false
+
+        if(-not $Script:HaveError)
+        {
+            $Script:DoDebugging = $Script:dbgOut.IsPresent
+
+            if(-not [String]::IsNullOrEmpty($Script:localPath))
+            {
+                $Script:LogFolder = "{0}\Logs" -f @($Script:localPath)
+                if(-not [System.IO.Directory]::Exists($Script:LogFolder))
+                {
+                    try
+                    {
+                        $null = New-Item -ItemType Directory -Path $Script:LogFolder -ErrorAction Stop
+                    }
+                    catch
+                    {
+                        Write-Error ("Unable to create log folder: {0}." -f @($Script:LogFolder))
+                        $Script:HaveError = $true
+                    }
+                } `
+                else
+                {
+                    # Nothing, $Script:localPath already exists.
+                }
+            } `
+            else
+            {
+                Write-Host -ForegroundColor Red ("Missing local path.")
+                $Script:HaveError = $true
+            }
+
+            if(-not $Script:HaveError)
+            {
+                # Reset the log file name...
+                $Script:LogFileName = [String]::Empty
+                $Script:LogFileNamePrefix = $Script:projectName
+                $Script:LogFileName = "{0}\{1}-{2}.log" -f @($Script:LogFolder, $Script:LogFileNamePrefix, [DateTime]::Now.ToString("yyyyMMdd-HHmmssfff"))
+            } `
+            else
+            {
+                # Nothing, already displayed an error.
+            }
+
+            LogInfo ("PID: {0}`r`nLog file: {1}" -f @($PID, $Script:LogFileName))
+            if(-not $Script:HaveError)
+            {
+                # From here, we are able to use the log functions...
+
+                $PSStyle.Progress.View = 'Minimal'
+                $PSStyle.Progress.MaxWidth = [Console]::WindowWidth - 10
+                $Error.Clear()
+                LoadConnectionDataFromFile
+
+            } `
+            else
+            {
+                # Nothing, already displayed an error.
+            }
+        } `
+        else
+        {
+            # Nothing, already logged/displayed an error.
+        }
+        $Script:initialized = $true
+    } `
+    else
+    {
+        # Nothing, already initialized.
+    }
+}
+
+
 function InitProposals
 {
     $me = $MyInvocation.MyCommand
@@ -8213,3 +8300,473 @@ function BasicSPOLConnection
 Write-Host -ForegroundColor Yellow "Don't forget to set the following before calling Init."
 Write-Host -ForegroundColor Yellow ("`t`$Script:{0}" -f @(($Script:requiredParams -join "`r`n`t`$Script:")))
 Write-Host -ForegroundColor Yellow ("`r`n`Optional:`r`n`t`$Script:DoExport`r`n`t`$Script:restart`r`n`t`$Script:dbgOut")
+
+function GetDeletePWDocumentStorageLocation
+{
+    [CmdLetBinding()]
+    Param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$false, Position=0)]
+        [ValidateNotNullOrEmpty()]
+        [Object] $td,
+
+        [Parameter(Mandatory=$false, ValueFromPipeline=$false, Position=1)]
+        [Switch] $useVersion
+    )
+
+    if($null -eq $Script:StorageDict)
+    {
+        $Script:StorageDict = GetStorageDictionary
+    }
+
+    $retval = [PSCustomObject]@{
+        SrcPath = [String]::Empty
+        IsTemp = $false
+        Missing = $false
+    }
+    $me = $MyInvocation.MyCommand
+
+    if($Script:StorageDict.ContainsKey($td.StorageName))
+    {
+        if($td.ProjectID -le 99999)
+        {
+            $srcFolder = "{0}\dms{1:D5}" -f @($Script:StorageDict[$td.StorageName], $td.ProjectID)
+        } `
+        else
+        {
+            $srcFolder = "{0}\d{1:D7}" -f @($Script:StorageDict[$td.StorageName], $td.ProjectID)
+        }
+        if([System.IO.Directory]::Exists($srcFolder))
+        {
+            if(-not $useVersion.IsPresent)
+            {
+                $retval.SrcPath = "{0}\{1}" -f @($srcFolder, $td.Name)
+            } `
+            else
+            {
+                $retval.SrcPath = "{0}\ver{1:D5}\{2}" -f @($srcFolder, $td.VersionSequence, $td.Name)
+            }
+
+            if([System.IO.File]::Exists($retval.SrcPath))
+            {
+                $fi = [System.IO.FileInfo]::new($retval.SrcPath)
+            } `
+            else
+            {
+                LogWarning ("Source file {0} not found for {1}:{2} in {3}." -f @($retval.SrcPath, $td.DocumentGUID, $td.FullPath, $me.Name))
+                $retval.SrcPath = [String]::Empty
+            }
+        } `
+        else
+        {
+            LogError ("Source folder {0} not found for {1}:{2} in {3}." -f @($srcFolder, $td.DocumentGUID, $td.FullPath, $me.Name))
+        }
+    } `
+    else
+    {
+        LogError ("Missing storage area {0} for {1} in {2}." -f @($td.StorageName, $td.FullPath, $me.Name))
+    }
+
+    return @( , $retval)
+}
+
+
+function DeleteTest
+{
+    $pwPath = "{0}\{1}" -f @($Script:pwProjectPath, $Script:projectName)
+    try
+    {
+        # Get the associated ProjectWise folder along with all the relevant data "-Slow" ...
+        LogInfo ("Getting PW Folder for {0}..." -f @($pwPath))
+        $pwFolder = Get-PWFolders -FolderPath $pwPath -JustOne -Slow 3> $null
+
+        if($null -ne $pwFolder)
+        {
+            LogInfo "Getting project subfolders..."
+            $null = $pwFolder.GetSubFolders()
+
+            LogInfo "Getting project documents..."
+            $null = $pwFolder.GetTreeDocuments()
+
+            $reverseOrderSubFolders = @($pwFolder.SubFolders | Sort-Object -Descending FullPath)
+            LogInfo ("{0} folders to delete" -f @($reverseOrderSubFolders.Length))
+            $a = 0
+            while((-not $Script:HaveError) -and ($a -lt $reverseOrderSubFolders.Length))
+            {
+                ShowProgress -progressID 1 -activity "Deleting folders" -counter $a -counterMax $reverseOrderSubFolders.Length -statusSuffix $reverseOrderSubFolders[$a].FullPath
+                $folderDocs = $pwFolder.TreeDocuments.Where({ $_.FullPath.StartsWith($reverseOrderSubFolders[$a].FullPath) }) | Sort-Object @{E={ $_.SourceObject.VersionSequence }}
+                LogInfo ("Deleting: {0}`tdocuments: {1}" -f @($reverseOrderSubFolders[$a].FullPath, $folderDocs.Count))
+
+                try
+                {
+                    $result = Remove-PWFolder -InputFolder $reverseOrderSubFolders[$a] -RemoveDocuments -RemoveFolders -ProceedWithDelete -DeletePasses 1 -ErrorAction Stop
+                }
+                catch
+                {
+                    LogWarning ("Failed to remove folder: {0}" -f @($reverseOrderSubFolders[$a].FullPath))
+                    LogWarning $Error[0].Exception.Message
+                }
+                $Script:HaveError = $false
+                $Error.Clear()
+                $a++
+            }
+            ShowProgress -progressID 1 -complete
+        } `
+        else
+        {
+            LogError ("Failed to get ProjectWise project folder for {0} in {1}." -f @($pwPath, $me.Name))
+        }
+    }
+    catch
+    {
+        LogError ("Failed to locate ProjectWise Folder using path: {0}" -f @($pwPath))
+        $retval = $null
+    }
+
+    return @( ,$retval)
+}
+
+function DeleteTest2
+{
+    $pwPath = "{0}\{1}" -f @($Script:pwProjectPath, $Script:projectName)
+    try
+    {
+        # Get the associated ProjectWise folder along with all the relevant data "-Slow" ...
+        LogInfo ("Getting PW Folder for {0}..." -f @($pwPath))
+        $pwFolder = Get-PWFolders -FolderPath $pwPath -JustOne -Slow 3> $null
+
+        if($null -ne $pwFolder)
+        {
+            LogInfo "Getting project subfolders..."
+            $null = $pwFolder.GetSubFolders()
+
+            LogInfo "Getting project documents..."
+            $null = $pwFolder.GetTreeDocuments()
+
+            $reverseOrderFiles = @($pwFolder.TreeDocuments | Sort-Object -Descending FullPath)
+            $a = 0
+            while((-not $Script:HaveError) -and ($a -lt $reverseOrderFiles.Length))
+            {
+                ShowProgress -progressID 1 -activity "Deleting files" -counter $a -counterMax $reverseOrderFiles.Length -statusSuffix $reverseOrderFiles[$a].FullPath
+
+                try
+                {
+                    $result = Remove-PWDocuments -InputDocument $reverseOrderFiles[$a] -ErrorAction Stop
+                    LogInfo ("Deleted {0}" -f @($reverseOrderFiles[$a].FullPath))
+                }
+                catch
+                {
+                    LogWarning ("Failed to remove document: {0}" -f @($reverseOrderFiles[$a].FullPath))
+                    LogWarning $Error[0].Exception.Message
+                    $Error.Clear()
+                }
+                $Script:HaveError = $false
+                $a++
+            }
+            ShowProgress -progressID 1 -complete
+        } `
+        else
+        {
+            LogError ("Failed to get ProjectWise project folder for {0} in {1}." -f @($pwPath, $me.Name))
+        }
+    }
+    catch
+    {
+        LogError ("Failed to locate ProjectWise Folder using path: {0}" -f @($pwPath))
+        $retval = $null
+    }
+
+    return @( ,$retval)
+}
+
+function DeleteTest3
+{
+    $pwPath = "{0}\{1}" -f @($Script:pwProjectPath, $Script:projectName)
+    try
+    {
+        # Get the associated ProjectWise folder along with all the relevant data "-Slow" ...
+        LogInfo ("Getting PW Folder for {0}..." -f @($pwPath))
+        $pwFolder = Get-PWFolders -FolderPath $pwPath -JustOne -Slow 3> $null
+
+        if($null -ne $pwFolder)
+        {
+            LogInfo "Getting project subfolders..."
+            $null = $pwFolder.GetSubFolders()
+
+            LogInfo "Getting project documents..."
+            $null = $pwFolder.GetTreeDocuments()
+
+            $reverseOrderFiles = @($pwFolder.TreeDocuments | Sort-Object -Descending FullPath)
+            LogInfo ("{0} files to delete." -f @($reverseOrderFiles.Length))
+            $a = 0
+            while((-not $Script:HaveError) -and ($a -lt $reverseOrderFiles.Length))
+            {
+                $Error.Clear()
+                LogInfo ("Deleting: {0}" -f @($reverseOrderFiles[$a].FullPath))
+                ShowProgress -progressID 1 -activity "Deleting files" -counter $a -counterMax $reverseOrderFiles.Length -statusSuffix $reverseOrderFiles[$a].FullPath
+
+                try
+                {
+                    $result = Remove-PWDocuments -InputDocument $reverseOrderFiles[$a] -ErrorAction Stop
+                    LogInfo ("Deleted {0}" -f @($reverseOrderFiles[$a].FullPath))
+                }
+                catch
+                {
+                    LogWarning ("Failed to remove document: {0}" -f @($reverseOrderFiles[$a].FullPath))
+                    LogWarning $Error[0].Exception.Message
+                }
+                $Script:HaveError = $false
+                $a++
+            }
+            ShowProgress -progressID 1 -complete
+        } `
+        else
+        {
+            LogError ("Failed to get ProjectWise project folder for {0} in {1}." -f @($pwPath, $me.Name))
+        }
+    }
+    catch
+    {
+        LogError ("Failed to locate ProjectWise Folder using path: {0}" -f @($pwPath))
+        $retval = $null
+    }
+
+    return @( ,$retval)
+}
+
+function DeleteTest4
+{
+    try
+    {
+        # Get the associated ProjectWise folder along with all the relevant data "-Slow" ...
+        LogInfo ("Getting PW Folder for {0}..." -f @($Script:folderGUID))
+        $pwFolder = Get-PWFoldersByGUIDs -FolderGUIDs $Script:folderGUID -ErrorAction Stop
+
+        if($null -ne $pwFolder)
+        {
+            LogInfo "Getting project subfolders..."
+            $null = $pwFolder.GetSubFolders()
+
+            LogInfo "Getting project documents..."
+            $null = $pwFolder.GetTreeDocuments()
+
+            $reverseOrderFiles = @($pwFolder.TreeDocuments | Sort-Object -Descending FullPath)
+            LogInfo ("{0} files to delete." -f @($reverseOrderFiles.Length))
+            $a = 0
+            while((-not $Script:HaveError) -and ($a -lt $reverseOrderFiles.Length))
+            {
+                $Error.Clear()
+                LogInfo ("Deleting: {0}" -f @($reverseOrderFiles[$a].FullPath))
+                ShowProgress -progressID 1 -activity "Deleting files" -counter $a -counterMax $reverseOrderFiles.Length -statusSuffix $reverseOrderFiles[$a].FullPath
+
+                try
+                {
+                    $result = Remove-PWDocuments -InputDocument $reverseOrderFiles[$a] -ErrorAction Stop
+                    LogInfo ("Deleted {0}" -f @($reverseOrderFiles[$a].FullPath))
+                }
+                catch
+                {
+                    LogWarning ("Failed to remove document: {0}" -f @($reverseOrderFiles[$a].FullPath))
+                    LogWarning $Error[0].Exception.Message
+                }
+                $Script:HaveError = $false
+                $a++
+            }
+            ShowProgress -progressID 1 -complete
+        } `
+        else
+        {
+            LogError ("Failed to get ProjectWise project folder for {0} in {1}." -f @($Script:folderGUID, $me.Name))
+        }
+    }
+    catch
+    {
+        LogError ("Failed to locate ProjectWise Folder using folder GUID: {0}" -f @($Script:folderGUID))
+        $retval = $null
+    }
+
+    return @( ,$retval)
+}
+
+function DeleteTest5
+{
+    try
+    {
+        # Get the associated ProjectWise folder along with all the relevant data "-Slow" ...
+        LogInfo ("Getting PW Folder for {0}..." -f @($Script:folderGUID))
+        $pwFolder = Get-PWFoldersByGUIDs -FolderGUIDs $Script:folderGUID -ErrorAction Stop
+
+        if($null -ne $pwFolder)
+        {
+            LogInfo "Getting project subfolders..."
+            $null = $pwFolder.GetSubFolders()
+
+            LogInfo "Getting project documents..."
+            $null = $pwFolder.GetTreeDocuments()
+
+            $reverseOrderSubFolders = @($pwFolder.SubFolders | Sort-Object -Descending FullPath)
+            LogInfo ("{0} folders to delete" -f @($reverseOrderSubFolders.Length))
+            $a = 0
+            while((-not $Script:HaveError) -and ($a -lt $reverseOrderSubFolders.Length))
+            {
+                ShowProgress -progressID 1 -activity "Deleting folders" -counter $a -counterMax $reverseOrderSubFolders.Length -statusSuffix $reverseOrderSubFolders[$a].FullPath
+                $folderDocs = $pwFolder.TreeDocuments.Where({ $_.FullPath.StartsWith($reverseOrderSubFolders[$a].FullPath) }) | Sort-Object @{E={ $_.SourceObject.VersionSequence }}
+                LogInfo ("Deleting: {0}`tdocuments: {1}" -f @($reverseOrderSubFolders[$a].FullPath, $folderDocs.Count))
+
+                try
+                {
+                    $result = Remove-PWFolder -InputFolder $reverseOrderSubFolders[$a] -RemoveDocuments -RemoveFolders -ProceedWithDelete -DeletePasses 1 -ErrorAction Stop
+                }
+                catch
+                {
+                    LogWarning ("Failed to remove folder: {0}" -f @($reverseOrderSubFolders[$a].FullPath))
+                    LogWarning $Error[0].Exception.Message
+                }
+                $Script:HaveError = $false
+                $Error.Clear()
+                $a++
+            }
+            ShowProgress -progressID 1 -complete
+        }
+        else
+        {
+            LogError ("Failed to get ProjectWise project folder for {0} in {1}." -f @($Script:folderGUID, $me.Name))
+        }
+    }
+    catch
+    {
+        LogError ("Failed to locate ProjectWise Folder using folder GUID: {0}" -f @($Script:folderGUID))
+        $retval = $null
+    }
+
+    return @( ,$retval)
+}
+function main4Delete
+{
+    $me = $MyInvocation.MyCommand
+    $Script:initialized = $false
+    Init4Delete
+    if(-not $Script:HaveError)
+    {
+        # Only connect to ProjectWise if we are not restarting.
+        #    NOTE:  This pre-supposes that the reporting phase completed successfully
+        # This "short-circuit" expression will fall through if -restart is specified.
+        if(ConnectToPW)
+        {
+            LogInfo ("Connected to ProjectWise")
+
+            if(-not $Script:testRun.IsPresent)
+            {
+                $null = DeleteTest
+            }
+
+            $null = Undo-PWLogin
+        } `
+        else
+        {
+            # Nothing, already displayed an error.
+        }
+    } `
+    else
+    {
+        # Nothing, already displayed an error.
+    }
+}
+
+function main4Delete2
+{
+    $me = $MyInvocation.MyCommand
+    $Script:initialized = $false
+    Init4Delete
+    if(-not $Script:HaveError)
+    {
+        # Only connect to ProjectWise if we are not restarting.
+        #    NOTE:  This pre-supposes that the reporting phase completed successfully
+        # This "short-circuit" expression will fall through if -restart is specified.
+        if(ConnectToPW)
+        {
+            LogInfo ("Connected to ProjectWise")
+
+            if(-not $Script:testRun.IsPresent)
+            {
+                $null = DeleteTest2
+                $null = DeleteTest
+            }
+
+            $null = Undo-PWLogin
+        } `
+        else
+        {
+            # Nothing, already displayed an error.
+        }
+    } `
+    else
+    {
+        # Nothing, already displayed an error.
+    }
+}
+
+function main4Delete3
+{
+    $me = $MyInvocation.MyCommand
+    $Script:initialized = $false
+    Init4Delete
+    if(-not $Script:HaveError)
+    {
+        # Only connect to ProjectWise if we are not restarting.
+        #    NOTE:  This pre-supposes that the reporting phase completed successfully
+        # This "short-circuit" expression will fall through if -restart is specified.
+        if(ConnectToPW)
+        {
+            LogInfo ("Connected to ProjectWise")
+
+            if(-not $Script:testRun.IsPresent)
+            {
+                $null = DeleteTest3
+                $null = DeleteTest
+            }
+
+            $null = Undo-PWLogin
+        } `
+        else
+        {
+            # Nothing, already displayed an error.
+        }
+    } `
+    else
+    {
+        # Nothing, already displayed an error.
+    }
+}
+
+function main4Delete4
+{
+    $me = $MyInvocation.MyCommand
+    $Script:initialized = $false
+    Init4Delete
+    if(-not $Script:HaveError)
+    {
+        # Only connect to ProjectWise if we are not restarting.
+        #    NOTE:  This pre-supposes that the reporting phase completed successfully
+        # This "short-circuit" expression will fall through if -restart is specified.
+        if(ConnectToPW)
+        {
+            LogInfo ("Connected to ProjectWise")
+
+            if(-not $Script:testRun.IsPresent)
+            {
+                $null = DeleteTest4
+                $null = DeleteTest5
+            }
+
+            $null = Undo-PWLogin
+        } `
+        else
+        {
+            # Nothing, already displayed an error.
+        }
+    } `
+    else
+    {
+        # Nothing, already displayed an error.
+    }
+}

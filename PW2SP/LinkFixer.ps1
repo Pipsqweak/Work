@@ -59,6 +59,7 @@ function CollectURLLinks
 
                                         if($urlMatch -match "^URL=(.*)$")
                                         {
+<#
                                             try
                                             {
                                                 $urlObject = [System.Uri] $Matches[1]
@@ -70,7 +71,7 @@ function CollectURLLinks
                                             {
 
                                             }
-
+#>
 
                                             $d.LinkURL = $Matches[1]
                                             Write-Host -ForegroundColor Green ("`t`t`tgetting document properties from: [{0}]" -f @($d.LinkURL))
@@ -275,8 +276,12 @@ CheckSite -topFolder "Closed Projects" -saveFile "E:\PW2SP\linkdata2.json"
 
 CheckSite -topFolder "Proposal Archives" -saveFile "E:\PW2SP\linkdata3.json"
 
-
+# Fed Solutions:
 Connect-PnPOnline -Url $siteURL -ClientId "5bd66128-adff-40e5-b9cf-5ed139ccf821" -Thumbprint "8CA9FD2F2B6F57C288E3665CE2BF729A68EF8973" -Tenant "0f3cfa5e-1c7a-46dc-b39c-fbe2e805c797" -AzureEnvironment USGovernmentHigh
+
+# POWER:
+Connect-PnPOnline -Url $siteURL -ClientId "5c5d34c2-375f-43e6-a534-b2cf942e2812" -Thumbprint "EA671D41B5B422D0A764D8D982CFB05456E97DA6" -Tenant "f07fff05-bf71-4ed8-b274-173ea27956dc"
+
 
 # Fed Projects
 $siteURL = "https://wspusa.sharepoint.us/sites/WSPFED-SP-GVS-Projects"
@@ -289,3 +294,6 @@ $siteURL = "https://wspusa.sharepoint.us/sites/WSPFED-SP-GVSProjects0241907_0001
 
 $topFolder = "Shared Documents"
 $saveFile = "E:\PW2SP\templinkdata1.json"
+
+# POWER Temp projects
+$siteURL = "https://powereng0.sharepoint.com/sites/SP-GVSProjects0241907_0001and0250215_0000"
