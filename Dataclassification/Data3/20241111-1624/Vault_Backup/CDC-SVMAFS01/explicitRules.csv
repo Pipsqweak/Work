@@ -1,5 +1,0 @@
-"Path"	"FileSystemRights"	"AccessControlType"	"IdentityReference"	"InheritanceFlags"	"PropagationFlags"
-"\\?\UNC\CDC-SVMAFS01\Vault_Backup"	"FullControl"	"Allow"	"POWERENG\FS-FileServices-ADM"	"ContainerInherit, ObjectInherit"	"None"
-"\\?\UNC\CDC-SVMAFS01\Vault_Backup"	"ReadAndExecute, Synchronize"	"Allow"	"POWERENG\FS-CDCFS1-Vault_Backup-Share-RO"	"ContainerInherit, ObjectInherit"	"None"
-"\\?\UNC\CDC-SVMAFS01\Vault_Backup"	"Modify, Synchronize"	"Allow"	"POWERENG\FS-CDCFS1-Vault_Backup-Share-RW"	"ContainerInherit, ObjectInherit"	"None"
-"\\?\UNC\CDC-SVMAFS01\Vault_Backup"	"FullControl"	"Allow"	"POWERENG\FS-CDCFS1-Vault_Backup-Share-FC"	"ContainerInherit, ObjectInherit"	"None"

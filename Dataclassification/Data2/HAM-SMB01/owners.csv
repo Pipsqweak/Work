@@ -1,8 +1,0 @@
-"ShareName"	"Owners"
-"\\hamfs1\Facilities"	"POWERENG\FS-HAMFS1-Facilities-Share-FC, POWERENG\FS-HAMFS1-Facilities-Share-RW"
-"\\hamfs1\Line"	"POWERENG\FS-HAMFS1-Line-Share-FC, POWERENG\FS-HAMFS1-Line-Share-RW"
-"\\hamfs1\Projects"	"POWERENG\FS-ALL-Projects-Share-FC, POWERENG\FS-ALL-Projects-Share-RW"
-"\\hamfs1\SAS"	"POWERENG\FS-HAMFS1-SAS-Share-FC, POWERENG\FS-HAMFS1-SAS-Share-RW"
-"\\hamfs1\Shares$"	"Everyone"
-"\\hamfs1\Substation"	"POWERENG\FS-HAMFS1-Substation-Share-FC, POWERENG\FS-HAMFS1-Substation-Share-RW"
-"\\hamfs1\Xchange"	"POWERENG\FS-ALL-Xchange-Share-FC, POWERENG\FS-ALL-Xchange-Share-RW"

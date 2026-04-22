@@ -1,8 +1,0 @@
-{
-    "ResultsFile": "c:\\temp\\pingresults.csv",
-    "PingCount": 50,
-    "IPList": [
-        "10.1.1.1",
-        "20.1.1.1"
-    ]
-}

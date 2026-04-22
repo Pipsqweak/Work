@@ -1,6 +1,0 @@
-"ShareName"	"Owners"
-"\\bdcdpwfs1\PW"	"Everyone, POWERENG\FS-BDCD-PWFS01-PW-Share-FC, POWERENG\FS-BDCD-PWFS01-PW-Share-RW"
-"\\bdcdpwfs1\Shares$"	"Everyone"
-"\\bdcdpwfs1\SQL_DB_Backups"	"POWERENG\FS-BDCDFS2-SQL_DB_Backups-Share-FC, POWERENG\FS-BDCDFS2-SQL_DB_Backups-Share-RW"
-"\\bdcdpwfs1\Vault_Backup"	"POWERENG\FS-BDCDFS2-Vault_Backup-Share-FC, POWERENG\FS-BDCDFS2-Vault_Backup-Share-RW"
-"\\bdcdpwfs1\Vault_Filestore$"	"POWERENG\FS-BDCDFS2-Vault_FileStore$-Share-FC, POWERENG\FS-BDCDFS2-Vault_FileStore$-Share-RW"

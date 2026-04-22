@@ -1,7 +1,0 @@
-"ShareName"	"Owners"
-"\\fmcfs1\Line"	"POWERENG\FS-ALL-Line-Share-FC, POWERENG\FS-ALL-Line-Share-RW"
-"\\fmcfs1\SAS"	"POWERENG\FS-ALL-SAS-Share-FC, POWERENG\FS-ALL-SAS-Share-RW"
-"\\fmcfs1\Shares$"	"Everyone"
-"\\fmcfs1\Substation"	"POWERENG\FS-FMCFS1-Substation-Share-FC, POWERENG\FS-FMCFS1-Substation-Share-RW"
-"\\fmcfs1\UpdateManager"	"POWERENG\FS-ALL-UpdateManager-Share-FC, POWERENG\FS-ALL-UpdateManager-Share-RW"
-"\\fmcfs1\Xchange"	"POWERENG\FS-ALL-Xchange-Share-FC, POWERENG\FS-ALL-Xchange-Share-RW"

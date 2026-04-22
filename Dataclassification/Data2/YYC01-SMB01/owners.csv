@@ -1,8 +1,0 @@
-"ShareName"	"Owners"
-"\\adcfs1\Line"	"POWERENG\FS-ALL-Line-Share-FC, POWERENG\FS-ALL-Line-Share-RW"
-"\\adcfs1\PD_DistMgmt"	"POWERENG\FS-ALL-PD_DistMgmt-Share-FC, POWERENG\FS-ALL-PD_DistMgmt-Share-RW"
-"\\adcfs1\Reference"	"POWERENG\FS-ALL-Reference-Share-FC, POWERENG\FS-ALL-Reference-Share-RW"
-"\\adcfs1\Shares$"	"Everyone"
-"\\adcfs1\Studies"	"POWERENG\FS-ALL-SAS-Share-FC, POWERENG\FS-ALL-SAS-Share-RW"
-"\\adcfs1\UpdateManager"	"POWERENG\FS-ALL-UpdateManager-Share-FC, POWERENG\FS-ALL-UpdateManager-Share-RW"
-"\\adcfs1\Xchange"	"POWERENG\FS-ALL-Xchange-Share-FC, POWERENG\FS-ALL-Xchange-Share-RW"

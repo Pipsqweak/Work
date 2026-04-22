@@ -1,8 +1,0 @@
-"ShareName"	"Owners"
-"\\minfs1\Acadstd"	"POWERENG\FS-MINFS1-Acadstd-Share-FC, POWERENG\FS-MINFS1-Acadstd-Share-RW"
-"\\minfs1\Facilities"	"POWERENG\FS-MINFS1-Facilities-Share-FC, POWERENG\FS-MINFS1-Facilities-Share-RW"
-"\\minfs1\NFD"	"POWERENG\FS-MINFS1-NFD-Share-FC, POWERENG\FS-MINFS1-NFD-Share-RW"
-"\\minfs1\Reference"	"POWERENG\FS-ALL-Reference-Share-FC, POWERENG\FS-ALL-Reference-Share-RW"
-"\\minfs1\Shares$"	"Everyone"
-"\\minfs1\UpdateManager"	"Everyone"
-"\\minfs1\Xchange"	"POWERENG\FS-ALL-Xchange-Share-FC, POWERENG\FS-ALL-Xchange-Share-RW"

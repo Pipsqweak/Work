@@ -1,8 +1,0 @@
-"ShareName"	"Owners"
-"\\arbfs1\Line"	"POWERENG\FS-ARBFS1-Line-Share-FC, POWERENG\FS-ARBFS1-Line-Share-RW"
-"\\arbfs1\PD_DistMgmt"	"POWERENG\FS-ARBFS1-PD_DistMgmt-Share-FC, POWERENG\FS-ARBFS1-PD_DistMgmt-Share-RW"
-"\\arbfs1\SAS"	"POWERENG\FS-ARBFS1-SAS-Share-FC, POWERENG\FS-ARBFS1-SAS-Share-RW"
-"\\arbfs1\Shares$"	"Everyone"
-"\\arbfs1\Substation"	"POWERENG\FS-ARBFS1-Substation-Share-FC, POWERENG\FS-ARBFS1-Substation-Share-RW"
-"\\arbfs1\UpdateManager"	"Everyone"
-"\\arbfs1\Xchange"	"POWERENG\FS-ALL-Xchange-Share-FC, POWERENG\FS-ALL-Xchange-Share-RW"

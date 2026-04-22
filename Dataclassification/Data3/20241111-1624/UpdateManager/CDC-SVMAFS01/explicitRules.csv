@@ -1,5 +1,0 @@
-"Path"	"FileSystemRights"	"AccessControlType"	"IdentityReference"	"InheritanceFlags"	"PropagationFlags"
-"\\?\UNC\CDC-SVMAFS01\UpdateManager"	"FullControl"	"Allow"	"POWERENG\FS-FileServices-ADM"	"ContainerInherit, ObjectInherit"	"None"
-"\\?\UNC\CDC-SVMAFS01\UpdateManager"	"FullControl"	"Allow"	"POWERENG\FS-ALL-UpdateManager-Share-FC"	"ContainerInherit, ObjectInherit"	"None"
-"\\?\UNC\CDC-SVMAFS01\UpdateManager"	"ReadAndExecute, Synchronize"	"Allow"	"POWERENG\FS-ALL-UpdateManager-Share-RO"	"ContainerInherit, ObjectInherit"	"None"
-"\\?\UNC\CDC-SVMAFS01\UpdateManager"	"Modify, Synchronize"	"Allow"	"POWERENG\FS-ALL-UpdateManager-Share-RW"	"ContainerInherit, ObjectInherit"	"None"

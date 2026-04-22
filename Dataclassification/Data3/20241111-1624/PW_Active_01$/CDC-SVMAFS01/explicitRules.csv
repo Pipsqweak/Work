@@ -1,3 +1,0 @@
-"Path"	"FileSystemRights"	"AccessControlType"	"IdentityReference"	"InheritanceFlags"	"PropagationFlags"
-"\\?\UNC\CDC-SVMAFS01\PW_Active_01$\softdist"	"Modify, Synchronize"	"Allow"	"NT AUTHORITY\Authenticated Users"	"ContainerInherit, ObjectInherit"	"None"
-"\\?\UNC\CDC-SVMAFS01\PW_Active_01$\softdist"	"FullControl"	"Allow"	"POWERENG\FS-FileServices-ADM"	"ContainerInherit, ObjectInherit"	"None"
