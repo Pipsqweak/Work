@@ -190,7 +190,7 @@ while($a -lt $storagePorts.Length)
                 $nextShelfPort1 = $shelfPorts | Where-Object { ($_.ModuleId -eq $shelfPort2.ModuleId) -and ($_.RemoteWwn -eq $shelfPort2.Wwn) -and ($_.IsCableConnected) -and ($_.Shelf -eq $nextShelfName) }
 
                 # nextShelfPort2 : the shelf port on the same module connected to the downstream shelf
-                $nextShelfPort2 = $shelfPorts | Where-Object { ($_.ModuleId -eq $nextShelfPort1.ModuleId) -and ($_.IsCableConnected) -and ($_.Shelf -eq $nextShelfName) } -and ($_.RemoteWwn -eq $shelfPort2.Wwn) }
+                $nextShelfPort2 = $shelfPorts | Where-Object { ($_.ModuleId -eq $nextShelfPort1.ModuleId) -and ($_.IsCableConnected) -and ($_.Shelf -eq $nextShelfName) -and ($_.RemoteWwn -eq $shelfPort2.Wwn) }
 
 
                 if($null -ne $nextShelfPort)
@@ -212,7 +212,7 @@ while($a -lt $storagePorts.Length)
                             $shelf = $nextShelf
                         }
                     }
-                }
+                } `
                 else
                 {
                     # End of the stack... Controller 2 will be here.
